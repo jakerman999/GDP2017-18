@@ -40,6 +40,7 @@ const std::string cDebugRenderer::DEFAULT_FRAG_SHADER_SOURCE = "\
         {                                           \n \
             gl_FragColor.rgb = vertColour.rgb;      \n \
             gl_FragColor.a = vertColour.a;          \n \
+            gl_FragColor = vec4(1.0,1.0,1.0,1.0);  \n \
         }\n	";
 
 
@@ -335,6 +336,34 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 	{
 		this->m_vecTriangles.push_back(*itTri);
 	}
+
+	// Copy the new vertex information to the vertex buffer
+	// Copy the local vertex array into the GPUs memory
+	unsigned int numberOfBytesToCopy =
+		this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw *
+		sizeof(sVertex_xyzw_rgba);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->m_VAOBufferInfoTriangles.vertex_buffer_ID);
+	glBufferSubData(GL_ARRAY_BUFFER,
+		0,
+		numberOfBytesToCopy,
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//	numberOfBytesToCopy,
+	//	this->m_VAOBufferInfoTriangles.pLocalVertexArray,
+	//	GL_DYNAMIC_DRAW);
+	
+	//	void* pGPUBuff = glMapBuffer( this->m_VAOBufferInfoTriangles.vertex_buffer_ID,
+     //                             GL_COPY_WRITE_BUFFER);
+	//memcpy(
+	//	this->m_VAOBufferInfoTriangles.pLocalVertexArray,
+	//	pGPUBuff,
+	//	numberOfBytesToCopy);
+
+
+
+//	glUnmapBuffer(this->m_VAOBufferInfoTriangles.vertex_buffer_ID);
 
 	return;
 }

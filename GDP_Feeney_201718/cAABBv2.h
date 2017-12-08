@@ -82,7 +82,7 @@ public:
 private:
 	// We don't want to set this after creation,
 	//	so is private (if public, we might set it by mistake)
-	unsigned long long m_ID;
+	unsigned long long m_ID;		// unsigned 64 bit
 
 
 };

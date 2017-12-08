@@ -242,9 +242,9 @@ int main(void)
 	{
 		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
 	}
-	::g_pDebugRenderer->addTriangle( glm::vec3( -500.0f, 0.0f, 0.0f ), 
-									 glm::vec3( 500.0f, 0.0f, 0.0f ),
-									 glm::vec3( 0.0f, 500.0f, 0.0f), 
+	::g_pDebugRenderer->addTriangle( glm::vec3( -1000.0f, 0.0f, 0.0f ), 
+									 glm::vec3( 1000.0f, 0.0f, 0.0f ),
+									 glm::vec3( 0.0f, 1000.0f, 0.0f), 
 									 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
 
 	// Load models
@@ -426,25 +426,25 @@ int main(void)
 
 
 
-		//DEBUG sphere
-		DrawDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ),
-						 glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), 1.0f );
-		// Light at 95% 
-		float scaleAt99 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.99f );	
-		DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
-						 glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f ), scaleAt99 );
-		// Light at 50% 
-		float scaleAt50 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.5f );	
-		DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
-						 glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt50 );
-		// Light at 25% 
-		float scaleAt25 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.25f );	
-		DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
-						 glm::vec4( 1.0f, 0.0f, 0.0f, 1.0f ), scaleAt25 );
-		// Light at 1% 
-		float scaleAt01 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.01f );	
-		DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
-						 glm::vec4( 0.0f, 1.0f, 1.0f, 1.0f ), scaleAt01 );
+	//DEBUG sphere
+	DrawDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ),
+					 glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), 1.0f );
+	// Light at 95% 
+	float scaleAt99 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.99f );	
+	DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
+					 glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f ), scaleAt99 );
+	// Light at 50% 
+	float scaleAt50 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.5f );	
+	DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
+					 glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt50 );
+	// Light at 25% 
+	float scaleAt25 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.25f );	
+	DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
+					 glm::vec4( 1.0f, 0.0f, 0.0f, 1.0f ), scaleAt25 );
+	// Light at 1% 
+	float scaleAt01 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.01f );	
+	DrawDebugSphere( ::g_pLightManager->vecLights[0].position,
+					 glm::vec4( 0.0f, 1.0f, 1.0f, 1.0f ), scaleAt01 );
 
 
 
