@@ -242,10 +242,10 @@ int main(void)
 	{
 		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
 	}
-	::g_pDebugRenderer->addTriangle( glm::vec3( -1000.0f, 0.0f, 0.0f ), 
-									 glm::vec3( 1000.0f, 0.0f, 0.0f ),
-									 glm::vec3( 0.0f, 1000.0f, 0.0f), 
-									 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+	//::g_pDebugRenderer->addTriangle( glm::vec3( -1000.0f, 0.0f, 0.0f ), 
+	//								 glm::vec3( 1000.0f, 0.0f, 0.0f ),
+	//								 glm::vec3( 0.0f, 1000.0f, 0.0f), 
+	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
 	//for (int count = 0; count != 100; count++)
 	//{
 	//	::g_pDebugRenderer->addTriangle(
@@ -321,9 +321,11 @@ int main(void)
 //	::g_pTextureManager->Create2DTextureFromBMPFile("Seamless_ground_sand_texture.bmp", true);
 	::g_pTextureManager->Create2DTextureFromBMPFile("barberton_etm_2001121_lrg.bmp", true);
 	      
-
+///***********************************************************
 	// About the generate the AABB for the terrain
 	::g_terrainAABBBroadPhase = new cAABBBroadPhase();
+	// Perhaps you'd like something more sophisticated than this...
+	::g_terrainAABBBroadPhase->pDebugRenderer = ::g_pDebugRenderer;
 	// 
 	cMesh terrainMesh; 
 	if (::g_pVAOManager->lookupMeshFromName("MeshLabTerrain_xyz_n_uv", terrainMesh))
@@ -333,7 +335,7 @@ int main(void)
 		::g_terrainAABBBroadPhase->genAABBGridFromMesh(terrainMesh);
 
 	}//if (::g_pVAOManager->lookupMeshFromName
-
+///***********************************************************
 
 
 	glEnable( GL_DEPTH );
@@ -462,7 +464,22 @@ int main(void)
 
 
 
-		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection);
+	//for (int count = 0; count != 100; count++)
+	//{
+	//	::g_pDebugRenderer->addTriangle(
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f),
+	//			getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(1.0f, 1.0f, 1.0f), false);
+	//}//for (int count
+
+	::g_pDebugRenderer->RenderDebugObjects(matView, matProjection);
 
 		//
 

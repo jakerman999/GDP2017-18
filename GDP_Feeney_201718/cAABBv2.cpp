@@ -105,17 +105,17 @@ bool cAABBv2::isTriListInAABB(cTriForTesttessellated testTriData, bool bStoreIfI
 {
 	// TODO: Generate tesselated triangles (to ensure they are inside the AABBs)
 	
-	for (int index = 0; index != testTriData.vec_tessellatedTriangles.size(); index++)
-	{	
-		// Note, we DON'T want to store the TESSELLATED triangles...
-		if (this->isTriInAABB(testTriData.vec_tessellatedTriangles[index], false))
-		{
-			// At least one triangle is inside this AABB, so store the NON tessellated
-			//	triangle (the larger one)
-			this->vecTriangles.push_back(testTriData.triFromModel);
-			return true;
-		}
-	}
+//for (int index = 0; index != testTriData.vec_tessellatedTriangles.size(); index++)
+//{	
+//	// Note, we DON'T want to store the TESSELLATED triangles...
+//	if (this->isTriInAABB(testTriData.vec_tessellatedTriangles[index], false))
+//	{
+//		// At least one triangle is inside this AABB, so store the NON tessellated
+//		//	triangle (the larger one)
+//		this->vecTriangles.push_back(testTriData.triFromModel);
+//		return true;
+//	}
+//}
 	// If we get here, then NONE of the triangles are inside
 	return false;
 }
@@ -123,49 +123,49 @@ bool cAABBv2::isTriListInAABB(cTriForTesttessellated testTriData, bool bStoreIfI
 
 // Simple SINGLE triangle test. 
 // Called by isTriListInAABB()
-bool cAABBv2::isTriInAABB(sTriAABB testTriData, bool bStoreIfInside /*=false*/)
-{
-	bool isInside = false;
-
-	// Trivial test is if the vertices are inside the AABB. 
-	// If the triangle is "much" smaller than the AABB, this is "good enough". 
-	// However, it's still very possible for an triangle to overlap the AABB, 
-	//	but the VERTICES aren't inside; think: "large" triangle, small AABB.
-	if (this->isPointInAABB(testTriData.verts[0])) 
-	{ 
-		isInside = true;
-	}
-	else if ( this->isPointInAABB(testTriData.verts[1]))	// else if for early exit
-	{ 
-		isInside = true;
-	}
-	else if ( this->isPointInAABB(testTriData.verts[2]))	// else if for early exit
-	{ 
-		isInside = true;
-	}
-	// At this point, the 'trivial' cases are done. 
-	// But the triangle COULD still be intersection with the AABB. 
-	// 
-	// You could also do a triangle-to-AABB test just in case...
-	// - Ericson has some (partial) code in his book
-	// - Tomas Akenine-Möller has:
-	//		- a paper: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.2.4803&rep=rep1&type=pdf
-	//		- and code: http://fileadmin.cs.lth.se/cs/personal/tomas_akenine-moller/code/tribox3.txt 
-	/// (A key concept of the paper is that if you can find a plane that separates 
-	//	 the triangle from the AABB, then they AREN'T intersecting.)
-	//else if (doMoreComplicatedTriangleAABBIntersectionTest())
-	//{
-	//	isInside = true;
-	//}
-
-	if (isInside && bStoreIfInside)
-	{	// You might want to generate an ID for the triangles
-		//	to see if you have duplicates...
-		this->vecTriangles.push_back(testTriData);
-	}
-	//
-	return isInside;
-}
+//bool cAABBv2::isTriInAABB(sTriAABB testTriData, bool bStoreIfInside /*=false*/)
+//{
+//	bool isInside = false;
+//
+//	// Trivial test is if the vertices are inside the AABB. 
+//	// If the triangle is "much" smaller than the AABB, this is "good enough". 
+//	// However, it's still very possible for an triangle to overlap the AABB, 
+//	//	but the VERTICES aren't inside; think: "large" triangle, small AABB.
+//	if (this->isPointInAABB(testTriData.verts[0])) 
+//	{ 
+//		isInside = true;
+//	}
+//	else if ( this->isPointInAABB(testTriData.verts[1]))	// else if for early exit
+//	{ 
+//		isInside = true;
+//	}
+//	else if ( this->isPointInAABB(testTriData.verts[2]))	// else if for early exit
+//	{ 
+//		isInside = true;
+//	}
+//	// At this point, the 'trivial' cases are done. 
+//	// But the triangle COULD still be intersection with the AABB. 
+//	// 
+//	// You could also do a triangle-to-AABB test just in case...
+//	// - Ericson has some (partial) code in his book
+//	// - Tomas Akenine-Möller has:
+//	//		- a paper: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.2.4803&rep=rep1&type=pdf
+//	//		- and code: http://fileadmin.cs.lth.se/cs/personal/tomas_akenine-moller/code/tribox3.txt 
+//	/// (A key concept of the paper is that if you can find a plane that separates 
+//	//	 the triangle from the AABB, then they AREN'T intersecting.)
+//	//else if (doMoreComplicatedTriangleAABBIntersectionTest())
+//	//{
+//	//	isInside = true;
+//	//}
+//
+//	if (isInside && bStoreIfInside)
+//	{	// You might want to generate an ID for the triangles
+//		//	to see if you have duplicates...
+////		this->vecTriangles.push_back(testTriData);
+//	}
+//	//
+//	return isInside;
+//}
 
 // Can be called by anything
 bool cAABBv2::isPointInAABB(glm::vec3 point)

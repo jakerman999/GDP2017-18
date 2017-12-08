@@ -328,6 +328,7 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].a = 1.0f;
 
+
 		// Keep this one? (i.e. is persistent?)
 		if (curTri.bPersist)
 		{

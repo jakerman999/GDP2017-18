@@ -34,21 +34,7 @@ public:
 		return this->m_ID;
 	}
 
-	// The triangle collision information
-	// Because there isn't a useful triangle class already 
-	//	made, here's a specific one for the point-triangle detection
-	//	for the narrow phase
-	struct sTriAABB
-	{
-		sTriAABB()
-		{	// Clear the vertex values to zeros
-			verts[0] = verts[1] = verts[2] = glm::vec3(0.0f);
-		}
-		glm::vec3 verts[3];		// 3 corners of the triangle
-		float largestLength;
-		// TODO: Add sexy math code to do this...
-		void CalcLargestSide(void);
-	};
+
 	// This represents each triangle from the model 
 	//	(and the actual triangles we are using to generate the AABBs)
 	// Could either:
@@ -58,8 +44,13 @@ public:
 	class cTriForTesttessellated
 	{
 	public:
-		sTriAABB triFromModel;
-		std::vector< sTriAABB > vec_tessellatedTriangles;
+//		sTriAABB triFromModel;				// Ply triangle
+		// Check if this triangle (from the model) is LTE one half the AABB size
+		// If it IS, then subdivide and add to this vector.
+		// - Pick the centre of the triangle
+		// - Make 4 triangles from that
+		// - Continue recursively until it's LTE one the AABB size
+//		std::vector< sTriAABB > vec_tessellatedTriangles;
 	};
 
 	// This is called by the AABBBroadPhase
@@ -68,7 +59,7 @@ public:
 	// Simple SINGLE triangle test. 
 	// Called by isTriListInAABB()
 	// If ANY vertex is inside the AABB, then it's true
-	bool isTriInAABB(sTriAABB testTriData, bool bStoreIfInside = false);
+//	bool isTriInAABB(sTriAABB testTriData, bool bStoreIfInside = false);
 
 	// Can be called by anything
 	// If point is between [min, max).
@@ -78,7 +69,7 @@ public:
 	//	in ONE AABB, rather than many.
 	bool isPointInAABB(glm::vec3 point);
 
-	std::vector<sTriAABB> vecTriangles;
+//	std::vector<sTriAABB> vecTriangles;
 private:
 	// We don't want to set this after creation,
 	//	so is private (if public, we might set it by mistake)

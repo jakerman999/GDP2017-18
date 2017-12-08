@@ -48,13 +48,17 @@ uniform sLightDesc myLight[NUMBEROFLIGHTS];
 // Calculate the contribution of a light at a vertex
 vec3 calcLightColour( in vec3 vecNormal, 
                       in vec3 vecWorldPosition, 
-                      in int lightID );
-/*****************************************************/
+                      in int lightID, 
+					  in vec3 matDiffuse, 
+                      in vec4 matSpecular );/*****************************************************/
 
 
 
 void main()
 {	
+	// Set to black...
+	gl_FragColor.rgb = vec3(0.0f, 0.0f, 0.0f);
+	
 	// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
 	if ( bIsDebugWireFrameObject )
 	{
@@ -63,38 +67,47 @@ void main()
 		return;		// Immediate return
 	}
 	
-	// Set to black...
-	gl_FragColor.rgb = vec3(0.0f, 0.0f, 0.0f);
-	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
-	{
-		gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
-	}
-
-	// 
-	gl_FragColor.a = materialDiffuse.a;	// set 4th value to 1 if unsure
-	
-	// Screen is so dim...
-	gl_FragColor *= 1.5f;	// 150% brighter
-	
-
-	// DEBUG: For now, set RG colour to the UV coordinates
-//	gl_FragColor.rg *= 0.00001f;	// Make (essentially) 0.0f	
-//	gl_FragColor.rg += uvX2out.xy; 	
-	
-//uniform sampler2D myAmazingTexture00;
-	gl_FragColor.rgb *= 0.00001f; 	// Make black
-
+	// ****************************************************************/
+	//uniform sampler2D myAmazingTexture00;
 	vec2 theUVCoords = uvX2out.xy;		// use UV #1 of vertex
 	vec4 texCol00 = texture( myAmazingTexture00, theUVCoords.xy );
 	vec4 texCol01 = texture( myAmazingTexture01, theUVCoords.xy );
 	//... and so on (to how many textures you are using)
 	
 	// use the blend value to combine textures
-	gl_FragColor.rgb += (texCol00.rgb * textureBlend00) + 
-	                    (texCol01.rgb * textureBlend01);	// .. and so on
-	                    //(texCol02.rgb * textureBlend00);	// .. and so on
+	vec3 matDiffuse = vec3(0.0f);
+	matDiffuse.rgb += (texCol00.rgb * textureBlend00) + 
+	                  (texCol01.rgb * textureBlend01);	// .. and so on
+	                       //(texCol02.rgb * textureBlend00);	// .. and so on
+	// We will look at specular or gloss maps later, 
+	// 	but making the specular white is fine
+	vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
+	// ****************************************************************/	
+	
+	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
+	{
+		// Old version, which used 'global' diffuse and specular
+		//gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
+		gl_FragColor.rgb += calcLightColour( vertNormal, 
+		                                     vecWorldPosition, 
+											 index, 
+		                                     matDiffuse, 
+											 matSpecular );
+	}
 
-	//gl_FragColor.rgb += texColour.rgb;
+	// Add the ambient here (AFTER the lighting)
+	// We have materialAmbient, but ambient is often 
+	//	just a percentage ratio of the diffuse
+	float ambientRatio = 0.05f;
+	vec3 ambientContribution = matDiffuse.rgb * ambientRatio;
+	gl_FragColor.rgb += ambientContribution.rgb;
+	
+	// Screen is so dim...
+	gl_FragColor *= 1.5f;	// 150% brighter
+
+//	gl_FragColor.rgb * 0.001f;
+//	gl_FragColor.rgb = matDiffuse.rgb;
+	
 	
 	// Copy object material diffuse to alpha
 	gl_FragColor.a = materialDiffuse.a;
@@ -108,7 +121,9 @@ void main()
 // Calcualte the contribution of a light at a vertex
 vec3 calcLightColour( in vec3 vecNormal, 
                       in vec3 vecWorldPosition, 
-                      in int lightID )
+                      in int lightID, 
+                      in vec3 matDiffuse, 	// ADDED
+                      in vec4 matSpecular )	// ADDED
 {
 	vec3 colour = vec3( 0.0f, 0.0f, 0.0f );
 	
@@ -137,7 +152,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	
 	
 	outDiffuse.rgb = myLight[lightID].diffuse.rgb 		// Light contribution
-	                 * materialDiffuse.rgb				// Material contribution
+	                 * matDiffuse.rgb				// Material contribution
 					 * diffFactor;						// Factor based on direction
 
 // Simple linear attenuation
@@ -163,8 +178,8 @@ vec3 calcLightColour( in vec3 vecNormal,
 	vec3 viewVector = normalize( eyePosition - vecWorldPosition );
 	vec3 vecLightReflection = reflect( normalize(lightVector), vecNormal );
 	
-	float specularShininess = materialSpecular.w;	// 64.0f
-	vec3 specMatColour = materialSpecular.rgb;		// vec3(1.0f, 1.0f, 1.0f);
+	float specularShininess = matSpecular.w;	// 64.0f
+	vec3 specMatColour = matSpecular.rgb;		// vec3(1.0f, 1.0f, 1.0f);
 	
 	outSpecular.rgb = pow( max(0.0f, dot(viewVector,vecLightReflection)), 
 	                  specularShininess)
@@ -172,6 +187,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 				      * myLight[lightID].specular.rgb;// // myLightSpecular;
 				   
 	outSpecular *= attenuation;
+	
 	
 // For now, to simplify, eliminate the specular
 //	colour = outDiffuse + outSpecular;
