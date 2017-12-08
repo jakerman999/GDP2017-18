@@ -246,6 +246,20 @@ int main(void)
 									 glm::vec3( 1000.0f, 0.0f, 0.0f ),
 									 glm::vec3( 0.0f, 1000.0f, 0.0f), 
 									 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+	//for (int count = 0; count != 100; count++)
+	//{
+	//	::g_pDebugRenderer->addTriangle(
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+	//}//for (int count
 
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();

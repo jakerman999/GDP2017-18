@@ -40,7 +40,6 @@ const std::string cDebugRenderer::DEFAULT_FRAG_SHADER_SOURCE = "\
         {                                           \n \
             gl_FragColor.rgb = vertColour.rgb;      \n \
             gl_FragColor.a = vertColour.a;          \n \
-            gl_FragColor = vec4(1.0,1.0,1.0,1.0);  \n \
         }\n	";
 
 
@@ -85,7 +84,7 @@ bool cDebugRenderer::initialize(std::string &error)
 	// Get the uniform variable locations 
 	glUseProgram(this->m_pShaderProg->shaderProgramID);
 	this->m_pShaderProg->matModelUniformLoc = glGetUniformLocation(this->m_pShaderProg->shaderProgramID, "mModel");
-	this->m_pShaderProg->matViewUniformLoc = glGetUniformLocation(this->m_pShaderProg->matViewUniformLoc, "mView");
+	this->m_pShaderProg->matViewUniformLoc = glGetUniformLocation(this->m_pShaderProg->shaderProgramID, "mView");
 	this->m_pShaderProg->matProjectionUniformLoc = glGetUniformLocation(this->m_pShaderProg->shaderProgramID, "mProjection");
 	glUseProgram(0);
 
@@ -129,11 +128,13 @@ bool cDebugRenderer::resizeBufferForTriangles(unsigned int newNumberOfTriangles)
 	this->m_VAOBufferInfoTriangles.bufferSizeBytes = 0;
 	this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw = 0;
 	this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw = 0;
+	this->m_VAOBufferInfoTriangles.shaderID = this->m_pShaderProg->shaderProgramID;
 	return this->m_InitBuffer(this->m_VAOBufferInfoTriangles);
 }
 
 bool cDebugRenderer::m_InitBuffer(sVAOInfoDebug &VAOInfo)
 {
+	glUseProgram(this->m_pShaderProg->shaderProgramID);
 
 	// Create a Vertex Array Object (VAO)
 	glGenVertexArrays( 1, &(VAOInfo.VAO_ID) );
@@ -197,9 +198,11 @@ bool cDebugRenderer::m_InitBuffer(sVAOInfoDebug &VAOInfo)
 
 	// Unbind (release) everything
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+//	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 	glDisableVertexAttribArray(vcol_location);
 	glDisableVertexAttribArray(vpos_location);
+
+	glUseProgram(0);
 
 	return true;
 }
@@ -257,6 +260,9 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);		// Test for z and store in z buffer
 
+	//glEnable(GL_PROGRAM_POINT_SIZE);
+	//glPointSize(50.0f);
+
 	// Draw triangles
 	glBindVertexArray( this->m_VAOBufferInfoTriangles.VAO_ID );
 	glDrawArrays( GL_TRIANGLES, 
@@ -299,27 +305,27 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].y = curTri.v[0].y;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].z = curTri.v[0].z;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].w = 1.0f;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].r = curTri.v[0].r;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].g = curTri.v[0].g;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].b = curTri.v[0].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].r = curTri.colour.r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].g = curTri.colour.g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].a = 1.0f;
 
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].x = curTri.v[1].x;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].y = curTri.v[1].y;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].z = curTri.v[1].z;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].w = 1.0f;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].r = curTri.v[1].r;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].g = curTri.v[1].g;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].b = curTri.v[1].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].r = curTri.colour.r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].g = curTri.colour.g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].a = 1.0f;
 
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].x = curTri.v[2].x;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].y = curTri.v[2].y;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].z = curTri.v[2].z;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].w = 1.0f;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].r = curTri.v[2].r;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].g = curTri.v[2].g;
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.v[2].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].r = curTri.colour.r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].g = curTri.colour.g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].a = 1.0f;
 
 		// Keep this one? (i.e. is persistent?)
@@ -343,12 +349,22 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 		this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw *
 		sizeof(sVertex_xyzw_rgba);
 
+	GLenum err = glGetError();
+
 	glBindBuffer(GL_ARRAY_BUFFER, this->m_VAOBufferInfoTriangles.vertex_buffer_ID);
-	glBufferSubData(GL_ARRAY_BUFFER,
-		0,
+	glBufferData(GL_ARRAY_BUFFER,
 		numberOfBytesToCopy,
-		this->m_VAOBufferInfoTriangles.pLocalVertexArray);
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray,
+		GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	err = glGetError();
+	std::string error;
+	std::string errDetails;
+	if (err != GL_NO_ERROR)
+	{
+		error = decodeGLErrorFromEnum(err, errDetails);
+	}
 
 	//	numberOfBytesToCopy,
 	//	this->m_VAOBufferInfoTriangles.pLocalVertexArray,

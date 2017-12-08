@@ -120,6 +120,9 @@
     <ClCompile Include="cDebugRenderer.cpp">
       <Filter>DebugRenderer</Filter>
     </ClCompile>
+    <ClCompile Include="generalGLStuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">

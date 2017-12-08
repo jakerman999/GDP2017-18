@@ -30,4 +30,6 @@ extern cShaderManager*			g_pShaderManager;	// (theMain.cpp)
 extern cBasicTextureManager*	g_pTextureManager;	// (theMain.cpp)
 extern cDebugRenderer*			g_pDebugRenderer;	// (theMain.cpp)
 
+std::string decodeGLErrorFromEnum(GLenum error, std::string &details);
+
 #endif

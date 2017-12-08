@@ -173,6 +173,7 @@
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cTriangle.cpp" />
     <ClCompile Include="cVAOMeshManager.cpp" />
+    <ClCompile Include="generalGLStuff.cpp" />
     <ClCompile Include="GLFW_keyboardCallback.cpp" />
     <ClCompile Include="ModelUtilities.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
