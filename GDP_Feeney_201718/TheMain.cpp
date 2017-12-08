@@ -242,9 +242,9 @@ int main(void)
 	{
 		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
 	}
-	::g_pDebugRenderer->addTriangle( glm::vec3( -10.0f, 0.0f, 0.0f ), 
-									 glm::vec3( 10.0f, 0.0f, 0.0f ),
-									 glm::vec3( 0.0f, 10.0f, 0.0f), 
+	::g_pDebugRenderer->addTriangle( glm::vec3( -500.0f, 0.0f, 0.0f ), 
+									 glm::vec3( 500.0f, 0.0f, 0.0f ),
+									 glm::vec3( 0.0f, 500.0f, 0.0f), 
 									 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
 
 	// Load models

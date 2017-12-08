@@ -20,7 +20,8 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
-	const float CAMERASPEED = 10.0f;
+//	const float CAMERASPEED = 10.0f;
+	const float CAMERASPEED = 100.0f;
 	switch (key)
 	{
 	case GLFW_KEY_N:

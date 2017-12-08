@@ -88,10 +88,50 @@ bool cDebugRenderer::initialize(std::string &error)
 	this->m_pShaderProg->matProjectionUniformLoc = glGetUniformLocation(this->m_pShaderProg->shaderProgramID, "mProjection");
 	glUseProgram(0);
 
+	// Set up the VBOs...
+	if ( ! this->resizeBufferForTriangles(cDebugRenderer::DEFAULTNUMBEROFTRIANGLES) )
+	{
+		return false;
+	}
+	if ( ! this->resizeBufferForLines(cDebugRenderer::DEFAULTNUMBEROFLINES) )
+	{
+		return false;
+	}
+	if ( ! this->resizeBufferForPoints(cDebugRenderer::DEFAULTNUMBEROFPOINTS) )
+	{
+		return false;
+	}
+
 	return true;
 }
 
-bool cDebugRenderer::m_InitBuffer(unsigned int numberOfVertices, sVAOInfo &VAOInfo)
+bool cDebugRenderer::resizeBufferForPoints(unsigned int newNumberOfPoints)
+{
+	//TODO
+	return true;
+}
+
+bool cDebugRenderer::resizeBufferForLines(unsigned int newNumberOfLines)
+{
+	//TODO
+	return true;
+}
+
+bool cDebugRenderer::resizeBufferForTriangles(unsigned int newNumberOfTriangles)
+{
+	// ***********************************************************
+	// TODO: Erase the old array and buffer if present
+	// ***********************************************************
+
+	this->m_VAOBufferInfoTriangles.bufferSizeObjects = newNumberOfTriangles;
+	this->m_VAOBufferInfoTriangles.bufferSizeVertices = newNumberOfTriangles * 3;
+	this->m_VAOBufferInfoTriangles.bufferSizeBytes = 0;
+	this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw = 0;
+	this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw = 0;
+	return this->m_InitBuffer(this->m_VAOBufferInfoTriangles);
+}
+
+bool cDebugRenderer::m_InitBuffer(sVAOInfoDebug &VAOInfo)
 {
 
 	// Create a Vertex Array Object (VAO)
@@ -102,21 +142,21 @@ bool cDebugRenderer::m_InitBuffer(unsigned int numberOfVertices, sVAOInfo &VAOIn
     glGenBuffers(1, &(VAOInfo.vertex_buffer_ID) );
     glBindBuffer(GL_ARRAY_BUFFER, VAOInfo.vertex_buffer_ID);
 
-	sVertex_xyz_rgb* pVertices = new sVertex_xyz_rgb[numberOfVertices];
+	VAOInfo.pLocalVertexArray = new sVertex_xyzw_rgba[VAOInfo.bufferSizeVertices];
 	
 	// Clear buffer
-	unsigned int sizeOfBufferInBytes = sizeof(sVertex_xyz_rgb) * numberOfVertices;
-	memset(pVertices, 0, sizeOfBufferInBytes);
-
+	VAOInfo.bufferSizeBytes = sizeof(sVertex_xyzw_rgba) * VAOInfo.bufferSizeVertices;
+	memset(VAOInfo.pLocalVertexArray, 0, VAOInfo.bufferSizeBytes);
 
 	// Copy the local vertex array into the GPUs memory
     glBufferData(GL_ARRAY_BUFFER, 
-				 sizeOfBufferInBytes,		// sizeof(vertices), 
-				 pVertices, 
+				 VAOInfo.bufferSizeBytes,		
+				 VAOInfo.pLocalVertexArray,
 				 GL_DYNAMIC_DRAW);
 
-	// Get rid of local vertex array
-	delete [] pVertices;
+	// **DON'T** Get rid of local vertex array!
+	// (We will need to copy the debug objects into this later!!)
+	//delete [] pVertices;
 
 	// Now set up the vertex layout (for this shader):
 	//
@@ -128,10 +168,10 @@ bool cDebugRenderer::m_InitBuffer(unsigned int numberOfVertices, sVAOInfo &VAOIn
 
 	// Size of the vertex we are using in the array.
 	// This is called the "stride" of the vertices in the vertex buffer
-	const unsigned int VERTEX_SIZE_OR_STRIDE_IN_BYTES = sizeof(sVertex_xyz_rgb);
+	const unsigned int VERTEX_SIZE_OR_STRIDE_IN_BYTES = sizeof(sVertex_xyzw_rgba);
 
     glEnableVertexAttribArray(vpos_location);
-	const unsigned int OFFSET_TO_X_IN_CVERTEX = offsetof( sVertex_xyz_rgb, x );
+	const unsigned int OFFSET_TO_X_IN_CVERTEX = offsetof(sVertex_xyzw_rgba, x );
     glVertexAttribPointer(vpos_location, 
 						  4,					//	in vec4 vPosition; 	
 						  GL_FLOAT, 
@@ -141,7 +181,7 @@ bool cDebugRenderer::m_InitBuffer(unsigned int numberOfVertices, sVAOInfo &VAOIn
 
 
     glEnableVertexAttribArray(vcol_location);
-	const unsigned int OFFSET_TO_R_IN_CVERTEX = offsetof( sVertex_xyz_rgb, r );
+	const unsigned int OFFSET_TO_R_IN_CVERTEX = offsetof(sVertex_xyzw_rgba, r );
     glVertexAttribPointer(vcol_location, 
 						  4,					//	in vec4 vColour; 
 						  GL_FLOAT, 
@@ -189,26 +229,13 @@ cDebugRenderer::~cDebugRenderer()
 }
 
 
-bool cDebugRenderer::resizeBufferForTriangels(unsigned int newNumberOfTriangles)
-{
-	// TODO
-	return false;
-}
-
-bool cDebugRenderer::resizeBufferForLines(unsigned int newNumberOfLines)
-{
-	//TODO
-	return false;
-}
-
-bool cDebugRenderer::resizeBufferForPoints(unsigned int newNumberOfPoints)
-{
-	//TODO
-	return false;
-}
-
 void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection)
 {
+	this->m_copyTrianglesIntoRenderBuffer();
+//	this->m_copyLinesIntoRenderBuffer();
+//	this->m_copyPointsIntoRenderBuffer();
+
+	// Start rendering 
 	glUseProgram(this->m_pShaderProg->shaderProgramID);
 
 	glUniformMatrix4fv( this->m_pShaderProg->matViewUniformLoc, 1, GL_FALSE, 
@@ -229,15 +256,16 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);		// Test for z and store in z buffer
 
-
+	// Draw triangles
 	glBindVertexArray( this->m_VAOBufferInfoTriangles.VAO_ID );
-
 	glDrawArrays( GL_TRIANGLES, 
 				  0,		// 1st vertex
-				  this->m_VAOBufferInfoTriangles.numberOfTriangles * 3 );
-
-	// Unbind that VAO
+				  this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw );
 	glBindVertexArray( 0 );
+
+	// Draw lines
+
+	// Draw points
 
 	glUseProgram(0);
 
@@ -249,6 +277,68 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 
 	return;
 }
+
+void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
+{
+	// Used to keep the "persistent" ones...
+	std::vector<sDebugTri> vecTriTemp;
+
+	this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw = (unsigned int)this->m_vecTriangles.size();
+
+	this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw
+		= this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw * 3;	// Triangles
+
+	unsigned int vertexIndex = 0;	// index of the vertex buffer to copy into 
+	unsigned int triIndex = 0;		// index of the triangle buffer
+	for (; triIndex != this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw; 
+		   triIndex++, vertexIndex++)
+	{
+		sDebugTri& curTri = this->m_vecTriangles[triIndex];
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].x = curTri.v[0].x;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].y = curTri.v[0].y;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].z = curTri.v[0].z;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].w = 1.0f;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].r = curTri.v[0].r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].g = curTri.v[0].g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].b = curTri.v[0].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].a = 1.0f;
+
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].x = curTri.v[1].x;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].y = curTri.v[1].y;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].z = curTri.v[1].z;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].w = 1.0f;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].r = curTri.v[1].r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].g = curTri.v[1].g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].b = curTri.v[1].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+1].a = 1.0f;
+
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].x = curTri.v[2].x;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].y = curTri.v[2].y;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].z = curTri.v[2].z;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].w = 1.0f;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].r = curTri.v[2].r;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].g = curTri.v[2].g;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.v[2].b;
+		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].a = 1.0f;
+
+		// Keep this one? (i.e. is persistent?)
+		if (curTri.bPersist)
+		{
+			vecTriTemp.push_back(curTri);
+		}
+	}//for (; 
+
+
+	// Clear the triangle list and push back the persistent ones
+	this->m_vecTriangles.clear();
+	for (std::vector<sDebugTri>::iterator itTri = vecTriTemp.begin(); itTri != vecTriTemp.end(); itTri++)
+	{
+		this->m_vecTriangles.push_back(*itTri);
+	}
+
+	return;
+}
+
 
 cDebugRenderer::sDebugTri::sDebugTri()
 {
