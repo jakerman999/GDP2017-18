@@ -7,11 +7,11 @@ uniform mat4 mModel;
 uniform mat4 mView;
 uniform mat4 mProjection;
 
-// "Vertex" attribute
-attribute vec4 vCol;		// was: vec3
-attribute vec3 vPos;		// was: vec2 vPos
-attribute vec3 vNorm;		// Vertex normal
-attribute vec4 uvX2;		// Added: UV 1 and 2
+// "Vertex" attribute (now use 'in')
+in vec4 vCol;		// attribute
+in vec3 vPos;		// was: vec2 vPos
+in vec3 vNorm;		// Vertex normal
+in vec4 uvX2;		// Added: UV 1 and 2
 
 out vec4 color;				// was: vec4
 out vec3 vertNormal;		// Also in "world" (no view or projection)

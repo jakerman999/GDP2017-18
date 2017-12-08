@@ -18,24 +18,32 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 		::g_vecGameObjects[1]->position.y += 0.01f;
 	}
 
-	const float CAMERASPEED = 0.1f;
+	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
+
+	const float CAMERASPEED = 10.0f;
 	switch (key)
 	{
 	case GLFW_KEY_N:
-		pTP0->textureBlend[0] -= 0.01f;
-		if (pTP0->textureBlend[0] <= 0.0f)
+		if (pLeftTeapot)
 		{
-			pTP0->textureBlend[0] = 0.0f;
+			pLeftTeapot->textureBlend[0] -= 0.01f;
+			if (pLeftTeapot->textureBlend[0] <= 0.0f)
+			{
+				pLeftTeapot->textureBlend[0] = 0.0f;
+			}
+			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
 		}
-		pTP0->textureBlend[1] = 1.0f - pTP0->textureBlend[0];
 		break;
 	case GLFW_KEY_M:
-		pTP0->textureBlend[0] += 0.01f;
-		if (pTP0->textureBlend[0] > 1.0f)
+		if (pLeftTeapot)
 		{
-			pTP0->textureBlend[0] = 1.0f;
+			pLeftTeapot->textureBlend[0] += 0.01f;
+			if (pLeftTeapot->textureBlend[0] > 1.0f)
+			{
+				pLeftTeapot->textureBlend[0] = 1.0f;
+			}
+			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
 		}
-		pTP0->textureBlend[1] = 1.0f - pTP0->textureBlend[0];
 		break;
 
 	case GLFW_KEY_A:		// Left

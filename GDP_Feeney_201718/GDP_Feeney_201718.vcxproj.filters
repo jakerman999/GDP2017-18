@@ -25,6 +25,18 @@
     <Filter Include="AABB">
       <UniqueIdentifier>{fe207588-c64c-4be5-8d19-f975124f5061}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Persist">
+      <UniqueIdentifier>{df010c60-dbde-4437-9d1b-331dc08f3541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Persist\SQLite">
+      <UniqueIdentifier>{3c72da47-c08e-4f96-b212-44cb9c3dece2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{01d1d4e8-0461-4272-a1e0-9f560d40d1dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DebugRenderer">
+      <UniqueIdentifier>{33773904-c3d0-492e-887a-5420aafdbedb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -90,6 +102,24 @@
     <ClCompile Include="cModelAssetLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Persist\cPersist.cpp">
+      <Filter>Persist</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\cPersistImpFactory.cpp">
+      <Filter>Persist</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\cPersistImpSQLite.cpp">
+      <Filter>Persist</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\SQLite\sqlite3.c">
+      <Filter>Persist\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="cCamera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="cDebugRenderer.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">
@@ -143,10 +173,28 @@
     <ClInclude Include="cAABBBroadPhase.h">
       <Filter>AABB</Filter>
     </ClInclude>
-    <ClInclude Include="cCamera.h">
+    <ClInclude Include="cModelAssetLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cModelAssetLoader.h">
+    <ClInclude Include="Persist\cPersist.h">
+      <Filter>Persist</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\cPersistImpSQLite.h">
+      <Filter>Persist</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\iPersistImp.h">
+      <Filter>Persist</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\SQLite\sqlite3.h">
+      <Filter>Persist\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="cCamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="cDebugRenderer.h">
+      <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="sVAOInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

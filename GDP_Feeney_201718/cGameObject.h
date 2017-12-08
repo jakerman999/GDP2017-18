@@ -39,6 +39,7 @@ class cGameObject
 public:
 	cGameObject();		// constructor
 	~cGameObject();		// destructor
+//	cGameObject(const cGameObject &obj);  // copy constructor
 	glm::vec3 position;
 	glm::vec3 orientation;
 	glm::vec3 orientation2;		// HACK (will elimiate this with)
@@ -66,6 +67,13 @@ public:
 	static const unsigned int NUMTEXTURES = 10;
 	std::string textureNames[NUMTEXTURES];
 	float textureBlend[NUMTEXTURES];			// 0 - 1
+
+	std::string friendlyName;
+	inline unsigned int getUniqueID(void) { return this->m_UniqueID; }
+private:
+	unsigned int m_UniqueID;
+	// Used when creating objects
+	static unsigned int m_nextUniqueID;
 
 };
 

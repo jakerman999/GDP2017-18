@@ -125,13 +125,14 @@ void LoadModelsIntoScene(void)
 		pTempGO->position.x = -4.0f;
 		pTempGO->orientation2.x = glm::radians(-90.0f);
 		pTempGO->meshName = "teapotUV";		// Was teapot
-		pTempGO->diffuseColour.a = 0.65f;
+		pTempGO->diffuseColour.a = 0.75f;
 		pTempGO->textureNames[0] = "Utah_Teapot_xyz_n_uv_Enterprise.bmp";
 		pTempGO->textureNames[1] = "GuysOnSharkUnicorn.bmp";
 		pTempGO->textureBlend[0] = 1.0f;
 		pTempGO->textureBlend[1] = 0.0f;
 		pTempGO->bIsUpdatedInPhysics = false;
-		pTP0 = pTempGO;
+//		pTP0 = pTempGO;
+		pTempGO->friendlyName = LEFTTEAPOTNAME;
 		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
 	}
 	{	// Teapot #2
@@ -139,7 +140,7 @@ void LoadModelsIntoScene(void)
 		pTempGO->scale = 0.1f;
 		pTempGO->position.x = 4.0f;
 		pTempGO->orientation2.x = glm::radians(-90.0f);
-		pTempGO->diffuseColour.a = 0.65f;
+		pTempGO->diffuseColour.a = 0.75f;
 		pTempGO->meshName = "teapotUV";		// Was teapot
 		pTempGO->textureNames[0] = "Utah_Teapot_xyz_n_uv_Enterprise.bmp";
 		pTempGO->textureNames[1] = "GuysOnSharkUnicorn.bmp";

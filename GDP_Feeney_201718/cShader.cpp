@@ -1,4 +1,5 @@
 #include "cShaderManager.h"
+#include <string.h>
 
 cShaderManager::cShader::cShader()
 {
@@ -30,3 +31,26 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 	// Should never reach here...
 	return "UNKNOWN_SHADER_TYPE";
 }
+
+
+void cShaderManager::cShader::parseStringIntoMultiLine(std::string singleLineSouce)
+{
+#define _CRT_SECURE_NO_WARNINGS
+	this->vecSource.clear();
+
+	unsigned int stringsizeX4 = (unsigned int)singleLineSouce.size() * 4;
+	char* charSourceString = new char[stringsizeX4];
+	strcpy(charSourceString, singleLineSouce.c_str());
+
+	char * pCharLine;
+	pCharLine = strtok (charSourceString,"\n");
+	while (pCharLine != NULL)
+	{	// Push back this line
+		this->vecSource.push_back( std::string(pCharLine) );
+		pCharLine = strtok (NULL, "\n");
+	}
+	delete [] charSourceString;
+	return;
+#undef _CRT_SECURE_NO_WARNINGS
+}
+

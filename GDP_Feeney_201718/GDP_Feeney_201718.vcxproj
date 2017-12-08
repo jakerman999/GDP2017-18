@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FirstOpenGL</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>GDP_Feeney_F17</ProjectName>
+    <ProjectName>GDP_Feeney_201718</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -163,6 +163,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="cCamera.cpp" />
+    <ClCompile Include="cDebugRenderer.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="cLightManager.cpp" />
     <ClCompile Include="cMesh.cpp" />
@@ -175,6 +177,10 @@
     <ClCompile Include="ModelUtilities.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Persist\cPersist.cpp" />
+    <ClCompile Include="Persist\cPersistImpFactory.cpp" />
+    <ClCompile Include="Persist\cPersistImpSQLite.cpp" />
+    <ClCompile Include="Persist\SQLite\sqlite3.c" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="src\glad.c" />
@@ -188,6 +194,7 @@
     <ClInclude Include="cAABBBroadPhase.h" />
     <ClInclude Include="cAABBv2.h" />
     <ClInclude Include="cCamera.h" />
+    <ClInclude Include="cDebugRenderer.h" />
     <ClInclude Include="cGameObject.h" />
     <ClInclude Include="cLightManager.h" />
     <ClInclude Include="cMesh.h" />
@@ -195,6 +202,11 @@
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="cTriangle.h" />
     <ClInclude Include="cVAOMeshManager.h" />
+    <ClInclude Include="Persist\cPersist.h" />
+    <ClInclude Include="Persist\cPersistImpSQLite.h" />
+    <ClInclude Include="Persist\iPersistImp.h" />
+    <ClInclude Include="Persist\SQLite\sqlite3.h" />
+    <ClInclude Include="sVAOInfo.h" />
     <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h" />
     <ClInclude Include="globalGameStuff.h" />
     <ClInclude Include="globalOpenGL_GLFW.h" />

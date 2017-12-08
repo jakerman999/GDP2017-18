@@ -14,6 +14,10 @@
 // Remember to #include <vector>...
 extern std::vector< cGameObject* >  g_vecGameObjects;
 
+// Returns 0 or NULL if not found
+cGameObject* findObjectByFriendlyName( std::string friendlyName, std::vector<cGameObject*> &vec_pGameObjects );
+cGameObject* findObjectByUniqueID( unsigned int ID, std::vector<cGameObject*> &vec_pGameObjects );
+
 
 extern glm::vec3 g_cameraXYZ;				// (theMain.cpp)
 extern glm::vec3 g_cameraTarget_XYZ;		// (theMain.cpp)
@@ -27,7 +31,8 @@ void PhysicsStep( double deltaTime );
 extern cModelAssetLoader* g_pModelAssetLoader;	// (ModelUtilies.cpp)
 
 // The teapots
-extern cGameObject* pTP0;
+//extern cGameObject* pTP0;
+const std::string LEFTTEAPOTNAME = "LeftTeapot";		// Now that we have a lookup
 
 
 #endif

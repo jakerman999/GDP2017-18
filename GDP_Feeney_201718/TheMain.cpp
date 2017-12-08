@@ -27,6 +27,7 @@
 #include "cVAOMeshManager.h"
 #include "cModelAssetLoader.h"
 
+
 #include "Physics.h"	// Physics collision detection functions
 
 #include "cLightManager.h"
@@ -51,8 +52,10 @@ cGameObject* g_pTheDebugSphere;
 std::vector< cGameObject* >  g_vecGameObjects;
 
 
-glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 16.1f, 22.4f );	// 5 units "down" z   
-glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, 0.0f, 0.0f );
+glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 9000.0f, 16000.0f );	
+//glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 100.0f, 500.0f );	
+//glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 16.1f, 22.4f );	
+glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, -50.0f, 0.0f );
 
 cVAOMeshManager* g_pVAOManager = 0;		// or NULL, or nullptr
 
@@ -61,6 +64,9 @@ cShaderManager*		g_pShaderManager = 0;		// Heap, new (and delete)
 cLightManager*		g_pLightManager = 0;
 
 cBasicTextureManager*	g_pTextureManager = 0;	
+
+cDebugRenderer*			g_pDebugRenderer = 0;
+
 
 // This contains the AABB grid for the terrain...
 cAABBBroadPhase* g_terrainAABBBroadPhase = 0;
@@ -118,7 +124,11 @@ int main(void)
 
 
     if (!glfwInit())
-        exit(EXIT_FAILURE);
+	{
+		// exit(EXIT_FAILURE);
+		std::cout << "ERROR: Couldn't init GLFW, so we're pretty much stuck; do you have OpenGL??" << std::endl;
+		return -1;
+	}
 
 
 	// Print to the console...(if a console is there)
@@ -200,6 +210,8 @@ int main(void)
 		<< glGetString(GL_VERSION) << std::endl;
 	std::cout << "Shader language version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
+	// General error string, used for a number of items during start up
+	std::string error;
 
 	::g_pShaderManager = new cShaderManager();
 
@@ -225,6 +237,16 @@ int main(void)
 	std::cout << "The shaders comipled and linked OK" << std::endl;
 
 
+	::g_pDebugRenderer = new cDebugRenderer();
+	if ( ! ::g_pDebugRenderer->initialize(error) )
+	{
+		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
+	}
+	::g_pDebugRenderer->addTriangle( glm::vec3( -10.0f, 0.0f, 0.0f ), 
+									 glm::vec3( 10.0f, 0.0f, 0.0f ),
+									 glm::vec3( 0.0f, 10.0f, 0.0f), 
+									 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();
 	::g_pModelAssetLoader->setBasePath("assets/models/");
@@ -234,7 +256,6 @@ int main(void)
 
 	GLint sexyShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
 
-	std::string error;
 	if ( ! Load3DModelsIntoMeshManager(sexyShaderID, ::g_pVAOManager, ::g_pModelAssetLoader, error ) )
 	{
 		std::cout << "Not all models were loaded..." << std::endl;
@@ -311,8 +332,7 @@ int main(void)
     {
         float ratio;
         int width, height;
-//        glm::mat4x4 m, p, mvp;			//  mat4x4 m, p, mvp;
-		glm::mat4x4 p; // , mvp;			//  mat4x4 m, p, mvp;
+		glm::mat4x4 matProjection;			// was "p"
 
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
@@ -331,23 +351,23 @@ int main(void)
 		::g_pLightManager->CopyLightInformationToCurrentShader();
 
 		// Projection and view don't change per scene (maybe)
-		p = glm::perspective( 0.6f,			// FOV
-								ratio,		// Aspect ratio
-								1.0f,			// Near (as big as possible)
-								100000.0f );	// Far (as small as possible)
+		matProjection = glm::perspective( 0.6f,			// FOV
+										  ratio,		// Aspect ratio
+										  1.0f,			// Near (as big as possible)
+										  100000.0f );	// Far (as small as possible)
 
 		// View or "camera" matrix
-		glm::mat4 v = glm::mat4(1.0f);	// identity
+		glm::mat4 matView = glm::mat4(1.0f);	// was "v"
 
 		//glm::vec3 cameraXYZ = glm::vec3( 0.0f, 0.0f, 5.0f );	// 5 units "down" z
-		v = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
-							g_cameraTarget_XYZ,		// "At" or "target" 
-							glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
+		matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
+							   g_cameraTarget_XYZ,		// "At" or "target" 
+							   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
 
 		glUniformMatrix4fv( uniLoc_mView, 1, GL_FALSE, 
-							(const GLfloat*) glm::value_ptr(v) );
+							(const GLfloat*) glm::value_ptr(matView) );
 		glUniformMatrix4fv( uniLoc_mProjection, 1, GL_FALSE, 
-							(const GLfloat*) glm::value_ptr(p) );
+							(const GLfloat*) glm::value_ptr(matProjection) );
 
 		// Set ALL texture units and binding for ENTIRE SCENE (is faster)
 		{
@@ -405,6 +425,7 @@ int main(void)
 
 
 
+
 		//DEBUG sphere
 		DrawDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ),
 						 glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), 1.0f );
@@ -426,6 +447,8 @@ int main(void)
 						 glm::vec4( 0.0f, 1.0f, 1.0f, 1.0f ), scaleAt01 );
 
 
+
+		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection);
 
 		//
 

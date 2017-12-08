@@ -1,8 +1,10 @@
+#include "cVAOMeshManager.h"
+
 #include "globalOpenGL_GLFW.h"	// glad (gl.h) and GLFW
 //#include <glad/glad.h>		// For all the OpenGL calls
 //#include <GLFW/glfw3.h>		// For all the OpenGL calls
 
-#include "cVAOMeshManager.h"
+
 #include "cMesh.h"	// NOTE: This is in the CPP file, NOT the .h file
 
 //// The vertex layout as defined by the shader
@@ -15,7 +17,7 @@
 //    float r, g, b;		// Colour (vec3)
 //	float nx, ny, nz;	// Now with normals!
 //};
-#include "sVertex_xyz_rgba_n_uv2_bt.h"
+#include "sVertex_xyz_rgba_n_uv2_bt.h"			
 
 cVAOMeshManager::cVAOMeshManager()
 {
@@ -280,3 +282,4 @@ bool cVAOMeshManager::lookupVAOFromName( std::string name, sVAOInfo &theVAOInfo 
 
 	return true;
 }
+

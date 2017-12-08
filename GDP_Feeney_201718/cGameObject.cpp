@@ -1,5 +1,9 @@
 #include "cGameObject.h"
 
+
+// Start the unique IDs at 1. Why not?
+/*static*/ unsigned int cGameObject::m_nextUniqueID = 1;
+
 cGameObject::cGameObject()
 {
 	this->scale = 1.0f;	// (not zero)
@@ -29,6 +33,11 @@ cGameObject::cGameObject()
 		this->textureBlend[index] = 0.0f;
 	}
 
+	// Assign unque ID, the increment for next created object
+	// (Note: if you write your own copy constructor, be sure to COPY this
+	//	value, rather than generate a new one - i.e. call the c'tor again)
+	this->m_UniqueID = cGameObject::m_nextUniqueID++;
+
 	return;
 }
 
@@ -36,3 +45,5 @@ cGameObject::~cGameObject()
 {
 	return;
 }
+
+
