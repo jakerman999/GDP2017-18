@@ -155,8 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cAABBBroadPhase.cpp" />
-    <ClCompile Include="cAABBv2.cpp" />
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -182,7 +180,10 @@
     <ClCompile Include="Persist\cPersistImpFactory.cpp" />
     <ClCompile Include="Persist\cPersistImpSQLite.cpp" />
     <ClCompile Include="Persist\SQLite\sqlite3.c" />
-    <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="Physics\AABB_triangles.cpp" />
+    <ClCompile Include="Physics\cAABBBroadPhase.cpp" />
+    <ClCompile Include="Physics\cAABBv2.cpp" />
+    <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
@@ -192,8 +193,6 @@
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cAABBBroadPhase.h" />
-    <ClInclude Include="cAABBv2.h" />
     <ClInclude Include="cCamera.h" />
     <ClInclude Include="cDebugRenderer.h" />
     <ClInclude Include="cGameObject.h" />
@@ -203,16 +202,20 @@
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="cTriangle.h" />
     <ClInclude Include="cVAOMeshManager.h" />
+    <ClInclude Include="iDebugRenderer.h" />
     <ClInclude Include="Persist\cPersist.h" />
     <ClInclude Include="Persist\cPersistImpSQLite.h" />
     <ClInclude Include="Persist\iPersistImp.h" />
     <ClInclude Include="Persist\SQLite\sqlite3.h" />
+    <ClInclude Include="Physics\AABB_triangles.h" />
+    <ClInclude Include="Physics\cAABBBroadPhase.h" />
+    <ClInclude Include="Physics\cAABBv2.h" />
+    <ClInclude Include="Physics\Physics.h" />
     <ClInclude Include="sVAOInfo.h" />
     <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h" />
     <ClInclude Include="globalGameStuff.h" />
     <ClInclude Include="globalOpenGL_GLFW.h" />
     <ClInclude Include="ModelUtilities.h" />
-    <ClInclude Include="Physics.h" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />

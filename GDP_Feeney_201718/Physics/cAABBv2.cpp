@@ -100,25 +100,25 @@ unsigned long long cAABBv2::calculateID(glm::vec3 locationXYZ)
 }
 
 
-// This is called by the AABBBroadPhase
-bool cAABBv2::isTriListInAABB(cTriForTesttessellated testTriData, bool bStoreIfInside /*=false*/)
-{
-	// TODO: Generate tesselated triangles (to ensure they are inside the AABBs)
-	
-//for (int index = 0; index != testTriData.vec_tessellatedTriangles.size(); index++)
-//{	
-//	// Note, we DON'T want to store the TESSELLATED triangles...
-//	if (this->isTriInAABB(testTriData.vec_tessellatedTriangles[index], false))
-//	{
-//		// At least one triangle is inside this AABB, so store the NON tessellated
-//		//	triangle (the larger one)
-//		this->vecTriangles.push_back(testTriData.triFromModel);
-//		return true;
-//	}
+//// This is called by the AABBBroadPhase
+//bool cAABBv2::isTriListInAABB(cTriForTesttessellated testTriData, bool bStoreIfInside /*=false*/)
+//{
+//	// TODO: Generate tesselated triangles (to ensure they are inside the AABBs)
+//	
+////for (int index = 0; index != testTriData.vec_tessellatedTriangles.size(); index++)
+////{	
+////	// Note, we DON'T want to store the TESSELLATED triangles...
+////	if (this->isTriInAABB(testTriData.vec_tessellatedTriangles[index], false))
+////	{
+////		// At least one triangle is inside this AABB, so store the NON tessellated
+////		//	triangle (the larger one)
+////		this->vecTriangles.push_back(testTriData.triFromModel);
+////		return true;
+////	}
+////}
+//	// If we get here, then NONE of the triangles are inside
+//	return false;
 //}
-	// If we get here, then NONE of the triangles are inside
-	return false;
-}
 
 
 // Simple SINGLE triangle test. 

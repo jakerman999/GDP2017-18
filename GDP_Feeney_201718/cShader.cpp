@@ -43,11 +43,15 @@ void cShaderManager::cShader::parseStringIntoMultiLine(std::string singleLineSou
 	strcpy(charSourceString, singleLineSouce.c_str());
 
 	char * pCharLine;
-	pCharLine = strtok (charSourceString,"\n");
+	pCharLine = strtok(charSourceString,"\n");
+	//char *next_token = NULL;  
+	//pCharLine = strtok_s(charSourceString,"\n",&next_token);
+
 	while (pCharLine != NULL)
 	{	// Push back this line
 		this->vecSource.push_back( std::string(pCharLine) );
 		pCharLine = strtok (NULL, "\n");
+		//pCharLine = strtok_s(NULL,"\n",&next_token);
 	}
 	delete [] charSourceString;
 	return;

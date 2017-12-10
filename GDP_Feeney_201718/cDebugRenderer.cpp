@@ -119,9 +119,19 @@ bool cDebugRenderer::resizeBufferForLines(unsigned int newNumberOfLines)
 
 bool cDebugRenderer::resizeBufferForTriangles(unsigned int newNumberOfTriangles)
 {
-	// ***********************************************************
-	// TODO: Erase the old array and buffer if present
-	// ***********************************************************
+	// Erase any exisiting buffers 
+	if ( this->m_VAOBufferInfoTriangles.bIsValid )
+	{	// Assume it exists, so delete it
+		delete [] this->m_VAOBufferInfoTriangles.pLocalVertexArray;
+
+		glDeleteBuffers(1, &(this->m_VAOBufferInfoTriangles.vertex_buffer_ID) );
+
+		glDeleteVertexArrays( 1, &(this->m_VAOBufferInfoTriangles.VAO_ID) );
+	}//if...
+
+	// Add a buffer of 10% to the size, because I'm a pessimist...
+	// (Written this way to avoid a type conversion warning)
+	newNumberOfTriangles = (unsigned int)(newNumberOfTriangles * 1.1);	
 
 	this->m_VAOBufferInfoTriangles.bufferSizeObjects = newNumberOfTriangles;
 	this->m_VAOBufferInfoTriangles.bufferSizeVertices = newNumberOfTriangles * 3;
@@ -191,6 +201,8 @@ bool cDebugRenderer::m_InitBuffer(sVAOInfoDebug &VAOInfo)
                           VERTEX_SIZE_OR_STRIDE_IN_BYTES,		
 						  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_R_IN_CVERTEX)) );	// 64-bit
 	// *******************************************************************
+
+	VAOInfo.bIsValid = true;
 
 	// CRITICAL 
 	// Unbind the VAO first!!!!
@@ -288,9 +300,16 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 {
 	// Used to keep the "persistent" ones...
-	std::vector<sDebugTri> vecTriTemp;
+	std::vector<drTri> vecTriTemp;
 
 	this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw = (unsigned int)this->m_vecTriangles.size();
+
+	// Is the draw buffer big enough? 
+	if ( this->m_VAOBufferInfoTriangles.bufferSizeObjects < this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw )
+	{
+		// Resize the buffer
+		this->resizeBufferForTriangles( this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw );
+	}
 
 	this->m_VAOBufferInfoTriangles.numberOfVerticesToDraw
 		= this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw * 3;	// Triangles
@@ -300,7 +319,7 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 	for (; triIndex != this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw; 
 		   triIndex++, vertexIndex++)
 	{
-		sDebugTri& curTri = this->m_vecTriangles[triIndex];
+		drTri& curTri = this->m_vecTriangles[triIndex];
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].x = curTri.v[0].x;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].y = curTri.v[0].y;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].z = curTri.v[0].z;
@@ -339,7 +358,7 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 
 	// Clear the triangle list and push back the persistent ones
 	this->m_vecTriangles.clear();
-	for (std::vector<sDebugTri>::iterator itTri = vecTriTemp.begin(); itTri != vecTriTemp.end(); itTri++)
+	for (std::vector<drTri>::iterator itTri = vecTriTemp.begin(); itTri != vecTriTemp.end(); itTri++)
 	{
 		this->m_vecTriangles.push_back(*itTri);
 	}
@@ -386,7 +405,7 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 }
 
 
-cDebugRenderer::sDebugTri::sDebugTri()
+iDebugRenderer::sDebugTri::sDebugTri()
 {
 	this->v[0] = glm::vec3(0.0f); this->v[1] = glm::vec3(0.0f); this->v[2] = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
@@ -395,7 +414,7 @@ cDebugRenderer::sDebugTri::sDebugTri()
 	return;
 }
 
-cDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, bool bPersist/*=false*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, bool bPersist/*=false*/)
 {
 	this->v[0] = v1;
 	this->v[1] = v2;
@@ -406,7 +425,7 @@ cDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, g
 	return;
 }
 
-cDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool /*bPersist=false*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool bPersist/*=false*/)
 {
 	this->v[0] = v[0];
 	this->v[1] = v[1];
@@ -417,7 +436,7 @@ cDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool /*bP
 	return;
 }
 
-cDebugRenderer::sDebugLine::sDebugLine()
+iDebugRenderer::sDebugLine::sDebugLine()
 {
 	this->points[0] = glm::vec3(0.0f);
 	this->points[0] = glm::vec3(0.0f);
@@ -427,7 +446,7 @@ cDebugRenderer::sDebugLine::sDebugLine()
 	return;
 }
 
-cDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, bool /*bPersist=false*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, bool /*bPersist=false*/)
 {
 	this->points[0] = start;
 	this->points[1] = end;
@@ -437,7 +456,7 @@ cDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3
 	return;
 }
 
-cDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, bool /*bPersist=false*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, bool /*bPersist=false*/)
 {
 	this->points[0] = points[0];
 	this->points[1] = points[1];
@@ -451,7 +470,7 @@ cDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, bo
 const float cDebugRendererDEFAULT_POINT_SIZE = 1.0f;
 
 
-cDebugRenderer::sDebugPoint::sDebugPoint()
+iDebugRenderer::sDebugPoint::sDebugPoint()
 {
 	this->xyz = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
@@ -461,7 +480,7 @@ cDebugRenderer::sDebugPoint::sDebugPoint()
 	return;
 }
 
-cDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist/*=false*/)
+iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist/*=false*/)
 {
 	this->xyz = xyz;
 	this->colour = colour;
@@ -471,7 +490,7 @@ cDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool b
 	return;
 }
 
-cDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist/*=false*/)
+iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist/*=false*/)
 {
 	this->xyz = xyz;
 	this->colour = colour;
@@ -484,13 +503,13 @@ cDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float 
 
 void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, bool bPersist /*=false*/)
 {
-	cDebugRenderer::sDebugTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, bPersist);
+	drTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, bPersist);
 	this->addTriangle(tempTri);
 	return;
 }
 
 
-void cDebugRenderer::addTriangle(sDebugTri &tri)
+void cDebugRenderer::addTriangle(drTri &tri)
 {
 	this->m_vecTriangles.push_back(tri);
 	return;
@@ -498,12 +517,12 @@ void cDebugRenderer::addTriangle(sDebugTri &tri)
 
 void cDebugRenderer::addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, bool bPersist /*=false*/)
 {
-	cDebugRenderer::sDebugLine tempLine(startXYZ, endXYZ, colour, bPersist);
+	drLine tempLine(startXYZ, endXYZ, colour, bPersist);
 	this->addLine(tempLine);
 	return;
 }
 
-void cDebugRenderer::addLine(sDebugLine &line)
+void cDebugRenderer::addLine(drLine &line)
 {
 	this->m_vecLines.push_back(line);
 	return;
@@ -511,12 +530,12 @@ void cDebugRenderer::addLine(sDebugLine &line)
 
 void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist /*=false*/)
 {
-	cDebugRenderer::sDebugPoint tempPoint(xyz, colour, bPersist);
+	drPoint tempPoint(xyz, colour, bPersist);
 	this->addPoint(tempPoint);
 	return;
 }
 
-void cDebugRenderer::addPoint(sDebugPoint &point)
+void cDebugRenderer::addPoint(drPoint &point)
 {
 	this->m_vecPoints.push_back(point);
 	return;
@@ -524,7 +543,7 @@ void cDebugRenderer::addPoint(sDebugPoint &point)
 
 void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist /*=false*/)
 {
-	cDebugRenderer::sDebugPoint tempPoint(xyz, colour, pointSize, bPersist);
+	drPoint tempPoint(xyz, colour, pointSize, bPersist);
 	this->addPoint(tempPoint);
 	return;
 }

@@ -1,5 +1,6 @@
 #include "cGameObject.h"
 
+#include "iDebugRenderer.h"
 
 // Start the unique IDs at 1. Why not?
 /*static*/ unsigned int cGameObject::m_nextUniqueID = 1;

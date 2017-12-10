@@ -2,11 +2,17 @@
 #define _cDebugRenderer_HG_
 
 // This is a complete debug thing for rendering wireframe lines
+#include "iDebugRenderer.h"
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
 #include "sVAOInfo.h"		
 
+// Note: 
+// - Include this header in the thing(s) that MANAGE the debug render
+//   (init, rendering, etc.)
+// - Include the ++iDebugRenderer++ in the things that need to add things to draw
+//
 
 class cDebugRenderer
 {
@@ -29,44 +35,45 @@ public:
 	// Renders scene
 	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection);
 
-	struct sDebugTri
-	{
-		sDebugTri();
-		sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, bool bPersist=false);
-		sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool bPersist=false);
-		glm::vec3 v[3];		glm::vec3 colour;
-		bool bPersist;	
-		bool bIgnorDepthBuffer;
-	};
-
-	struct sDebugLine
-	{
-		sDebugLine();
-		sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, bool bPersist=false);
-		sDebugLine(glm::vec3 points[2], glm::vec3 colour, bool bPersist=false);
-		glm::vec3 points[2];		glm::vec3 colour;
-		bool bPersist;
-		bool bIgnorDepthBuffer;
-	};
-
-	struct sDebugPoint
-	{
-		sDebugPoint();
-		sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist=false);
-		sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist=false);
-		glm::vec3 xyz;		glm::vec3 colour;	float pointSize;
-		bool bPersist;
-		bool bIgnorDepthBuffer;
-	};
+	// These are now in the iDebugRenderer
+	//struct sDebugTri
+	//{
+	//	sDebugTri();
+	//	sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, bool bPersist=false);
+	//	sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool bPersist=false);
+	//	glm::vec3 v[3];		glm::vec3 colour;
+	//	bool bPersist;	
+	//	bool bIgnorDepthBuffer;
+	//};
+//
+	//struct sDebugLine
+	//{
+	//	sDebugLine();
+	//	sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, bool bPersist=false);
+	//	sDebugLine(glm::vec3 points[2], glm::vec3 colour, bool bPersist=false);
+	//	glm::vec3 points[2];		glm::vec3 colour;
+	//	bool bPersist;
+	//	bool bIgnorDepthBuffer;
+	//};
+//
+	//struct sDebugPoint
+	//{
+	//	sDebugPoint();
+	//	sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist=false);
+	//	sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist=false);
+	//	glm::vec3 xyz;		glm::vec3 colour;	float pointSize;
+	//	bool bPersist;
+	//	bool bIgnorDepthBuffer;
+	//};
 
 	static const float DEFAULT_POINT_SIZE;	// = 1.0f;
 
 	void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, bool bPersist = false);
-	void addTriangle(sDebugTri &tri);
+	void addTriangle(drTri &tri);
 	void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, bool bPersist = false);
-	void addLine(sDebugLine &line);
+	void addLine(drLine &line);
 	void addPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist = false);
-	void addPoint(sDebugPoint &point);
+	void addPoint(drPoint &point);
 	void addPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist = false);
 
 	unsigned int getTriangleBufferSizeInTriangles(void)	{ return this->m_VAOBufferInfoTriangles.bufferSizeObjects; }
@@ -83,13 +90,18 @@ public:
 
 private:
 
+	unsigned int m_RoundUpToNearest100( unsigned int value )
+	{
+		return (value + 100) / 100;
+	}
+
 	std::string m_vertexShaderSource;
 	std::string m_fragmentShaderSource;
 
 	// As objects are added (to draw), they are added to these containers
-	std::vector<sDebugTri> m_vecTriangles;	
-	std::vector<sDebugLine> m_vecLines;		
-	std::vector<sDebugPoint> m_vecPoints;	
+	std::vector<drTri> m_vecTriangles;	
+	std::vector<drLine> m_vecLines;		
+	std::vector<drPoint> m_vecPoints;	
 
 	static const std::string DEFALUT_VERT_SHADER_SOURCE;
 	static const std::string DEFAULT_FRAG_SHADER_SOURCE;
@@ -115,7 +127,8 @@ private:
 			bufferSizeBytes(0),
 			bufferSizeObjects(0),
 			bufferSizeVertices(0),
-			pLocalVertexArray(0)
+			pLocalVertexArray(0),
+			bIsValid(false)
 		{ };
 		unsigned int shaderID;				// needed to get the uniforms for the VAO
 		unsigned int VAO_ID;	
@@ -128,6 +141,7 @@ private:
 		unsigned int bufferSizeObjects;
 		unsigned int bufferSizeVertices;
 		sVertex_xyzw_rgba* pLocalVertexArray;
+		bool bIsValid;	// used to see if this has been set up
 	};
 
 	sVAOInfoDebug m_VAOBufferInfoTriangles;

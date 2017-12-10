@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <map>
 #include <vector>
+#include "AABB_triangles.h"
 
 class cAABBv2
 {
@@ -34,32 +35,11 @@ public:
 		return this->m_ID;
 	}
 
-
-	// This represents each triangle from the model 
-	//	(and the actual triangles we are using to generate the AABBs)
-	// Could either:
-	// - if nothing is in the vector, then use the actual model triangle for testing
-	// - or place the actual triangle in the test vector, then only test the vector
-	// BUT you STORE the model triangle, NOT the tessellated triangles into the AABBs
-	class cTriForTesttessellated
-	{
-	public:
-//		sTriAABB triFromModel;				// Ply triangle
-		// Check if this triangle (from the model) is LTE one half the AABB size
-		// If it IS, then subdivide and add to this vector.
-		// - Pick the centre of the triangle
-		// - Make 4 triangles from that
-		// - Continue recursively until it's LTE one the AABB size
-//		std::vector< sTriAABB > vec_tessellatedTriangles;
-	};
-
-	// This is called by the AABBBroadPhase
-	bool isTriListInAABB(cTriForTesttessellated testTriData, bool bStoreIfInside = false);	
-
-	// Simple SINGLE triangle test. 
-	// Called by isTriListInAABB()
-	// If ANY vertex is inside the AABB, then it's true
-//	bool isTriInAABB(sTriAABB testTriData, bool bStoreIfInside = false);
+	// This is called by the AABBBroadPhase. If ANY vertex is in the AABB, then tri is stored
+	bool isTriInAABB(sTriAABB testTriData, bool bStoreIfInside = false);
+	// Passes both the model triangle AND the tessellated list of triangles
+	// If any vertex is in the AABB, then triangle is stored
+	bool isTriInAABB(cTriForTesttessellated testTriData, bool bStoreIfInside = false);	
 
 	// Can be called by anything
 	// If point is between [min, max).
@@ -69,13 +49,11 @@ public:
 	//	in ONE AABB, rather than many.
 	bool isPointInAABB(glm::vec3 point);
 
-//	std::vector<sTriAABB> vecTriangles;
+	std::vector<sTriAABB> vecTriangles;
 private:
 	// We don't want to set this after creation,
 	//	so is private (if public, we might set it by mistake)
 	unsigned long long m_ID;		// unsigned 64 bit
-
-
 };
 
 #endif 

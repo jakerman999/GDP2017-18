@@ -28,7 +28,7 @@
 #include "cModelAssetLoader.h"
 
 
-#include "Physics.h"	// Physics collision detection functions
+#include "Physics/Physics.h"	// Physics collision detection functions
 
 #include "cLightManager.h"
 
@@ -96,15 +96,11 @@ static void error_callback(int error, const char* description)
 // Moved to GLFW_keyboardCallback.cpp
 //static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
-// HACK
-cGameObject* pTP0 = 0;
-
 int main(void)
 {
 //	cAABBv2 testAABB(glm::vec3(-10.0f, -50.0f, -190.0f), 5.0f /*HALF size*/);
 
-
-    GLFWwindow* window;
+	GLFWwindow* window;
 //    GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location;	// , vpos_location, vcol_location;
     glfwSetErrorCallback(error_callback);
@@ -246,20 +242,20 @@ int main(void)
 	//								 glm::vec3( 1000.0f, 0.0f, 0.0f ),
 	//								 glm::vec3( 0.0f, 1000.0f, 0.0f), 
 	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	//for (int count = 0; count != 100; count++)
-	//{
-	//	::g_pDebugRenderer->addTriangle(
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	//}//for (int count
+	for (int count = 0; count != 100; count++)
+	{
+		::g_pDebugRenderer->addTriangle(
+			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f)),
+			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f)),
+			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f),
+			          getRandInRange(-1000.0f, 1000.0f)),
+			glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+	}//for (int count
 
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();

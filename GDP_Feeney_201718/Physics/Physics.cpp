@@ -1,5 +1,5 @@
 #include "Physics.h"
-#include "globalGameStuff.h"
+#include "../globalGameStuff.h"
 
 #include <glm/glm.hpp>		// glm::distance
 

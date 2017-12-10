@@ -22,9 +22,6 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{5be69afd-2a1f-4fbd-95d3-db710b5e0b50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AABB">
-      <UniqueIdentifier>{fe207588-c64c-4be5-8d19-f975124f5061}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Persist">
       <UniqueIdentifier>{df010c60-dbde-4437-9d1b-331dc08f3541}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="DebugRenderer">
       <UniqueIdentifier>{33773904-c3d0-492e-887a-5420aafdbedb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics_AABB">
+      <UniqueIdentifier>{c3cf21fe-5767-4fbc-8cac-fbcec8c72ba2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,9 +69,6 @@
     <ClCompile Include="cVAOMeshManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Physics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cLightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,12 +89,6 @@
     </ClCompile>
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <Filter>Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="cAABBv2.cpp">
-      <Filter>AABB</Filter>
-    </ClCompile>
-    <ClCompile Include="cAABBBroadPhase.cpp">
-      <Filter>AABB</Filter>
     </ClCompile>
     <ClCompile Include="cModelAssetLoader.cpp">
       <Filter>Source Files</Filter>
@@ -123,6 +114,18 @@
     <ClCompile Include="generalGLStuff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\Physics.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\cAABBBroadPhase.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\cAABBv2.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\AABB_triangles.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">
@@ -146,9 +149,6 @@
     <ClInclude Include="cVAOMeshManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Physics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cLightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,12 +169,6 @@
     </ClInclude>
     <ClInclude Include="Texture\CTextureFromBMP.h">
       <Filter>Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="cAABBv2.h">
-      <Filter>AABB</Filter>
-    </ClInclude>
-    <ClInclude Include="cAABBBroadPhase.h">
-      <Filter>AABB</Filter>
     </ClInclude>
     <ClInclude Include="cModelAssetLoader.h">
       <Filter>Header Files</Filter>
@@ -199,6 +193,21 @@
     </ClInclude>
     <ClInclude Include="sVAOInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\AABB_triangles.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\Physics.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\cAABBBroadPhase.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\cAABBv2.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="iDebugRenderer.h">
+      <Filter>DebugRenderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
