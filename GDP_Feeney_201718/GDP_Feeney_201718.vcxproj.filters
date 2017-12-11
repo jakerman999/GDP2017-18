@@ -37,6 +37,12 @@
     <Filter Include="Physics_AABB">
       <UniqueIdentifier>{c3cf21fe-5767-4fbc-8cac-fbcec8c72ba2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{9719379f-c4c7-4c03-9fd4-bd92ed1191ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models\PlyLoader">
+      <UniqueIdentifier>{e09b5a02-f893-42b3-b295-cb29c4d9deac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -49,9 +55,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelUtilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cShader.cpp">
@@ -70,9 +73,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cLightManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GLFW_keyboardCallback.cpp">
@@ -126,15 +126,30 @@
     <ClCompile Include="Physics\AABB_triangles.cpp">
       <Filter>Physics_AABB</Filter>
     </ClCompile>
+    <ClCompile Include="ModelUtilities.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneLoader.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Ply\CPlyFile5nt.cpp">
+      <Filter>Models\PlyLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Ply\CPlyFile5nt_experimental.cpp">
+      <Filter>Models\PlyLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Ply\CStringHelper.cpp">
+      <Filter>Models\PlyLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Ply\CVector3f.cpp">
+      <Filter>Models\PlyLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelUtilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cShaderManager.h">
@@ -208,6 +223,21 @@
     </ClInclude>
     <ClInclude Include="iDebugRenderer.h">
       <Filter>DebugRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelUtilities.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Ply\CPlyFile5nt.h">
+      <Filter>Models\PlyLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Ply\CPlyInfo.h">
+      <Filter>Models\PlyLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Ply\CStringHelper.h">
+      <Filter>Models\PlyLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Ply\CVector3f.h">
+      <Filter>Models\PlyLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

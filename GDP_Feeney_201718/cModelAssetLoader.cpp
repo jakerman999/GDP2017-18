@@ -1,6 +1,8 @@
 #include "cModelAssetLoader.h"
 
 #include <sstream>
+#include "Ply/CPlyFile5nt.h"
+#include "Ply/CStringHelper.h"
 
 cModelAssetLoader::cModelAssetLoader()
 {
@@ -34,10 +36,79 @@ void cModelAssetLoader::m_ReadFileToToken( std::ifstream &file, std::string toke
 	return;
 }
 
+bool cModelAssetLoader::LoadPlyFileIntoMesh( std::string filename, cMesh &theMesh, sLoadSettings loadOptions )
+{
+	CPlyFile5nt plyLoader;
+	std::string fileNameWithPath = this->m_basePath + filename;
+	std::wstring wFileNameWithPath = CStringHelper::ASCIIToUnicodeQnD(fileNameWithPath);
+
+	// TODO: Handle the loading GDP files, etc.
+
+	std::wstring wError;
+	if ( ! plyLoader.OpenPLYFile2( wFileNameWithPath, wError ) )
+	{
+		return false;
+	}
+
+	if (loadOptions.generateNormalsIfNotPresent && !plyLoader.bHasNormalsInFile())
+	{
+		plyLoader.normalizeTheModelBaby();
+	}
+
+	if (loadOptions.generateSphericalUBIfNotPresent && !plyLoader.bHasNormalsInFile())
+	{
+		plyLoader.GenTextureCoordsSpherical( CPlyFile5nt::enumTEXCOORDBIAS::POSITIVE_X, 
+											 CPlyFile5nt::enumTEXCOORDBIAS::POSITIVE_Y, 
+											 false,			// based on vertex location from centre 
+											                // (rather than normal direction)
+											 1.0f,			// scale
+											 false );		// slow (true=fast, which isn't that fast, really)
+	}
+	// 
+	// TODO: Copy the information up
+
+	// Allocate the appropriate sized array (+a little bit)
+	//theMesh.pVertices = new cVertex_xyz_rgb_n[theMesh.numberOfVertices];
+	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	theMesh.pTriangles = new cTriangle[theMesh.numberOfTriangles];
+
+	// Read vertices
+	for ( int index = 0; index < theMesh.numberOfVertices; index++ )
+	{
+		//end_header
+		//-0.0312216 0.126304 0.00514924 0.850855 0.5 		
+		float x, y, z;//, confidence, intensity;
+
+		plyFile >> x;
+		plyFile >> y;
+		plyFile >> z;
+//		plyFile >> confidence;
+//		plyFile >> intensity;
+
+		theMesh.pVertices[index].x = x;	// vertices[index].x = x;
+		theMesh.pVertices[index].y = y;	// vertices[index].y = y;
+		theMesh.pVertices[index].z = z; 
+		theMesh.pVertices[index].r = 1.0f;	// vertices[index].g = 1.0f;
+		theMesh.pVertices[index].g = 1.0f;	// vertices[index].b = 1.0f;
+		theMesh.pVertices[index].b = 1.0f;	// vertices[index].r = 1.0f;
+	}
+
+	// Load the triangle (or face) information, too
+	for ( int count = 0; count < theMesh.numberOfTriangles; count++ )
+	{
+		// 3 164 94 98 
+		int discard = 0;
+		plyFile >> discard;									// 3
+		plyFile >> theMesh.pTriangles[count].vertex_ID_0;	// 164
+		plyFile >> theMesh.pTriangles[count].vertex_ID_1;	// 94
+		plyFile >> theMesh.pTriangles[count].vertex_ID_2;	// 98
+	}
+	return true;
+}
 
 
 // Takes a file name, loads a mesh
-bool cModelAssetLoader::LoadPlyFileIntoMesh( std::string filename, cMesh &theMesh )
+bool cModelAssetLoader::LoadPlyFileIntoMeshXYZOnly( std::string filename, cMesh &theMesh )
 {
 	// Load the vertices
 	// c_str() changes a string to a "c style char* string"

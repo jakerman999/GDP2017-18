@@ -184,6 +184,10 @@
     <ClCompile Include="Physics\cAABBBroadPhase.cpp" />
     <ClCompile Include="Physics\cAABBv2.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
+    <ClCompile Include="Ply\CPlyFile5nt.cpp" />
+    <ClCompile Include="Ply\CPlyFile5nt_experimental.cpp" />
+    <ClCompile Include="Ply\CStringHelper.cpp" />
+    <ClCompile Include="Ply\CVector3f.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
@@ -211,6 +215,10 @@
     <ClInclude Include="Physics\cAABBBroadPhase.h" />
     <ClInclude Include="Physics\cAABBv2.h" />
     <ClInclude Include="Physics\Physics.h" />
+    <ClInclude Include="Ply\CPlyFile5nt.h" />
+    <ClInclude Include="Ply\CPlyInfo.h" />
+    <ClInclude Include="Ply\CStringHelper.h" />
+    <ClInclude Include="Ply\CVector3f.h" />
     <ClInclude Include="sVAOInfo.h" />
     <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h" />
     <ClInclude Include="globalGameStuff.h" />
