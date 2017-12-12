@@ -324,6 +324,19 @@ int main(void)
 	::g_pTextureManager->Create2DTextureFromBMPFile("GuysOnSharkUnicorn.bmp", true);
 //	::g_pTextureManager->Create2DTextureFromBMPFile("Seamless_ground_sand_texture.bmp", true);
 	::g_pTextureManager->Create2DTextureFromBMPFile("barberton_etm_2001121_lrg.bmp", true);
+
+	::g_pTextureManager->SetBasePath("assets/textures/skybox");
+	if (!::g_pTextureManager->CreateNewCubeTextureFromBMPFiles(
+			"space",
+			"SpaceBox_right1_posX.bmp",
+			"SpaceBox_left2_negX.bmp",
+			"SpaceBox_top3_posY.bmp",
+			"SpaceBox_bottom4_negY.bmp",
+			"SpaceBox_front5_posZ.bmp",
+			"SpaceBox_back6_negZ.bmp"))
+	{
+		std::cout << "Didn't load skybox" << std::endl;
+	}
 	      
 ///***********************************************************
 	// About the generate the AABB for the terrain
@@ -737,7 +750,7 @@ void DrawObject( cGameObject* pTheGO )
 	GLuint texture00Number
 		= ::g_pTextureManager->getTextureIDFromName(textureName);
 	// Texture binding... (i.e. set the 'active' texture
-	GLuint texture00Unit = 13;							// Texture units go from 0 to 79 (at least)
+	GLuint texture00Unit = 0;							// Texture units go from 0 to 79 (at least)
 	glActiveTexture( texture00Unit + GL_TEXTURE0 );		// GL_TEXTURE0 = 33984
 	glBindTexture( GL_TEXTURE_2D, texture00Number);
 
@@ -773,7 +786,28 @@ void DrawObject( cGameObject* pTheGO )
 	glUniform1f(textBlend01_ID, pTheGO->textureBlend[1]);
 	// And so on...
 
+	GLint isSkyBoxID = glGetUniformLocation(curShaderID, "isASkyBox");
+	glUniform1f(isSkyBoxID, 0.0f); // OR GLFALSE
 
+	// Is this the "skybox object" (a sphere, in our case)
+	if (pTheGO->bIsSkyBoxObject)
+	{
+		GLint cubeSampID = glGetUniformLocation(curShaderID, "skyBoxSampler");
+
+		// Set the isSkyBox
+		glUniform1f(isSkyBoxID, 1.0f); // OR GL_TRUE
+
+		// Set up the textures SAME AS WITH ANY OTHER TEXTURE
+		GLuint skyBoxTextueID = ::g_pTextureManager->getTextureIDFromName("space");
+		// Texture binding... (i.e. set the 'active' texture
+		GLuint textureUnitNum = 8;	// Doesn't really matter which one // Texture units go from 0 to 79 (at least)
+		glActiveTexture(textureUnitNum + GL_TEXTURE0);		// GL_TEXTURE0 = 33984
+		// Connects texture UNIT to the texture
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTextueID);
+		// Set sampler to same texture UNIT
+		glUniform1f(cubeSampID, textureUnitNum);
+
+	}//if (pTheGO->bIsSkyBoxObject)
 	
 
 //			glPolygonMode( GL_FRONT_AND_BACK, GL_POINT );

@@ -42,6 +42,8 @@ cGameObject::cGameObject()
 
 	this->pDebugRenderer = NULL;
 
+	this->bIsSkyBoxObject = false;
+
 	return;
 }
 

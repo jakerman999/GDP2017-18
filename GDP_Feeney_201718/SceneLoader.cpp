@@ -155,6 +155,18 @@ void LoadModelsIntoScene(void)
 		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
 	}
 
+	// Our skybox object
+	{
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
+		pTempGO->scale = 100.0f;
+		pTempGO->diffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		pTempGO->meshName = "SmoothSphereRadius1";			
+		pTempGO->typeOfObject = eTypeOfObject::SPHERE;
+		pTempGO->radius = 1.0f;	//??
+		pTempGO->bIsSkyBoxObject = true;
+		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
+	}
 
 
 	// HACK: Set the objects to random colours

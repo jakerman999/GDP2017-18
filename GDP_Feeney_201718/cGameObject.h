@@ -57,7 +57,7 @@ public:
 //	glm::mat3 matOrientation;
 	float scale;
 
-
+	bool bIsSkyBoxObject;
 
 	// **********************************
 	// Add some physics things

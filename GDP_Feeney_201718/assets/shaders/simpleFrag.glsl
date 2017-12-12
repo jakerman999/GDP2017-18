@@ -25,9 +25,14 @@ uniform sampler2D myAmazingTexture00;		// Represents a 2D image
 uniform sampler2D myAmazingTexture01;		// Represents a 2D image
 // ... and so on...
 
+
 uniform float textureBlend00;		// Or an array
 uniform float textureBlend01;		
 // .... and so on... 
+
+uniform samplerCube skyBoxSampler;
+uniform bool isASkyBox;				// True samples the skybox texture
+
 
 /*****************************************************/
 struct sLightDesc {
@@ -65,6 +70,20 @@ void main()
 		gl_FragColor.rgb = materialDiffuse.rgb;
 		gl_FragColor.a = materialDiffuse.a;		//gl_FragColor.a = 1.0f	
 		return;		// Immediate return
+	}
+	
+	
+	if ( isASkyBox )
+	{	// Sample from skybox texture and exit
+		// I pass texture coords to 'sample' 
+		//	returning a colour (at that point in the texture)
+		// Note we are using the normals of our skybox object
+		//	to determine the point on the inside of the box
+		vec4 skyRGBA = texture( skyBoxSampler, vertNormal.xyz );
+		
+		gl_FragColor = skyRGBA;
+		gl_FragColor.a = 1.0f;
+		return;	
 	}
 	
 	// ****************************************************************/

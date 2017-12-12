@@ -49,6 +49,25 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 
 	{
 		cMesh testMesh;
+		testMesh.name = "SmoothSphereRadius1";
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWithNormals( "SmoothSphere_xyz_n.ply", testMesh ) )
+		{ 
+			//std::cout << "Didn't load model" << std::endl;
+			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID, true ) )
+		{
+			//std::cout << "Could not load mesh into VAO" << std::endl;
+			ssError << "Could not load mesh >" << testMesh.name << "< into VAO" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+	}	
+	{
+		cMesh testMesh;
 		testMesh.name = "MeshLabTerrain_xyz_n_uv";
 		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "MeshLabTerrain_xyz_n_uv.ply", testMesh ) )
 		{ 
