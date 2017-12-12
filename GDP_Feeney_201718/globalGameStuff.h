@@ -10,6 +10,7 @@
 #include <glm/vec3.hpp>
 #include "cLightManager.h"
 #include "cModelAssetLoader.h"
+#include "cCamera.h"
 
 // Remember to #include <vector>...
 extern std::vector< cGameObject* >  g_vecGameObjects;
@@ -19,8 +20,8 @@ cGameObject* findObjectByFriendlyName( std::string friendlyName, std::vector<cGa
 cGameObject* findObjectByUniqueID( unsigned int ID, std::vector<cGameObject*> &vec_pGameObjects );
 
 
-extern glm::vec3 g_cameraXYZ;				// (theMain.cpp)
-extern glm::vec3 g_cameraTarget_XYZ;		// (theMain.cpp)
+//extern glm::vec3 g_cameraXYZ;				// (theMain.cpp)
+//extern glm::vec3 g_cameraTarget_XYZ;		// (theMain.cpp)
 
 
 extern cLightManager*	g_pLightManager;	// (theMain.cpp)
@@ -34,5 +35,6 @@ extern cModelAssetLoader* g_pModelAssetLoader;	// (ModelUtilies.cpp)
 //extern cGameObject* pTP0;
 const std::string LEFTTEAPOTNAME = "LeftTeapot";		// Now that we have a lookup
 
+extern cCamera* g_pTheCamera;		// (theMain.cpp)
 
 #endif

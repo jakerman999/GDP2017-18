@@ -77,8 +77,9 @@ void LoadModelsIntoScene(void)
 		pTempGO->position.y = 4.0f;
 		pTempGO->position.x = -4.0f;
 		pTempGO->vel.x = 2.0f;
-		pTempGO->orientation.z = glm::radians(0.0f);	// Degrees
-		pTempGO->orientation2.z = glm::radians(0.0f);	// Degrees
+		//pTempGO->orientation.z = glm::radians(0.0f);	// Degrees
+		//pTempGO->orientation2.z = glm::radians(0.0f);	// Degrees
+		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
 		pTempGO->scale = 1.0f;
 		pTempGO->diffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		pTempGO->meshName = "SphereRadius1";
@@ -93,8 +94,9 @@ void LoadModelsIntoScene(void)
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->position.x = -0.5f;
 		pTempGO->position.y = 4.0f;
-		pTempGO->orientation.z = glm::radians(0.0f);	// Degrees
-		pTempGO->orientation2.z = glm::radians(0.0f);	// Degrees
+		//pTempGO->orientation.z = glm::radians(0.0f);	// Degrees
+		//pTempGO->orientation2.z = glm::radians(0.0f);	// Degrees
+		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
 		pTempGO->scale = 1.0f;
 		pTempGO->diffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		pTempGO->meshName = "SphereRadius1";			// was dolphin
@@ -110,6 +112,7 @@ void LoadModelsIntoScene(void)
 		pTempGO->position.y = getRandInRange<float>( 1.0f, 10.0f ); // -2 to Infinity
 		pTempGO->vel.x = getRandInRange<float>( -3.0f, 3.0f );
 		pTempGO->vel.y = getRandInRange<float>( -1.0f, 2.0f );
+		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
 		pTempGO->scale = 1.0f;
 		pTempGO->diffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		pTempGO->meshName = "SphereRadius1";
@@ -123,7 +126,8 @@ void LoadModelsIntoScene(void)
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->scale = 0.1f;
 		pTempGO->position.x = -4.0f;
-		pTempGO->orientation2.x = glm::radians(-90.0f);
+//		pTempGO->orientation2.x = glm::radians(-90.0f);
+//		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
 		pTempGO->meshName = "teapotUV";		// Was teapot
 		pTempGO->diffuseColour.a = 0.75f;
 		pTempGO->textureNames[0] = "Utah_Teapot_xyz_n_uv_Enterprise.bmp";
@@ -139,7 +143,8 @@ void LoadModelsIntoScene(void)
 		cGameObject* pTempGO = new cGameObject();
 		pTempGO->scale = 0.1f;
 		pTempGO->position.x = 4.0f;
-		pTempGO->orientation2.x = glm::radians(-90.0f);
+//		pTempGO->orientation2.x = glm::radians(-90.0f);
+//		pTempGO->overwrtiteQOrientationFormEuler(glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f));
 		pTempGO->diffuseColour.a = 0.75f;
 		pTempGO->meshName = "teapotUV";		// Was teapot
 		pTempGO->textureNames[0] = "Utah_Teapot_xyz_n_uv_Enterprise.bmp";

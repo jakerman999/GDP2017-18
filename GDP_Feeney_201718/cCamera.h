@@ -10,18 +10,23 @@ class cCamera
 public:
 	cCamera();
 
-	glm::vec3 eye;
+	glm::vec3 eye;			// position
 	glm::vec3 target;
 	glm::vec3 up;
+
+	glm::vec3 velocity;		// For "fly camera", like in blender
+	glm::vec3 accel;		// For "thruster" like with rockets
 
 	// For following, etc. 
 	void updateTick(float deltaTime);
 
 	enum eMode
 	{
-		MANUAL,			// Move along the axes
-		FLY_CAMERA,		// Movement based on direction of gaze
-		FOLLOW_CAMERA	// Follows a target
+		MANUAL,			// Move along the axes (lookat)
+		FOLLOW_CAMERA,	// Follows a target (lookat)
+		FLY_CAMERA		// Movement based on direction of gaze
+						// Use quaternion orientation
+						// "catch"  is no LOOKAT
 	};
 
 	void setCameraMode(eMode cameraMode);
@@ -30,25 +35,32 @@ public:
 	// ************************************************************
 	// For the "fly camera":
 	// +ve is along z-axis
-	void FC_moveForward(float distanceAlongRelativeZAxis_PosIsForward);
-	void FC_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight);
-	void FC_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp);
+	void Fly_moveForward(float distanceAlongRelativeZAxis_PosIsForward);
+	void Fly_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight);
+	void Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp);
 	// +ve is right
-	void FC_turn(float turnDegreesPosIsRight);
-	void FC_turn_RightLeft(float turnDegreesPosIsRight);
+	void Fly_turn(float turnDegreesPosIsRight);
+	void Fly_turn_RightLeft(float turnDegreesPosIsRight);
 	// +ve it up
-	void FC_pitch(float pitchDegreesPosIsNoseUp);
-	void FC_pitch_UpDown(float pitchDegreesPosIsNoseUp);
+	void Fly_pitch(float pitchDegreesPosIsNoseUp);
+	void Fly_pitch_UpDown(float pitchDegreesPosIsNoseUp);
 	// +ve is Clock-wise rotation (from nose to tail)
-	void FC_yaw(float pitchDegreesPosIsClockWise);
-	void FC_yaw_CWorCCW(float pitchDegreesPosIsClockWise);
+	void Fly_yaw(float pitchDegreesPosIsClockWise);
+	void Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise);
 	// ************************************************************
 
-	void overwriteOrientationFromEuler(glm::vec3 newEulerAngles);
-	void updateOrientationFromEuler(glm::vec3 deltaEulerAngleChange);
-	glm::mat4 getMat4FromOrientation(void);
+	void overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation);
+	// NOTE: Use THIS, not just setting the values
+	void adjustQOrientationFormDeltaEuler(glm::vec3 eulerAxisOrientChange);
 
-	glm::quat orientation;
+//	glm::mat4 getMat4FromOrientation(void);
+	glm::mat4 getViewMatrix(void);
+
+
+	// 
+	glm::quat qOrientation;
+
+	glm::vec3 EulerAngles;	// Ya get gimbal lock, yo.
 };
 
 #endif

@@ -144,6 +144,9 @@
     <ClCompile Include="Ply\CVector3f.cpp">
       <Filter>Models\PlyLoader</Filter>
     </ClCompile>
+    <ClCompile Include="CHRTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">
@@ -238,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="Ply\CVector3f.h">
       <Filter>Models\PlyLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="CHRTimer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

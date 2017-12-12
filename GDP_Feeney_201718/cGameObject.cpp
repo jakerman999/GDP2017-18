@@ -9,8 +9,9 @@ cGameObject::cGameObject()
 {
 	this->scale = 1.0f;	// (not zero)
 	this->position = glm::vec3(0.0f);
-	this->orientation = glm::vec3(0.0f);
-	this->orientation2 = glm::vec3(0.0f);
+	//this->orientation = glm::vec3(0.0f);
+	//this->orientation2 = glm::vec3(0.0f);
+	this->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	this->vel = glm::vec3(0.0f);
 	this->accel = glm::vec3(0.0f);	
@@ -39,6 +40,8 @@ cGameObject::cGameObject()
 	//	value, rather than generate a new one - i.e. call the c'tor again)
 	this->m_UniqueID = cGameObject::m_nextUniqueID++;
 
+	this->pDebugRenderer = NULL;
+
 	return;
 }
 
@@ -47,4 +50,26 @@ cGameObject::~cGameObject()
 	return;
 }
 
+void cGameObject::overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation)
+{
+	// Calcualte the quaternion represnetaiton of this Euler axis
+	// NOTE: We are OVERWRITING this..
+	this->qOrientation = glm::quat(eulerAxisOrientation);
+
+	return;
+}
+
+void cGameObject::adjustQOrientationFormDeltaEuler(glm::vec3 eulerAxisOrientChange)
+{
+	// How do we combine two matrices?
+	// That's also how we combine quaternions...
+
+	// So we want to "add" this change in oriention
+	glm::quat qRotationChange = glm::quat(eulerAxisOrientChange);
+
+	// Mulitply it by the current orientation;
+	this->qOrientation = this->qOrientation * qRotationChange;
+
+	return;
+}
 

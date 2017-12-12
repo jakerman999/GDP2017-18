@@ -5,6 +5,10 @@
 #include <glm/vec4.hpp>
 
 #include <string>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
+#include "iDebugRenderer.h"
 
 // 1. Place physical properties into GO
 // 2. Add a separate Physical Properties 
@@ -41,9 +45,19 @@ public:
 	~cGameObject();		// destructor
 //	cGameObject(const cGameObject &obj);  // copy constructor
 	glm::vec3 position;
-	glm::vec3 orientation;
-	glm::vec3 orientation2;		// HACK (will elimiate this with)
+	//glm::vec3 orientation;		// Is really Euler axis
+	//glm::vec3 orientation2;		// (Euler) HACK (will elimiate this with)
+
+	// Now orientation 
+	void overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation);
+	// NOTE: Use THIS, not just setting the values
+	void adjustQOrientationFormDeltaEuler(glm::vec3 eulerAxisOrientChange);
+	glm::quat qOrientation;
+//	glm::mat4 matOrientation;
+//	glm::mat3 matOrientation;
 	float scale;
+
+
 
 	// **********************************
 	// Add some physics things
@@ -70,6 +84,8 @@ public:
 
 	std::string friendlyName;
 	inline unsigned int getUniqueID(void) { return this->m_UniqueID; }
+
+	iDebugRenderer* pDebugRenderer;
 private:
 	unsigned int m_UniqueID;
 	// Used when creating objects

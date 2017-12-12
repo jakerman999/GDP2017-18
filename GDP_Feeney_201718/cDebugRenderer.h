@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "sVAOInfo.h"		
+#include "iDebugRenderer.h"
 
 // Note: 
 // - Include this header in the thing(s) that MANAGE the debug render
@@ -14,7 +15,7 @@
 // - Include the ++iDebugRenderer++ in the things that need to add things to draw
 //
 
-class cDebugRenderer
+class cDebugRenderer : public iDebugRenderer
 {
 public:
 	cDebugRenderer();

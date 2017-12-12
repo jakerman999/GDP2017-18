@@ -86,7 +86,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		cMesh testMesh;
 		testMesh.name = "bunny";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMesh( "bun_zipper_res2_xyz.ply", testMesh ) )
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "bun_zipper_res2_xyz.ply", testMesh ) )
 		{ 
 			//std::cout << "Didn't load model" << std::endl;
 			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
@@ -102,7 +102,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		cMesh testMesh;
 		testMesh.name = "teapot";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMesh( "Utah_Teapot_1Unit_xyz.ply", testMesh ) )
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "Utah_Teapot_1Unit_xyz.ply", testMesh ) )
 		{ 
 			//std::cout << "Didn't load model" << std::endl;
 			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
@@ -118,7 +118,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		cMesh testMesh;
 		testMesh.name = "dolphin";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMesh( "dolphin_xyz.ply", testMesh ) )
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "dolphin_xyz.ply", testMesh ) )
 		{ 
 			//std::cout << "Didn't load model" << std::endl;
 			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
@@ -134,7 +134,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		cMesh testMesh;
 		testMesh.name = "PlaneXZ";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMesh( "Flat_XZ_Plane_xyz.ply", testMesh ) )
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "Flat_XZ_Plane_xyz.ply", testMesh ) )
 		{ 
 			//std::cout << "Didn't load model" << std::endl;
 			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;

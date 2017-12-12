@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+#include <glm/gtc/quaternion.hpp>
 
 
 #include <stdlib.h>
@@ -35,6 +36,8 @@
 // Include all the things that are accessed in other files
 #include "globalGameStuff.h"
 
+#include "cCamera.h"
+
 // Forward declaration of the function
 void DrawObject( cGameObject* pTheGO );
 
@@ -52,10 +55,15 @@ cGameObject* g_pTheDebugSphere;
 std::vector< cGameObject* >  g_vecGameObjects;
 
 
-glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 9000.0f, 16000.0f );	
+////glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 9000.0f, 16000.0f );	
+////glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, -50.0f, 0.0f );
+//
 //glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 100.0f, 500.0f );	
-//glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 16.1f, 22.4f );	
-glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, -50.0f, 0.0f );
+////glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 16.1f, 22.4f );	
+//glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, 0.0f, 0.0f );
+
+cCamera* g_pTheCamera = NULL;
+
 
 cVAOMeshManager* g_pVAOManager = 0;		// or NULL, or nullptr
 
@@ -242,20 +250,20 @@ int main(void)
 	//								 glm::vec3( 1000.0f, 0.0f, 0.0f ),
 	//								 glm::vec3( 0.0f, 1000.0f, 0.0f), 
 	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	for (int count = 0; count != 100; count++)
-	{
-		::g_pDebugRenderer->addTriangle(
-			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f)),
-			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f)),
-			glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f),
-			          getRandInRange(-1000.0f, 1000.0f)),
-			glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	}//for (int count
+	//for (int count = 0; count != 100; count++)
+	//{
+	//	::g_pDebugRenderer->addTriangle(
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f),
+	//		          getRandInRange(-1000.0f, 1000.0f)),
+	//		glm::vec3( 1.0f, 1.0f, 1.0f ), true );
+	//}//for (int count
 
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();
@@ -295,8 +303,8 @@ int main(void)
 	::g_pLightManager = new cLightManager();
 
 	::g_pLightManager->CreateLights(10);	// There are 10 lights in the shader
-	::g_pLightManager->vecLights[0].position = glm::vec3(-4.8f, 4.4f, 7.3f);
-	::g_pLightManager->vecLights[0].attenuation.y = 0.172113f;
+	::g_pLightManager->vecLights[0].position = glm::vec3(-4.8f, 570.0f, 212.0f);	
+	::g_pLightManager->vecLights[0].attenuation.y = 0.000456922280;		//0.172113f;
 	::g_pLightManager->LoadShaderUniformLocations(currentProgID);
 
 
@@ -334,6 +342,11 @@ int main(void)
 ///***********************************************************
 
 
+	::g_pTheCamera = new cCamera();
+	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA);
+	::g_pTheCamera->eye = glm::vec3(0.0f, 5.0f, -10.0f);
+
+
 	glEnable( GL_DEPTH );
 
 	// Gets the "current" time "tick" or "step"
@@ -368,13 +381,15 @@ int main(void)
 										  1.0f,			// Near (as big as possible)
 										  100000.0f );	// Far (as small as possible)
 
+
 		// View or "camera" matrix
 		glm::mat4 matView = glm::mat4(1.0f);	// was "v"
 
-		//glm::vec3 cameraXYZ = glm::vec3( 0.0f, 0.0f, 5.0f );	// 5 units "down" z
-		matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
-							   g_cameraTarget_XYZ,		// "At" or "target" 
-							   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
+		// Now the veiw matrix is taken right from the camera class
+		matView = ::g_pTheCamera->getViewMatrix();
+		//matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
+		//					   g_cameraTarget_XYZ,		// "At" or "target" 
+		//					   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
 
 		glUniformMatrix4fv( uniLoc_mView, 1, GL_FALSE, 
 							(const GLfloat*) glm::value_ptr(matView) );
@@ -480,10 +495,18 @@ int main(void)
 		//
 
 		std::stringstream ssTitle;
-		ssTitle << "Camera (xyz): " 
-			<< g_cameraXYZ.x << ", " 
-			<< g_cameraXYZ.y << ", " 
-			<< g_cameraXYZ.z;
+//		ssTitle << "Camera (xyz): " 
+//			<< g_cameraXYZ.x << ", " 
+//			<< g_cameraXYZ.y << ", " 
+//			<< g_cameraXYZ.z;
+		// 
+		glm::vec4 EulerAngle;
+		//g_pTheCamera->qOrientation.eularAngles(EulerAngle);
+		//ssTitle << "Camera (xyz): "
+		//	<< EulerAngle.x << ", "
+		//	<< EulerAngle.y << ", "
+		//	<< EulerAngle.z;
+
 		glfwSetWindowTitle( window, ssTitle.str().c_str() );
 
 		// "Presents" what we've drawn
@@ -498,6 +521,10 @@ int main(void)
 		double deltaTime =  curTime - lastTimeStep;
 
 		PhysicsStep( deltaTime );
+
+		// Update camera, too
+		::g_pTheCamera->updateTick(deltaTime);
+		::g_pTheCamera->accel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		lastTimeStep = curTime;
 
@@ -565,34 +592,46 @@ void DrawObject( cGameObject* pTheGO )
 	// 'model' or 'world' matrix
 	glm::mat4x4 mModel = glm::mat4x4(1.0f);	//		mat4x4_identity(m);
 
-	glm::mat4 matRreRotZ = glm::mat4x4(1.0f);
-	matRreRotZ = glm::rotate( matRreRotZ, pTheGO->orientation.z, 
-								glm::vec3(0.0f, 0.0f, 1.0f) );
-	mModel = mModel * matRreRotZ;
+	//// Euler orientation stuff, which is so "Fall 2017"
+	//// ******************************************************
+	//// PRE-Rotation
+	//glm::mat4 matRreRotZ = glm::mat4x4(1.0f);
+	//matRreRotZ = glm::rotate( matRreRotZ, pTheGO->orientation.z, 
+	//							glm::vec3(0.0f, 0.0f, 1.0f) );
+	//mModel = mModel * matRreRotZ;
+	//// ******************************************************
 
 	glm::mat4 trans = glm::mat4x4(1.0f);
 	trans = glm::translate( trans, 
 							pTheGO->position );
 	mModel = mModel * trans; 
 
-	glm::mat4 matPostRotZ = glm::mat4x4(1.0f);
-	matPostRotZ = glm::rotate( matPostRotZ, pTheGO->orientation2.z, 
-								glm::vec3(0.0f, 0.0f, 1.0f) );
-	mModel = mModel * matPostRotZ;
+	//// Euler orientation stuff, which is so "Fall 2017"
+	//// ***************************
+	//// POST-Rotation
+	//glm::mat4 matPostRotZ = glm::mat4x4(1.0f);
+	//matPostRotZ = glm::rotate( matPostRotZ, pTheGO->orientation2.z, 
+	//							glm::vec3(0.0f, 0.0f, 1.0f) );
+	//mModel = mModel * matPostRotZ;
+//
+	//glm::mat4 matPostRotY = glm::mat4x4(1.0f);
+	//matPostRotY = glm::rotate( matPostRotY, pTheGO->orientation2.y, 
+	//							glm::vec3(0.0f, 1.0f, 0.0f) );
+	//mModel = mModel * matPostRotY;
+//
+	//glm::mat4 matPostRotX = glm::mat4x4(1.0f);
+	//matPostRotX = glm::rotate( matPostRotX, pTheGO->orientation2.x, 
+	//							glm::vec3(1.0f, 0.0f, 0.0f) );
+	//mModel = mModel * matPostRotX;
+	//// ***************************
+	
+	// Now with quaternion rotation
+	// Like many things in GML, the conversion is done in the constructor
+	glm::mat4 postRotQuat = glm::mat4(pTheGO->qOrientation);
+	mModel = mModel * postRotQuat;
 
-//			::g_vecGameObjects[index]->orientation2.y += 0.01f;
+//	mModel = mModel * trans * postRotQuat;
 
-	glm::mat4 matPostRotY = glm::mat4x4(1.0f);
-	matPostRotY = glm::rotate( matPostRotY, pTheGO->orientation2.y, 
-								glm::vec3(0.0f, 1.0f, 0.0f) );
-	mModel = mModel * matPostRotY;
-
-
-	glm::mat4 matPostRotX = glm::mat4x4(1.0f);
-	matPostRotX = glm::rotate( matPostRotX, pTheGO->orientation2.x, 
-								glm::vec3(1.0f, 0.0f, 0.0f) );
-	mModel = mModel * matPostRotX;
-	// TODO: add the other rotation matrix (i.e. duplicate code above)
 
 	// assume that scale to unit bounding box
 	// ************* BEWARE *****************
