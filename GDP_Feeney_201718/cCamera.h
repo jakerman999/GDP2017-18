@@ -32,6 +32,23 @@ public:
 	void setCameraMode(eMode cameraMode);
 	eMode cameraMode;
 
+	// Follow camera
+	void Follow_SetOrUpdateTarget(glm::vec3 target);
+	void Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget);
+	void Follow_SetMaxFollowSpeed(float speed);
+	void Follow_SetDistanceMaxSpeed(float distanceToTarget);
+	void Follow_SetDistanceMinSpeed(float distanceToTarget);
+
+	glm::vec3 follow_idealCameraLocationRelToTarget;
+	float follow_max_speed;
+	float follow_distance_max_speed;
+	float follow_distance_zero_speed;
+private:
+	void m_UpdateFollowCamera_SUCKS(float deltaTime);
+	void m_UpdateFollowCamera_GOOD(float deltaTime);
+public:
+
+
 	// ************************************************************
 	// For the "fly camera":
 	// +ve is along z-axis

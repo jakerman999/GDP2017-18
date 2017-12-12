@@ -304,7 +304,7 @@ int main(void)
 
 	::g_pLightManager->CreateLights(10);	// There are 10 lights in the shader
 	::g_pLightManager->vecLights[0].position = glm::vec3(-4.8f, 570.0f, 212.0f);	
-	::g_pLightManager->vecLights[0].attenuation.y = 0.000456922280;		//0.172113f;
+	::g_pLightManager->vecLights[0].attenuation.y = 0.000456922280f;		//0.172113f;
 	::g_pLightManager->LoadShaderUniformLocations(currentProgID);
 
 
@@ -343,8 +343,25 @@ int main(void)
 
 
 	::g_pTheCamera = new cCamera();
-	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA);
-	::g_pTheCamera->eye = glm::vec3(0.0f, 5.0f, -10.0f);
+//	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA);
+//	::g_pTheCamera->eye = glm::vec3(0.0f, 5.0f, -10.0f);
+
+	::g_pTheCamera->setCameraMode(cCamera::FOLLOW_CAMERA);
+	::g_pTheCamera->eye = glm::vec3(-100.0f, 150.0f, -300.0f);
+	::g_pTheCamera->Follow_SetMaxFollowSpeed(3.0f);
+	::g_pTheCamera->Follow_SetDistanceMaxSpeed(50.0f);	// Full speed beyond this distance
+	::g_pTheCamera->Follow_SetDistanceMinSpeed(25.0f);	// Zero speed at this distance
+	::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+	::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
+
+	// Follow the teapot
+	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
+	pLeftTeapot->position.x = 150.0f;
+	pLeftTeapot->vel.x = -10.0f;
+	pLeftTeapot->vel.y = +25.0f;
+	pLeftTeapot->bIsUpdatedInPhysics = true;
+	::g_pTheCamera->Follow_SetOrUpdateTarget(pLeftTeapot->position);
+
 
 
 	glEnable( GL_DEPTH );
@@ -355,6 +372,11 @@ int main(void)
 	// Main game or application loop
 	while ( ! glfwWindowShouldClose(window) )
     {
+		// Update camera
+		cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
+		::g_pTheCamera->Follow_SetOrUpdateTarget(pLeftTeapot->position);
+
+
         float ratio;
         int width, height;
 		glm::mat4x4 matProjection;			// was "p"

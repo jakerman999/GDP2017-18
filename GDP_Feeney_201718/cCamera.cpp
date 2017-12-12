@@ -22,8 +22,13 @@ cCamera::cCamera()
 // For following, etc. 
 void cCamera::updateTick(float deltaTime)
 {
+
+	if ( this->cameraMode == cCamera::FOLLOW_CAMERA )
+	{	// update the velocity of the camera 
+		this->m_UpdateFollowCamera_GOOD(deltaTime);
+	}
+
 	// Explicit forward Euler, like in the physics loop
-	
 	// Acceleration comes form velocity
 	glm::vec3 accelThisStep = this->accel * deltaTime;
 	this->velocity += accelThisStep;
@@ -60,7 +65,10 @@ glm::mat4 cCamera::getViewMatrix(void)
 		// Use LookAT
 		break;
 	case cCamera::eMode::FOLLOW_CAMERA:
-		// Use LookAT
+		glm::mat4 matView = glm::lookAt(this->eye,
+		                                this->target,
+		                                glm::vec3(0.0f, 1.0f, 0.0f) ); // UP
+		return matView;
 		break;
 	case cCamera::eMode::FLY_CAMERA:
 		// Use same process as with drawing an object:
