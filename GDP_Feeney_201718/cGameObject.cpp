@@ -7,42 +7,25 @@
 
 cGameObject::cGameObject()
 {
-	this->scale = 1.0f;	// (not zero)
-	this->position = glm::vec3(0.0f);
-	//this->orientation = glm::vec3(0.0f);
-	//this->orientation2 = glm::vec3(0.0f);
-	this->overwrtiteQOrientationFormEuler(glm::vec3(0.0f, 0.0f, 0.0f));
-
-	this->vel = glm::vec3(0.0f);
-	this->accel = glm::vec3(0.0f);	
-
-	// If you aren't sure what the 4th value should be, 
-	//	make it a 1.0f ("alpha" or transparency)
-	this->diffuseColour = glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f );
-
-	//Assume everything is simulated 
-	this->bIsUpdatedInPhysics = true; //??? 
-	this->radius = 0.0f;	// Is this the best value??? Who knows?
-
-	this->typeOfObject = eTypeOfObject::UNKNOWN;	// Technically non-standard
-	//this->typeOfObject = UNKNOWN;
-
-	this->bIsWireFrame = false;
-
-	// Set all texture blend values to 0.0f (meaning NO texture)
-	for (int index = 0; index != NUMTEXTURES; index++)
-	{
-		this->textureBlend[index] = 0.0f;
-	}
-
-	// Assign unque ID, the increment for next created object
-	// (Note: if you write your own copy constructor, be sure to COPY this
-	//	value, rather than generate a new one - i.e. call the c'tor again)
+	// Assign a unique ID. 
+	// (Be careful of your container calls the default c'tor when copying)
 	this->m_UniqueID = cGameObject::m_nextUniqueID++;
 
 	this->pDebugRenderer = NULL;
 
-	this->bIsSkyBoxObject = false;
+	this->m_meshQOrientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+	this->meshOffset = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	this->bIsMeshASkyBoxObject = false;
+	this->bIsMeshVisible = true;
+	this->bIsMeshWireframe = false;
+	this->debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	this->bUseDepthBuffer = true;			// Depth buffer enabled or not
+	this->bDisableBackFaceCulling = false;	// Draw both sides if true
+	this->bIsALight = false;
+	this->lightID = -1;			// -1 is invalid
+
+
 
 	return;
 }
@@ -52,26 +35,180 @@ cGameObject::~cGameObject()
 	return;
 }
 
-void cGameObject::overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation)
-{
-	// Calcualte the quaternion represnetaiton of this Euler axis
-	// NOTE: We are OVERWRITING this..
-	this->qOrientation = glm::quat(eulerAxisOrientation);
 
+void cGameObject::SetPhysProps( cPhysicalProperties &PhysProps )
+{
+	this->m_PhysicalProps = PhysProps;
 	return;
 }
 
-void cGameObject::adjustQOrientationFormDeltaEuler(glm::vec3 eulerAxisOrientChange)
+cPhysicalProperties cGameObject::GetPhysProps( void )
 {
-	// How do we combine two matrices?
-	// That's also how we combine quaternions...
+	return this->m_PhysicalProps;
+}
 
-	// So we want to "add" this change in oriention
-	glm::quat qRotationChange = glm::quat(eulerAxisOrientChange);
-
-	// Mulitply it by the current orientation;
-	this->qOrientation = this->qOrientation * qRotationChange;
-
+void cGameObject::GetPhysProps( cPhysicalProperties &PhysProps )
+{
+	this->m_PhysicalProps = PhysProps;
 	return;
 }
 
+glm::vec3 cGameObject::getPosition(void)
+{
+	return this->m_PhysicalProps.position;
+}
+
+void cGameObject::overwritePotition( glm::vec3 newPosition, bool bOverwiteOldPositionToo /*=true*/ )
+{
+	this->m_PhysicalProps.positionLast = this->m_PhysicalProps.position;
+	this->m_PhysicalProps.position = newPosition;
+	if ( bOverwiteOldPositionToo )
+	{	// Clobber the old position, too (so it looks like we're not moving)
+		this->m_PhysicalProps.positionLast = this->m_PhysicalProps.position;
+	}
+	return;
+}
+
+glm::quat cGameObject::getQOrientation(void)
+{
+	return this->m_PhysicalProps.qOrientation;
+}
+
+void cGameObject::overwriteQOrientation( glm::quat newOrientation )
+{
+	this->m_PhysicalProps.qOrientation = newOrientation;
+	return;
+}
+
+void cGameObject::overwriteQOrientationEuler( glm::vec3 newOrientationEuler, bool bIsDegrees /*=true*/ )
+{
+	if ( bIsDegrees )
+	{
+		newOrientationEuler.x = glm::radians( newOrientationEuler.x );
+		newOrientationEuler.y = glm::radians( newOrientationEuler.y );
+		newOrientationEuler.z = glm::radians( newOrientationEuler.z );
+	}
+	this->m_PhysicalProps.qOrientation = glm::quat( newOrientationEuler );
+	return;
+}
+
+void cGameObject::adjQOrientation( glm::quat newOrientation )
+{
+	this->m_PhysicalProps.qOrientation *= newOrientation;
+	return;
+}
+
+void cGameObject::adjQOrientationEuler( glm::vec3 newOrientationEuler, bool bIsDegrees /*= true*/ )
+{
+	if ( bIsDegrees ) 
+	{ 
+		newOrientationEuler = glm::vec3( glm::radians(newOrientationEuler.x), 
+										 glm::radians(newOrientationEuler.y), 
+										 glm::radians(newOrientationEuler.z) ); 
+	}
+
+	// Step 1: make a quaternion that represents the angle we want to rotate
+	glm::quat rotationAdjust( newOrientationEuler );	
+	// Step 2: Multiply this quaternion by the existing quaternion. This "adds" the angle we want.
+	this->m_PhysicalProps.qOrientation *= rotationAdjust;
+	return;
+}
+
+void cGameObject::DeleteChildren(void)
+{
+	for ( std::vector< cGameObject* >::iterator itChild = this->vec_pChildObjects.begin();
+		  itChild != this->vec_pChildObjects.end(); itChild++ )
+	{
+		// Pointer not zero (0)?
+		cGameObject* pTempChildObject = (*itChild);
+		if ( pTempChildObject != 0 )
+		{
+			// Recursively delete all children's children (and so on)
+			pTempChildObject->DeleteChildren();
+			// Now delete this child
+			delete pTempChildObject;
+		}
+	}
+	// There's a vector, but nothing in it
+	this->vec_pChildObjects.clear();
+	return;
+}
+
+cGameObject* cGameObject::FindChildByFriendlyName( std::string name )
+{
+	for ( std::vector<cGameObject*>::iterator itCGO = this->vec_pChildObjects.begin(); itCGO != this->vec_pChildObjects.end(); itCGO++ )
+	{
+		if ( (*itCGO)->friendlyName == name )
+		{
+			return (*itCGO);
+		}
+	}
+	// Didn't find it.
+	return NULL;
+}
+
+cGameObject* cGameObject::FindChildByID( unsigned int ID )
+{
+	for ( std::vector<cGameObject*>::iterator itCGO = this->vec_pChildObjects.begin(); itCGO != this->vec_pChildObjects.end(); itCGO++ )
+	{
+		if ( (*itCGO)->getUniqueID() == ID )
+		{
+			return (*itCGO);
+		}
+	}
+	// Didn't find it.
+	return NULL;
+}
+
+void cGameObject::setMeshOrientationEulerAngles( glm::vec3 newAnglesEuler, bool bIsDegrees /*=false*/ )
+{
+	if ( bIsDegrees ) 
+	{ 
+		newAnglesEuler = glm::vec3( glm::radians(newAnglesEuler.x), 
+									glm::radians(newAnglesEuler.y), 
+									glm::radians(newAnglesEuler.z) ); 
+	}
+
+	this->m_meshQOrientation = glm::quat( glm::vec3( newAnglesEuler.x, newAnglesEuler.y, newAnglesEuler.z ) );
+	return;
+}
+
+void cGameObject::setMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees /*=false*/ )
+{
+	return this->setMeshOrientationEulerAngles( glm::vec3(x,y,z), bIsDegrees );
+}
+
+
+void cGameObject::adjMeshOrientationEulerAngles( glm::vec3 adjAngleEuler, bool bIsDegrees /*=false*/ )
+{
+	if ( bIsDegrees ) 
+	{ 
+		adjAngleEuler = glm::vec3( glm::radians(adjAngleEuler.x), 
+								   glm::radians(adjAngleEuler.y), 
+								   glm::radians(adjAngleEuler.z) ); 
+	}
+
+	// Step 1: make a quaternion that represents the angle we want to rotate
+	glm::quat rotationAdjust( adjAngleEuler );	
+	// Step 2: Multiply this quaternion by the existing quaternion. This "adds" the angle we want.
+	this->m_meshQOrientation *= rotationAdjust;
+	return;
+}
+
+
+void cGameObject::adjMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees /*=false*/ )
+{
+	return this->adjMeshOrientationEulerAngles( glm::vec3(x,y,z), bIsDegrees );
+}
+
+
+void cGameObject::adjMeshOrientationQ( glm::quat adjOrientQ )
+{
+	this->m_meshQOrientation *= adjOrientQ;
+	return;
+}
+
+glm::quat cGameObject::getFinalMeshQOrientation(void)
+{
+	return this->m_PhysicalProps.qOrientation * this->m_meshQOrientation;
+}

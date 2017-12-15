@@ -43,6 +43,18 @@
     <Filter Include="Models\PlyLoader">
       <UniqueIdentifier>{e09b5a02-f893-42b3-b295-cb29c4d9deac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SceneManager">
+      <UniqueIdentifier>{a88a3da5-d048-4e42-84f8-57a639bbacae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Persist\JSON">
+      <UniqueIdentifier>{133aa164-9ca9-491b-b0e6-573056f1746d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{c2e73f13-01c1-48bc-be70-ab36e07d5316}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{f83183ec-fc9a-4006-81f2-313041ab1733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -61,12 +73,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cShaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cGameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cVAOMeshManager.cpp">
@@ -150,6 +156,18 @@
     <ClCompile Include="cCamera_Follow.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\cPhysicalProperties.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\cMathHelper.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="cGameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cMesh.h">
@@ -159,12 +177,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cShaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cGameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cVAOMeshManager.h">
@@ -247,6 +259,27 @@
     </ClInclude>
     <ClInclude Include="CHRTimer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cSceneManager.h">
+      <Filter>SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="cRnRJASON.h">
+      <Filter>Persist\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\cPhysicalProperties.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\iPhysicalObject.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\cMathHelper.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="cGameObject.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -185,6 +185,7 @@
     <ClCompile Include="Physics\AABB_triangles.cpp" />
     <ClCompile Include="Physics\cAABBBroadPhase.cpp" />
     <ClCompile Include="Physics\cAABBv2.cpp" />
+    <ClCompile Include="Physics\cPhysicalProperties.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="Ply\CPlyFile5nt.cpp" />
     <ClCompile Include="Ply\CPlyFile5nt_experimental.cpp" />
@@ -197,6 +198,7 @@
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
     <ClCompile Include="TheMain.cpp" />
     <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="Utilities\cMathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cCamera.h" />
@@ -206,6 +208,8 @@
     <ClInclude Include="cLightManager.h" />
     <ClInclude Include="cMesh.h" />
     <ClInclude Include="cModelAssetLoader.h" />
+    <ClInclude Include="cRnRJASON.h" />
+    <ClInclude Include="cSceneManager.h" />
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="cTriangle.h" />
     <ClInclude Include="cVAOMeshManager.h" />
@@ -217,6 +221,8 @@
     <ClInclude Include="Physics\AABB_triangles.h" />
     <ClInclude Include="Physics\cAABBBroadPhase.h" />
     <ClInclude Include="Physics\cAABBv2.h" />
+    <ClInclude Include="Physics\cPhysicalProperties.h" />
+    <ClInclude Include="Physics\iPhysicalObject.h" />
     <ClInclude Include="Physics\Physics.h" />
     <ClInclude Include="Ply\CPlyFile5nt.h" />
     <ClInclude Include="Ply\CPlyInfo.h" />
@@ -231,6 +237,7 @@
     <ClInclude Include="Texture\cBasicTextureManager.h" />
     <ClInclude Include="Texture\CTextureFromBMP.h" />
     <ClInclude Include="Utilities.h" />
+    <ClInclude Include="Utilities\cMathHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\simpleFrag.glsl" />
