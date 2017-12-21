@@ -12,11 +12,6 @@ bool isAltKeyDown( int mods, bool bByItself = true );
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	if ( key == GLFW_KEY_SPACE  )
-	{
-//		::g_GameObjects[1]->position.y += 0.01f;
-		::g_vecGameObjects[1]->position.y += 0.01f;
-	}
 
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
@@ -36,41 +31,41 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 //		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(+0.1f, 0.0f, 0.0f));
 		break;
 	case GLFW_KEY_6:
-		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(-0.1f, 0.0f, 0.0f));
+//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(-0.1f, 0.0f, 0.0f));
 		break;
 	case GLFW_KEY_7:
-		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, +0.1f, 0.0f));
+//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, +0.1f, 0.0f));
 		break;
 	case GLFW_KEY_8:
-		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, -0.1f, 0.0f));
+//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, -0.1f, 0.0f));
 		break;
 	case GLFW_KEY_9:
-		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, +0.1f));
+//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, +0.1f));
 		break;
 	case GLFW_KEY_0:
-		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, -0.1f));
+//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, -0.1f));
 		break;
 
 	case GLFW_KEY_N:
 		if (pLeftTeapot)
 		{
-			pLeftTeapot->textureBlend[0] -= 0.01f;
-			if (pLeftTeapot->textureBlend[0] <= 0.0f)
-			{
-				pLeftTeapot->textureBlend[0] = 0.0f;
-			}
-			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
+//			pLeftTeapot->textureBlend[0] -= 0.01f;
+//			if (pLeftTeapot->textureBlend[0] <= 0.0f)
+//			{
+//				pLeftTeapot->textureBlend[0] = 0.0f;
+//			}
+//			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
 		}
 		break;
 	case GLFW_KEY_M:
 		if (pLeftTeapot)
 		{
-			pLeftTeapot->textureBlend[0] += 0.01f;
-			if (pLeftTeapot->textureBlend[0] > 1.0f)
-			{
-				pLeftTeapot->textureBlend[0] = 1.0f;
-			}
-			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
+//			pLeftTeapot->textureBlend[0] += 0.01f;
+//			if (pLeftTeapot->textureBlend[0] > 1.0f)
+//			{
+//				pLeftTeapot->textureBlend[0] = 1.0f;
+//			}
+//			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
 		}
 		break;
 
@@ -241,7 +236,7 @@ bool isShiftKeyDown( int mods, bool bByItself /*=true*/ )
 	}
 	else
 	{	// shift with anything else, too
-		if ( ( mods && GLFW_MOD_SHIFT ) == GLFW_MOD_SHIFT )	{	return true;	}
+		if ( ( mods & GLFW_MOD_SHIFT ) == GLFW_MOD_SHIFT )	{	return true;	}
 		else												{	return false;	}
 	}
 	// Shouldn't never get here, so return false? I guess?
@@ -257,7 +252,7 @@ bool isCtrlKeyDown( int mods, bool bByItself /*=true*/ )
 	}
 	else
 	{	// shift with anything else, too
-		if ( ( mods && GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)	{	return true;	}
+		if ( ( mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)	{	return true;	}
 		else												{	return false;	}
 	}
 	// Shouldn't never get here, so return false? I guess?
@@ -273,7 +268,7 @@ bool isAltKeyDown( int mods, bool bByItself /*=true*/ )
 	}
 	else
 	{	// shift with anything else, too
-		if ((mods && GLFW_MOD_ALT) == GLFW_MOD_ALT) { return true; }
+		if ((mods & GLFW_MOD_ALT) == GLFW_MOD_ALT) { return true; }
 		else { return false; }
 	}
 	// Shouldn't never get here, so return false? I guess?

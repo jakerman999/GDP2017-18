@@ -13,19 +13,7 @@ cGameObject::cGameObject()
 
 	this->pDebugRenderer = NULL;
 
-	this->m_meshQOrientation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
-	this->meshOffset = glm::vec3(0.0f, 0.0f, 0.0f);
-
-	this->bIsMeshASkyBoxObject = false;
-	this->bIsMeshVisible = true;
-	this->bIsMeshWireframe = false;
-	this->debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	this->bUseDepthBuffer = true;			// Depth buffer enabled or not
-	this->bDisableBackFaceCulling = false;	// Draw both sides if true
-	this->bIsALight = false;
-	this->lightID = -1;			// -1 is invalid
-
-
+	this->bIsVisible = false;
 
 	return;
 }
@@ -36,20 +24,22 @@ cGameObject::~cGameObject()
 }
 
 
-void cGameObject::SetPhysProps( cPhysicalProperties &PhysProps )
+void cGameObject::SetPhysState( cPhysicalProperties &PhysState )
 {
-	this->m_PhysicalProps = PhysProps;
+	this->m_PhysicalProps = PhysState;
+	// cGameObject is friend of cPhysicalProperties, so can set game ID
+	this->m_PhysicalProps.m_GameObjectID = this->m_nextUniqueID;
 	return;
 }
 
-cPhysicalProperties cGameObject::GetPhysProps( void )
+cPhysicalProperties cGameObject::GetPhysState( void )
 {
 	return this->m_PhysicalProps;
 }
 
-void cGameObject::GetPhysProps( cPhysicalProperties &PhysProps )
+void cGameObject::GetPhysState( cPhysicalProperties &PhysState )
 {
-	this->m_PhysicalProps = PhysProps;
+	this->m_PhysicalProps = PhysState;
 	return;
 }
 
@@ -160,55 +150,19 @@ cGameObject* cGameObject::FindChildByID( unsigned int ID )
 	return NULL;
 }
 
-void cGameObject::setMeshOrientationEulerAngles( glm::vec3 newAnglesEuler, bool bIsDegrees /*=false*/ )
-{
-	if ( bIsDegrees ) 
-	{ 
-		newAnglesEuler = glm::vec3( glm::radians(newAnglesEuler.x), 
-									glm::radians(newAnglesEuler.y), 
-									glm::radians(newAnglesEuler.z) ); 
-	}
 
-	this->m_meshQOrientation = glm::quat( glm::vec3( newAnglesEuler.x, newAnglesEuler.y, newAnglesEuler.z ) );
-	return;
+
+//glm::quat cGameObject::getFinalMeshQOrientation(void)
+//{
+//	return this->m_PhysicalProps.qOrientation * this->m_meshQOrientation;
+//}
+
+glm::quat cGameObject::getFinalMeshQOrientation(unsigned int meshID)
+{	// Does NOT check for the index of the mesh!
+	return this->m_PhysicalProps.qOrientation * this->vecMeshes[meshID].getQOrientation();
 }
 
-void cGameObject::setMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees /*=false*/ )
-{
-	return this->setMeshOrientationEulerAngles( glm::vec3(x,y,z), bIsDegrees );
-}
-
-
-void cGameObject::adjMeshOrientationEulerAngles( glm::vec3 adjAngleEuler, bool bIsDegrees /*=false*/ )
-{
-	if ( bIsDegrees ) 
-	{ 
-		adjAngleEuler = glm::vec3( glm::radians(adjAngleEuler.x), 
-								   glm::radians(adjAngleEuler.y), 
-								   glm::radians(adjAngleEuler.z) ); 
-	}
-
-	// Step 1: make a quaternion that represents the angle we want to rotate
-	glm::quat rotationAdjust( adjAngleEuler );	
-	// Step 2: Multiply this quaternion by the existing quaternion. This "adds" the angle we want.
-	this->m_meshQOrientation *= rotationAdjust;
-	return;
-}
-
-
-void cGameObject::adjMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees /*=false*/ )
-{
-	return this->adjMeshOrientationEulerAngles( glm::vec3(x,y,z), bIsDegrees );
-}
-
-
-void cGameObject::adjMeshOrientationQ( glm::quat adjOrientQ )
-{
-	this->m_meshQOrientation *= adjOrientQ;
-	return;
-}
-
-glm::quat cGameObject::getFinalMeshQOrientation(void)
-{
-	return this->m_PhysicalProps.qOrientation * this->m_meshQOrientation;
+glm::quat cGameObject::getFinalMeshQOrientation(glm::quat &meshQOrientation)
+{	// Does NOT check for the index of the mesh!
+	return this->m_PhysicalProps.qOrientation * meshQOrientation;
 }

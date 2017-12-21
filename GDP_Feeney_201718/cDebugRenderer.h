@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include "sVAOInfo.h"		
-#include "iDebugRenderer.h"
 
 // Note: 
 // - Include this header in the thing(s) that MANAGE the debug render
@@ -34,7 +33,7 @@ public:
 	bool resizeBufferForPoints(unsigned int newNumberOfPoints);
 
 	// Renders scene
-	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection);
+	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
 
 	// These are now in the iDebugRenderer
 	//struct sDebugTri
@@ -69,13 +68,20 @@ public:
 
 	static const float DEFAULT_POINT_SIZE;	// = 1.0f;
 
-	void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, bool bPersist = false);
-	void addTriangle(drTri &tri);
-	void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, bool bPersist = false);
-	void addLine(drLine &line);
-	void addPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist = false);
-	void addPoint(drPoint &point);
-	void addPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist = false);
+	virtual void addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime=0.0f);
+	virtual void addTriangle(drTri &tri);
+	virtual void addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float lifeTime=0.0f);
+	virtual void addLine(drLine &line);
+	virtual void addPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime=0.0f, float pointSize=1.0f);
+	virtual void addPoint(drPoint &point);
+
+	// Replaces the DrawDebugSphere
+	virtual void addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime=0.0f);
+
+	// Various meshes that you could load and draw (are drawn with static meshes)
+	// Note: the mesh is ONLY triangles, so NOT indexed (like ply, obj, etc.)
+	virtual void loadDebugMesh(std::string friendlyName, std::vector<sDebugTri> &vecTris);
+
 
 	unsigned int getTriangleBufferSizeInTriangles(void)	{ return this->m_VAOBufferInfoTriangles.bufferSizeObjects; }
 	unsigned int getTriangleBufferSizeInBytes(void)		{ return this->m_VAOBufferInfoTriangles.bufferSizeBytes; }
@@ -89,6 +95,19 @@ public:
 	bool setFragmentShader(std::string fragmentShaderSource);
 	bool setShaders(std::string vertexShaderSource, std::string fragmentShaderSource);
 
+	// Quick-n-Dirty utility to convert ply format to "flat" (only triangle) format
+	bool QnD_convertIndexedXYZPlyToTriangleOnlyVertices( std::string &plyText, std::vector<sDebugTri> &vecTris );
+	bool QnD_convertIndexedXYZPlyFileToTriangleOnlyVertices( std::string fileName, std::vector<sDebugTri> &vecTris );
+	// This converts a vector of sDebugTris into a header file representation
+	// "arrayName" is the name of the array and the size value:
+	// - arrayName+"_array" for the array		(example: "float teapot_array[] = ...")
+	// - arrayName+"_array_size" for the size	(example: "unsigned int teapot_array_size = ...")
+	// NOTE: Size is the TOTAL number of floats, so 3x the number of triangles. 
+	//       You pass this TOTAL number info the loadHeaderArrayInto_vecTri() method.
+	// Leave outputFileName blank to NOT save to a file.
+	bool QnD_convert_vecTri_to_array_header( std::vector<sDebugTri> &vecTris, std::string arrayName, std::string &arrayText, std::string outputFileName = "" );
+	bool QnD_loadHeaderArrayInto_vecTri( float* shapeArray, int sizeOfArray, std::vector<sDebugTri> &vecTris );
+	static const std::string DEFAULT_PLY_SPHERE_MODEL_TEXT;	
 private:
 
 	unsigned int m_RoundUpToNearest100( unsigned int value )
@@ -100,9 +119,10 @@ private:
 	std::string m_fragmentShaderSource;
 
 	// As objects are added (to draw), they are added to these containers
-	std::vector<drTri> m_vecTriangles;	
-	std::vector<drLine> m_vecLines;		
+	std::vector<drTri>   m_vecTriangles;	
+	std::vector<drLine>  m_vecLines;		
 	std::vector<drPoint> m_vecPoints;	
+	std::vector<drMesh>  m_vecMeshes;	
 
 	static const std::string DEFALUT_VERT_SHADER_SOURCE;
 	static const std::string DEFAULT_FRAG_SHADER_SOURCE;
@@ -154,9 +174,11 @@ private:
 
 	// Copies the debug objects from the vectors to the vertex buffer to render
 	// Will delete any "non persistent" object
-	void m_copyTrianglesIntoRenderBuffer(void);
-	void m_copyLinesIntoRenderBuffer(void);
-	void m_copyPointsIntoRenderBuffer(void);
+	void m_copyTrianglesIntoRenderBuffer(double deltaTime);
+	void m_copyLinesIntoRenderBuffer(double deltaTime);
+	void m_copyPointsIntoRenderBuffer(double deltaTime);
+
+	std::map<std::string /*meshname*/, sVAOInfoDebug /*drawInfo*/> m_mapMeshNameToVAOInfo;
 
 
 	// Used to hold the shader information
@@ -165,6 +187,7 @@ private:
 	//	the implementation file for the cDebugRenderer.cpp
 	class cShaderProgramInfo;
 	cShaderProgramInfo* m_pShaderProg;
+
 };
 
 #endif

@@ -6,12 +6,26 @@
 
 cPhysicalProperties::cPhysicalProperties() 
 {
-	this->directedAccel = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	this->position = this->positionLast = glm::vec3(0.0f);
+	this->velocity = glm::vec3(0.0f);
+	this->accel = glm::vec3(0.0f);
 	this->directedAccel = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	this->directedVelocity = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 	this->m_GameObjectID = 0;		// There shouldn't be an object "0"
-	this->physUpdateType = cPhysicalProperties::ePhysicsUpdateTypes::EXCLUDED_FROM_INTEGRATION;
-	this->collisionType = cPhysicalProperties::eCollisionTypes::EXCLUDED_FROM_COLLISION;
+
+	this->integrationUpdateType = cPhysicalProperties::ePhysicsIntegrationUpdateTypes::EXCLUDED_FROM_INTEGRATION;
+	this->rigidBodyShape = cPhysicalProperties::eRigidBodyCollisionShapes::IGNORE_EXCLUDE_FROM_COLLISION;
+
+	// Objects world matrix
+	this->matWorld = glm::mat4(1.0f);	// identity
+
+	this->setRotationalSpeedEuler(glm::vec3(0.0f));
+	this->setOrientationEulerAngles(glm::vec3(0.0f));
+
+	this->mass = 0.0f;			// If zero, assume infinite mass
+	this->inverseMass = 0.0f;	// If zero, assume infinite mass
+
 	return;
 };
 
@@ -80,52 +94,42 @@ void cPhysicalProperties::adjRotationalSpeedQ( glm::quat adjRotSpeedQ )
 }
 
 
-
-
-
-
-
-
-
-
-
-
-std::string CPhysProps::DEBUG_getString_position(void)
+std::string cPhysicalProperties::DEBUG_getString_position(void)
 {
 	std::stringstream ss;
 	ss << "position: " << this->position.x << ", " << this->position.y << ", " << this->position.z;
 	return ss.str();
 }
 
-std::string CPhysProps::DEBUG_getString_positionLast(void)
+std::string cPhysicalProperties::DEBUG_getString_positionLast(void)
 {
 	std::stringstream ss;
 	ss << "positionLast: " << this->positionLast.x << ", " << this->positionLast.y << ", " << this->positionLast.z;
 	return ss.str();
 }
 
-std::string CPhysProps::DEBUG_getString_velocity(void)
+std::string cPhysicalProperties::DEBUG_getString_velocity(void)
 {
 	std::stringstream ss;
 	ss << "velocity: " << this->velocity.x << ", " << this->velocity.y << ", " << this->velocity.z;
 	return ss.str();
 }
 
-std::string CPhysProps::DEBUG_getString_accel(void)
+std::string cPhysicalProperties::DEBUG_getString_accel(void)
 {
 	std::stringstream ss;
 	ss << "accel: " << this->accel.x << ", " << this->accel.y << ", " << this->accel.z;
 	return ss.str();
 }
 
-std::string CPhysProps::DEBUG_getString_directedVelocity(void)
+std::string cPhysicalProperties::DEBUG_getString_directedVelocity(void)
 {
 	std::stringstream ss;
 	ss << "directedVelocity: " << this->directedVelocity.x << ", " << this->directedVelocity.y << ", " << this->directedVelocity.z;
 	return ss.str();
 }
 
-std::string CPhysProps::DEBUG_getString_directedAccel(void)
+std::string cPhysicalProperties::DEBUG_getString_directedAccel(void)
 {
 	std::stringstream ss;
 	ss << "directedAccel: " << this->directedAccel.x << ", " << this->directedAccel.y << ", " << this->directedAccel.z;

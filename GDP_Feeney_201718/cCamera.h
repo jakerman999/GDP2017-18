@@ -18,7 +18,7 @@ public:
 	glm::vec3 accel;		// For "thruster" like with rockets
 
 	// For following, etc. 
-	void updateTick(float deltaTime);
+	void updateTick(double deltaTime);
 
 	enum eMode
 	{
@@ -44,8 +44,8 @@ public:
 	float follow_distance_max_speed;
 	float follow_distance_zero_speed;
 private:
-	void m_UpdateFollowCamera_SUCKS(float deltaTime);
-	void m_UpdateFollowCamera_GOOD(float deltaTime);
+	void m_UpdateFollowCamera_SUCKS(double deltaTime);
+	void m_UpdateFollowCamera_GOOD(double deltaTime);
 public:
 
 

@@ -23,6 +23,9 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 	case cShader::FRAGMENT_SHADER:
 		return "FRAGMENT_SHADER";
 		break;
+	case cShader::GEOMETRY_SHADER:
+		return "GEOMETRY_SHADER";
+		break;
 	case cShader::UNKNOWN:
 	default:
 		return "UNKNOWN_SHADER_TYPE";
@@ -35,7 +38,12 @@ std::string cShaderManager::cShader::getShaderTypeString(void)
 
 void cShaderManager::cShader::parseStringIntoMultiLine(std::string singleLineSouce)
 {
-#define _CRT_SECURE_NO_WARNINGS
+#ifdef _WIN32
+	#pragma warning(disable : 4996)				// bitching about strcpy_s
+#endif
+//#ifdef _WIN64
+//	#pragma warning(disable : 4996)				// bitching about strcpy_s
+//#endif
 	this->vecSource.clear();
 
 	unsigned int stringsizeX4 = (unsigned int)singleLineSouce.size() * 4;
@@ -55,6 +63,6 @@ void cShaderManager::cShader::parseStringIntoMultiLine(std::string singleLineSou
 	}
 	delete [] charSourceString;
 	return;
-#undef _CRT_SECURE_NO_WARNINGS
+//#undef _CRT_SECURE_NO_WARNINGS
 }
 

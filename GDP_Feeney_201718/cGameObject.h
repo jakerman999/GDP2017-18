@@ -14,7 +14,7 @@
 #include "Physics/cPhysicalProperties.h"
 #include "Physics/iPhysicalObject.h"	// For the access to things that will update the positions, etc.
 
-
+#include "sMeshDrawInfo.h"
 
 class cGameObject : public iPhysicalObject
 {
@@ -24,9 +24,9 @@ public:
 //	cGameObject(const cGameObject &obj);  // copy constructor
 
 	//***** from the iPhysicalObject interface ********************
-	virtual void SetPhysProps( cPhysicalProperties &PhysProps );
-	virtual cPhysicalProperties GetPhysProps( void );
-	virtual void GetPhysProps( cPhysicalProperties &PhysProps );
+	virtual void SetPhysState( cPhysicalProperties &PhysState );
+	virtual cPhysicalProperties GetPhysState( void );
+	virtual void GetPhysState( cPhysicalProperties &PhysState );
 	//*************************************************************
 	glm::vec3 getPosition(void);
 	// bOverwritePositionToo effectively stops the object if the "past position" is being used
@@ -45,51 +45,21 @@ public:
 	iDebugRenderer* pDebugRenderer;
 
 
+
 	// Mesh information (if drawn)
-	// Note: The mesh has a separate orientation and offset from the object.
-	//	If you want them to be the same, just ignore this orientaiton
-	//	 (i.e. don't touch it) and use the object orientation only.
-	std::string meshName;		// mesh I'd like to draw
-private: 
-	glm::quat m_meshQOrientation;
-public:
-	glm::quat getMeshQOrientation(void)	{	return this->m_meshQOrientation;	}
-	glm::vec3 meshOffset;
-	void setMeshOrientationEulerAngles( glm::vec3 newAnglesEuler, bool bIsDegrees = false );
-	void setMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees = false );
-	void adjMeshOrientationEulerAngles( glm::vec3 adjAngleEuler, bool bIsDegrees = false );
-	void adjMeshOrientationEulerAngles( float x, float y, float z, bool bIsDegrees = false );
-	void adjMeshOrientationQ( glm::quat adjOrientQ );
-	// A combination of the orientation and the mesh orientation
-	glm::quat getFinalMeshQOrientation(void);
+	// Note: Meshes have a separate orientation and offset from 
+	//	the object, in case you want the mesh(es) to be
+	//	loaded in different alignment from the game object. 
+	//  If the object alignment is the same as the mesh
+	//	alignment, then don't set the orientation and offset
+	//	in the mesh information.
+
+	std::vector<sMeshDrawInfo> vecMeshes;
+	glm::quat getFinalMeshQOrientation(unsigned int meshID);
+	glm::quat getFinalMeshQOrientation(glm::quat &meshQOrientation);
 
 
-	// The textures used for this mesh
-	// This is pretty basic: any textures are modulated (multiplied) 
-	//	together using the textureBlendRatio for each. 
-	// So all the blend ratios, together, should add to 1.0f
-	struct sTextureInfo
-	{
-	sTextureInfo() : textureBlendRatio(0.0f) {};
-		std::string textureName;
-		float textureBlendRatio;	// 0.0 to 1.0f
-		                            // All blend ratios should add to 1.0
-	};
-	// If it's just one skybox, but one texture here. 
-	//	but if you're going for a "day to night" transition or something, 
-	//	you could add multiple cubemaps and blend between
-	std::vector<sTextureInfo> vecMehs2DTextures;
-	bool bIsMeshASkyBoxObject;
-	std::vector<sTextureInfo> vecMeshCubeMaps;
-
-	bool bIsMeshVisible;				// Render ignores objects that are false (not child objects could still be visible)
-	bool bIsMeshWireframe;				// Polygon mode is LINES
-	glm::vec4 debugDiffuseColour;	// Colour used if wireframe 
-	bool bUseDepthBuffer;			// Depth buffer enabled or not
-	bool bDisableBackFaceCulling;	// Draw both sides if true
-	bool bIsALight;
-	int lightID;					// -1 is invalid
-	// ************************************
+	bool bIsVisible;	// If false, any meshes are NOT drawn (not child objects could still be visible)
 
 	// Our "child" objects
 	std::vector< cGameObject* > vec_pChildObjects;
@@ -100,10 +70,9 @@ public:
 
 
 	// Used when there is only one game object (like with text), but we're drawing it many times
-
-	void pushRenderingState(void);
-	// Ignores call if nothing on stack
-	void popRenderingState(void);
+	//void pushRenderingState(void);
+	//// Ignores call if nothing on stack
+	//void popRenderingState(void);
 	
 private:
 	unsigned int m_UniqueID;
@@ -113,22 +82,22 @@ private:
 	// All the properties of a physical object 
 	cPhysicalProperties m_PhysicalProps;
 
-	// Any former render states (that have been pushed)
-	struct sRenderState
-	{
-		glm::vec3 position;
-		glm::quat oriention;
-		bool bIsWireframe;
-		glm::vec4 diffuse;		// Alpha is 4th value
-		glm::vec4 ambient;
-		glm::vec3 specular;
-		float shininess;
-		glm::vec3 debugColour;
-		bool bUseDebugColour;
-		float scale;
-		bool bIsVisible;
-	};
-	std::queue< sRenderState > m_stackRenderState;
+	//// Any former render states (that have been pushed)
+	//struct sRenderState
+	//{
+	//	glm::vec3 position;
+	//	glm::quat oriention;
+	//	bool bIsWireframe;
+	//	glm::vec4 diffuse;		// Alpha is 4th value
+	//	glm::vec4 ambient;
+	//	glm::vec3 specular;
+	//	float shininess;
+	//	glm::vec3 debugColour;
+	//	bool bUseDebugColour;
+	//	float scale;
+	//	bool bIsVisible;
+	//};
+	//std::queue< sRenderState > m_stackRenderState;
 
 };
 

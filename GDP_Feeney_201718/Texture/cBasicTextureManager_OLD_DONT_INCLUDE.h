@@ -1,5 +1,9 @@
+#error "This class has been replaced with the CTextureManager one."
+
 #ifndef _cBasicTextureManager_HG_
 #define _cBasicTextureManager_HG_
+
+#error "This class has been replaced with the CTextureManager one."
 
 #include <string>
 #include <map>
@@ -19,6 +23,9 @@ public:
 
 	// returns 0 on error
 	GLuint getTextureIDFromName( std::string textureFileName );
+
+	// Quick and Dirty "get any texture" sort of thing
+	GLuint QnD_GetFirstTextureIDFromMap(void);
 
 	void SetBasePath(std::string basepath);
 

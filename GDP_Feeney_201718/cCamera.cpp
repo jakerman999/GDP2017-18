@@ -20,7 +20,7 @@ cCamera::cCamera()
 
 
 // For following, etc. 
-void cCamera::updateTick(float deltaTime)
+void cCamera::updateTick(double deltaTime)
 {
 
 	if ( this->cameraMode == cCamera::FOLLOW_CAMERA )
@@ -30,11 +30,11 @@ void cCamera::updateTick(float deltaTime)
 
 	// Explicit forward Euler, like in the physics loop
 	// Acceleration comes form velocity
-	glm::vec3 accelThisStep = this->accel * deltaTime;
+	glm::vec3 accelThisStep = this->accel * static_cast<float>(deltaTime);
 	this->velocity += accelThisStep;
 
 	// Position comes from velocity over time
-	glm::vec3 velChangeThisStep = this->velocity * deltaTime;
+	glm::vec3 velChangeThisStep = this->velocity * static_cast<float>(deltaTime);
 	this->eye += velChangeThisStep;
 
 	return;

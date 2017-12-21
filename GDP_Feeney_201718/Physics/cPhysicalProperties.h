@@ -1,7 +1,8 @@
-#ifndef _CPhysProps_HG_
-#define _CPhysProps_HG_
+#ifndef _cPhysicalProperties_HG_
+#define _cPhysicalProperties_HG_
 
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 // These are some of the physical properties of the object
@@ -14,7 +15,7 @@ class cGameObject;	// for friend declaration
 class cPhysicalProperties		
 {
 public:
-	friend cGameObject;	// to access gameObjectID
+	friend cGameObject;	// to access m_GameObjectID
 
 	// Render doesn't need to be able to update these
 	cPhysicalProperties();
@@ -36,7 +37,7 @@ public:
 	float inverseMass;			
 
 	// Mainly used for collisions
-	enum eCollisionTypes
+	enum eRigidBodyCollisionShapes
 	{
 		SPHERE, 
 		PLANE, 
@@ -45,20 +46,40 @@ public:
 		CAPSULE,
 		MESH,
 		POINT_CLOUD,				// Like mesh. Is a set of points to test
-		EXCLUDED_FROM_COLLISION		// Things that can pass through other things
+		IGNORE_EXCLUDE_FROM_COLLISION		// Things that can pass through other things
 		                            // (cameras, lights, etc.)
 	};
-	eCollisionTypes collisionType;
+	eRigidBodyCollisionShapes rigidBodyShape;
 
+	// These are specific to the various rigid bodies
+	struct sRigidBodyDetails
+	{
+		sRigidBodyDetails() : 
+			sphere_capsule_radius(0.0f),
+			plane_centre(glm::vec3(0.0f)), 
+			plane_normal(glm::vec3(0.0f,1.0f,0.0f)),
+			box_AABB_minXYZ(glm::vec3(0.0f)),
+			box_AABB_maxXYZ(glm::vec3(0.0f)),
+			box_qOrientation(glm::quat(glm::vec3(0.0f)))
+		{};
+		//
+		float sphere_capsule_radius;
+		glm::vec3 plane_centre;		glm::vec3 plane_normal;
+		glm::vec3 box_AABB_minXYZ;	glm::vec3 box_AABB_maxXYZ;
+		glm::quat box_qOrientation;
+	};
+	// TODO: The point cloud and mesh AREN'T listed here
 
-	enum ePhysicsUpdateTypes
+	sRigidBodyDetails rigidBodyMeasurements;
+
+	enum ePhysicsIntegrationUpdateTypes
 	{	// These are like the Bullet Physics types
 		DYNAMIC,		// Full physical siluation
 		KINEMATIC,		// Possibly included in collision, but not updated by physics
 		INFINITEMASS,	// Possibly included in collision, but ignored by physics update
 		EXCLUDED_FROM_INTEGRATION		// Not part of the physics update, but might be in collision
 	};
-	ePhysicsUpdateTypes physUpdateType;
+	ePhysicsIntegrationUpdateTypes integrationUpdateType;
 
 
 	// "set" over-writes the existing values

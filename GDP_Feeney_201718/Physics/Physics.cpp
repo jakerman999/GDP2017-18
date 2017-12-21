@@ -1,3 +1,10 @@
+#error "This file has been replaced with the cPhysicsWorld class"
+
+/*
+
+	This entire thing is replaced with the cPhysicsWorld class
+
+
 #include "Physics.h"
 #include "../globalGameStuff.h"
 
@@ -153,3 +160,5 @@ void PhysicsStep( double deltaTime )
 	return;
 }
 
+
+*/

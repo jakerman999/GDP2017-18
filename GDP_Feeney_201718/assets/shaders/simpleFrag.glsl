@@ -1,5 +1,5 @@
 // Fragment shader
-#version 420
+#version 400
 
 in vec4 color;					// was vec3
 in vec3 vertNormal;
@@ -7,12 +7,17 @@ in vec3 vecWorldPosition;
 in vec4 uvX2out;			// Added: UV 1 and 2 to fragment
 							// UV #1 is .xy 
 							// UV #2 is .zw
-
 //uniform vec4 diffuseColour;		// New variable
+
+// gl_FragColor is depricated after version 120
+// Now we specify a specific variable.
+// If there is only 1, then GL will assume it's the colour 
+out vec4 fragColourOut;
+
 
 // The values our OBJECT material
 uniform vec4 materialDiffuse;	
-uniform vec4 materialAmbient;   		// 0.2
+//uniform vec4 materialAmbient;   		// 0.2
 uniform float ambientToDiffuseRatio; 	// Maybe	// 0.2 or 0.3
 uniform vec4 materialSpecular;  // rgb = colour of HIGHLIGHT only
 								// w = shininess of the 
@@ -21,18 +26,35 @@ uniform vec3 eyePosition;	// Camera position
 uniform bool bIsDebugWireFrameObject;
 
 // Note: this CAN'T be an array (sorry). See 3D texture array
-uniform sampler2D myAmazingTexture00;		// Represents a 2D image
-uniform sampler2D myAmazingTexture01;		// Represents a 2D image
+uniform sampler2D texSamp2D00;		// Represents a 2D image
+uniform sampler2D texSamp2D01;		// Represents a 2D image
+uniform sampler2D texSamp2D02;		// Represents a 2D image
+uniform sampler2D texSamp2D03;		// Represents a 2D image
+uniform sampler2D texSamp2D04;		// Represents a 2D image
+uniform sampler2D texSamp2D05;		// Represents a 2D image
+uniform sampler2D texSamp2D06;		// Represents a 2D image
+uniform sampler2D texSamp2D07;		// Represents a 2D image
 // ... and so on...
 
-
-uniform float textureBlend00;		// Or an array
-uniform float textureBlend01;		
+uniform float texBlend00;		
+uniform float texBlend01;		
+uniform float texBlend02;	
+uniform float texBlend03;		
+uniform float texBlend04;
+uniform float texBlend05;		
+uniform float texBlend06;
+uniform float texBlend07;
 // .... and so on... 
 
-uniform samplerCube skyBoxSampler;
 uniform bool isASkyBox;				// True samples the skybox texture
-
+uniform samplerCube texSampCube00;
+uniform samplerCube texSampCube01;
+uniform samplerCube texSampCube02;
+uniform samplerCube texSampCube03;
+uniform float texCubeBlend00;
+uniform float texCubeBlend01;
+uniform float texCubeBlend02;
+uniform float texCubeBlend03;
 
 /*****************************************************/
 struct sLightDesc {
@@ -55,20 +77,22 @@ vec3 calcLightColour( in vec3 vecNormal,
                       in vec3 vecWorldPosition, 
                       in int lightID, 
 					  in vec3 matDiffuse, 
-                      in vec4 matSpecular );/*****************************************************/
+                      in vec4 matSpecular );
+/*****************************************************/
 
 
 
 void main()
 {	
-	// Set to black...
-	gl_FragColor.rgb = vec3(0.0f, 0.0f, 0.0f);
-	
+
+	fragColourOut = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 	// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
 	if ( bIsDebugWireFrameObject )
 	{
-		gl_FragColor.rgb = materialDiffuse.rgb;
-		gl_FragColor.a = materialDiffuse.a;		//gl_FragColor.a = 1.0f	
+		fragColourOut.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+		fragColourOut.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+		fragColourOut.rgb += vec3(0.0f, 0.0f, 1.0f);
 		return;		// Immediate return
 	}
 	
@@ -79,58 +103,73 @@ void main()
 		//	returning a colour (at that point in the texture)
 		// Note we are using the normals of our skybox object
 		//	to determine the point on the inside of the box
-		vec4 skyRGBA = texture( skyBoxSampler, vertNormal.xyz );
+		vec4 skyRGBA = texture( texSampCube00, vertNormal.xyz );
 		
-		gl_FragColor = skyRGBA;
-		gl_FragColor.a = 1.0f;
+		fragColourOut = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
+//		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 		return;	
 	}
+	
+	vec3 matDiffuse = vec3(0.0f, 0.0f, 0.0f);
 	
 	// ****************************************************************/
 	//uniform sampler2D myAmazingTexture00;
 	vec2 theUVCoords = uvX2out.xy;		// use UV #1 of vertex
-	vec4 texCol00 = texture( myAmazingTexture00, theUVCoords.xy );
-	vec4 texCol01 = texture( myAmazingTexture01, theUVCoords.xy );
+	vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
+	vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
+	vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
+	vec4 texCol03 = texture( texSamp2D03, theUVCoords.xy );
+	vec4 texCol04 = texture( texSamp2D04, theUVCoords.xy );
+	vec4 texCol05 = texture( texSamp2D05, theUVCoords.xy );
+	vec4 texCol06 = texture( texSamp2D06, theUVCoords.xy );
+	vec4 texCol07 = texture( texSamp2D07, theUVCoords.xy );
 	//... and so on (to how many textures you are using)
-	
+//	
 	// use the blend value to combine textures
-	vec3 matDiffuse = vec3(0.0f);
-	matDiffuse.rgb += (texCol00.rgb * textureBlend00) + 
-	                  (texCol01.rgb * textureBlend01);	// .. and so on
-	                       //(texCol02.rgb * textureBlend00);	// .. and so on
+//	vec3 matDiffuse = vec3(0.0f,1.0f,1.0f);
+//	vec3 matDiffuse = vec3(theUVCoords.xy, 0.0f);
+//	matDiffuse += texCol00.rgb;
+	matDiffuse.rgb += (texCol00.rgb * texBlend00);// + 
+	                  (texCol01.rgb * texBlend01) + 
+					  (texCol02.rgb * texBlend02) + 
+					  (texCol03.rgb * texBlend03) +
+					  (texCol04.rgb * texBlend04) +
+					  (texCol05.rgb * texBlend05) +
+					  (texCol06.rgb * texBlend06) +
+					  (texCol07.rgb * texBlend07);
 	// We will look at specular or gloss maps later, 
 	// 	but making the specular white is fine
 	vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
-	// ****************************************************************/	
+
+//	fragColourOut.rgb += texCol00.rgb;
+	fragColourOut.rgb += matDiffuse;
+	fragColourOut.a = 1.0f;
+	return;
 	
+	// ****************************************************************/	
 	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
 	{
 		// Old version, which used 'global' diffuse and specular
 		//gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
-		gl_FragColor.rgb += calcLightColour( vertNormal, 
-		                                     vecWorldPosition, 
-											 index, 
-		                                     matDiffuse, 
-											 matSpecular );
+		fragColourOut.rgb += calcLightColour( vertNormal, 					
+		                                      vecWorldPosition, 
+											  index, 
+		                                      matDiffuse, 
+											  materialSpecular );
 	}
 
 	// Add the ambient here (AFTER the lighting)
 	// We have materialAmbient, but ambient is often 
 	//	just a percentage ratio of the diffuse
-	float ambientRatio = 0.05f;
-	vec3 ambientContribution = matDiffuse.rgb * ambientRatio;
-	gl_FragColor.rgb += ambientContribution.rgb;
+	vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
+	fragColourOut.rgb += ambientContribution.rgb;
 	
 	// Screen is so dim...
-	gl_FragColor *= 1.5f;	// 150% brighter
-
-//	gl_FragColor.rgb * 0.001f;
-//	gl_FragColor.rgb = matDiffuse.rgb;
-	
+	//fragColourOut *= 1.5f;	// 150% brighter
 	
 	// Copy object material diffuse to alpha
-	gl_FragColor.a = materialDiffuse.a;
-
+	fragColourOut.a = materialDiffuse.a;
+	
 	return;
 }
 
@@ -209,8 +248,8 @@ vec3 calcLightColour( in vec3 vecNormal,
 	
 	
 // For now, to simplify, eliminate the specular
-//	colour = outDiffuse + outSpecular;
-	colour = outDiffuse;
+	colour = outDiffuse + outSpecular;
+//	colour = outDiffuse;
 	
 	return colour;
 }// vec3 calcLightColour(...) 

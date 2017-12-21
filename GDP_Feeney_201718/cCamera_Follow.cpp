@@ -56,7 +56,7 @@ float clamp(float x, float lowerlimit, float upperlimit) {
 	return x;
 }
 
-void cCamera::m_UpdateFollowCamera_GOOD(float deltaTime)
+void cCamera::m_UpdateFollowCamera_GOOD(double deltaTime)
 {
 	// Using the smoothstep from Wikipedia:
 	// https://en.wikipedia.org/wiki/Smoothstep
@@ -94,7 +94,7 @@ void cCamera::m_UpdateFollowCamera_GOOD(float deltaTime)
 }
 
 
-void cCamera::m_UpdateFollowCamera_SUCKS(float deltaTime)
+void cCamera::m_UpdateFollowCamera_SUCKS(double deltaTime)
 {
 	// Calculate ideal location in world
 	glm::vec3 camIdealPositionWorld

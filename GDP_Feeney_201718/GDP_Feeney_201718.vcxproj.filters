@@ -43,9 +43,6 @@
     <Filter Include="Models\PlyLoader">
       <UniqueIdentifier>{e09b5a02-f893-42b3-b295-cb29c4d9deac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SceneManager">
-      <UniqueIdentifier>{a88a3da5-d048-4e42-84f8-57a639bbacae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Persist\JSON">
       <UniqueIdentifier>{133aa164-9ca9-491b-b0e6-573056f1746d}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,21 @@
     </Filter>
     <Filter Include="GameObject">
       <UniqueIdentifier>{f83183ec-fc9a-4006-81f2-313041ab1733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene and Game Managers">
+      <UniqueIdentifier>{a88a3da5-d048-4e42-84f8-57a639bbacae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{f8ba1d80-0de6-47a3-8cb6-03aad50b30c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mesh">
+      <UniqueIdentifier>{33a4e1b8-cf7f-456a-b56a-e498d995c21d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShaderManager">
+      <UniqueIdentifier>{22c2bff5-161a-4fad-b75a-8e4277fdf10f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Error">
+      <UniqueIdentifier>{1dc855b8-96b2-4b10-9cb9-efafc30e11d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,15 +78,6 @@
     <ClCompile Include="cTriangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cShaderManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cVAOMeshManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,9 +88,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture\C24BitBMPpixel.cpp">
-      <Filter>Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture\cBasicTextureManager.cpp">
       <Filter>Texture</Filter>
     </ClCompile>
     <ClCompile Include="Texture\CTextureFromBMP.cpp">
@@ -116,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="cDebugRenderer.cpp">
       <Filter>DebugRenderer</Filter>
-    </ClCompile>
-    <ClCompile Include="generalGLStuff.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Physics\Physics.cpp">
       <Filter>Physics_AABB</Filter>
@@ -168,15 +165,45 @@
     <ClCompile Include="cGameObject.cpp">
       <Filter>GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\cPhysicsWorld.cpp">
+      <Filter>Physics_AABB</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\cLuaBrain.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="cMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="sMeshDrawInfo.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="cDebugRenderer_BuiltInShapes.cpp">
+      <Filter>DebugRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Calls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cShader.cpp">
+      <Filter>ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="cShaderManager.cpp">
+      <Filter>ShaderManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Error\CErrorLog.cpp">
+      <Filter>Error</Filter>
+    </ClCompile>
+    <ClCompile Include="Error\COpenGLError.cpp">
+      <Filter>Error</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\CTextureManager.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cVAOMeshManager.h">
@@ -195,9 +222,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Texture\C24BitBMPpixel.h">
-      <Filter>Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture\cBasicTextureManager.h">
       <Filter>Texture</Filter>
     </ClInclude>
     <ClInclude Include="Texture\CTextureFromBMP.h">
@@ -261,7 +285,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cSceneManager.h">
-      <Filter>SceneManager</Filter>
+      <Filter>Scene and Game Managers</Filter>
     </ClInclude>
     <ClInclude Include="cRnRJASON.h">
       <Filter>Persist\JSON</Filter>
@@ -280,6 +304,42 @@
     </ClInclude>
     <ClInclude Include="cGameObject.h">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\cPhysicsWorld.h">
+      <Filter>Physics_AABB</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\cLuaBrain.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\cLuaConnector.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="cMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="sMeshDrawInfo.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="sTextureBindBlendInfo.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="cShaderManager.h">
+      <Filter>ShaderManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\CTextureManager.h">
+      <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\CErrorLog.h">
+      <Filter>Error</Filter>
+    </ClInclude>
+    <ClInclude Include="Error\COpenGLError.h">
+      <Filter>Error</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\CTexUnitInfoBrief.h">
+      <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.h">
+      <Filter>Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,9 +15,9 @@ public:
 	// Note the virtual and the "= 0". If ALL of these 
 	// methods have this, then it's a "pure virtual" or 
 	// "interface class"
-	virtual void SetPhysProps( cPhysicalProperties &PhysProps ) = 0;
-	virtual cPhysicalProperties GetPhysProps( void ) = 0;
-	virtual void GetPhysProps( cPhysicalProperties &PhysProps ) = 0;
+	virtual void SetPhysState( cPhysicalProperties &PhysState ) = 0;
+	virtual cPhysicalProperties GetPhysState( void ) = 0;
+	virtual void GetPhysState( cPhysicalProperties &PhysState ) = 0;
 };
 
 

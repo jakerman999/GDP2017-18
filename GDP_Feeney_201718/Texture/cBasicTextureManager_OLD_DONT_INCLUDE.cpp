@@ -1,3 +1,7 @@
+
+#error "This class has been replaced with the CTextureManager one."
+
+
 #include "cBasicTextureManager.h"
 
 #include <sstream>
@@ -46,7 +50,7 @@ bool cBasicTextureManager::CreateNewCubeTextureFromBMPFiles( std::string cubeMap
 
 
 	CTextureFromBMP* pTempTexture = new CTextureFromBMP();
-	GLenum errorEnum = 0;
+	GLenum errorEnum = GL_NO_ERROR;
 	std::string errorString;
 	std::string errorDetails;
 	if ( ! pTempTexture->CreateNewCubeTextureFromBMPFiles( cubeMapName, 
@@ -106,4 +110,13 @@ void cBasicTextureManager::m_appendErrorStringLine( std::string nextErrorTextLin
 	ss << nextErrorTextLine << std::endl;
 	this->m_lastError = ss.str();
 	return;
+}
+
+GLuint cBasicTextureManager::QnD_GetFirstTextureIDFromMap(void)
+{
+	if ( this->m_map_TexNameToTexture.empty() )
+	{	// There are no textures loaded
+		return 0;
+	}
+	return this->m_map_TexNameToTexture[0]->getTextureNumber();
 }

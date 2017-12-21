@@ -7,8 +7,8 @@
 
 //#define MAX_VERTEX_ARRAY_SIZE 2048
 //#define MAX_INDEX_ARRAY_SIZE 2048
-static const int MAX_VERTEX_ARRAY_SIZE = 4096;
-static const int MAX_INDEX_ARRAY_SIZE = 4096;
+//static const int MAX_VERTEX_ARRAY_SIZE = 4096;
+//static const int MAX_INDEX_ARRAY_SIZE = 4096;
 
 #include <string>
 #include <glm/vec3.hpp>
@@ -24,7 +24,7 @@ public:
 	// Array of vertices 
 //	cVertex_xyz_rgb vertices[MAX_VERTEX_ARRAY_SIZE]; // Stack
 //	cVertex_xyz_rgb_n* pVertices;						// Heap
-	sVertex_xyz_rgba_n_uv2_bt* pVertices;						// Heap
+	sVertex_xyz_rgba_n_uv2_bt* pVertices;				// Heap
 	int numberOfVertices;
 
 	// Array of triangles (indices)

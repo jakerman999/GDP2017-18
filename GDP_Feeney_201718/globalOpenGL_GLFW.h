@@ -13,23 +13,15 @@
 // SHORT VERSION OF THIS: If you need ANYTHING with OpenGL (constant, functions, whatever), 
 //                         then include THIS file, not the glad and GLFW files specifically)
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "cVAOMeshManager.h"
-#include "cShaderManager.h"
-#include "Texture/cBasicTextureManager.h"
-#include "cDebugRenderer.h"
-
-
+// These are here as they are set within the GLFW call back. 
+// (The thinking is that anything that sets these call backs would 
+//  HAVE to include this file, anyway.)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-extern cVAOMeshManager*			g_pVAOManager;		// (theMain.cpp)
-extern cShaderManager*			g_pShaderManager;	// (theMain.cpp)
-extern cBasicTextureManager*	g_pTextureManager;	// (theMain.cpp)
-extern cDebugRenderer*			g_pDebugRenderer;	// (theMain.cpp)
+#include "Error/COpenGLError.h"
 
-std::string decodeGLErrorFromEnum(GLenum error, std::string &details);
 
 #endif

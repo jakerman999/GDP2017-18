@@ -8,6 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
+#include <sstream>		
+#include <fstream>
+
+// Used to hold the default sphere shape
+extern float default_sphere_array [];
+extern unsigned int default_sphere_array_size;
 
 /*static*/ 
 const std::string cDebugRenderer::DEFALUT_VERT_SHADER_SOURCE = "\
@@ -101,6 +107,12 @@ bool cDebugRenderer::initialize(std::string &error)
 	{
 		return false;
 	}
+	
+	// Load the default sphere
+	std::vector<sDebugTri> vecSphereTris;
+	this->QnD_loadHeaderArrayInto_vecTri( default_sphere_array, default_sphere_array_size, vecSphereTris);
+	this->loadDebugMesh("sphere", vecSphereTris);
+
 
 	return true;
 }
@@ -245,9 +257,9 @@ cDebugRenderer::~cDebugRenderer()
 }
 
 
-void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection)
+void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime)
 {
-	this->m_copyTrianglesIntoRenderBuffer();
+	this->m_copyTrianglesIntoRenderBuffer(deltaTime);
 //	this->m_copyLinesIntoRenderBuffer();
 //	this->m_copyPointsIntoRenderBuffer();
 
@@ -297,7 +309,7 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 	return;
 }
 
-void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
+void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(double deltaTime)
 {
 	// Used to keep the "persistent" ones...
 	std::vector<drTri> vecTriTemp;
@@ -347,9 +359,10 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].b = curTri.colour.b;
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+2].a = 1.0f;
 
+		curTri.lifeTime -= static_cast<float>(deltaTime);
 
 		// Keep this one? (i.e. is persistent?)
-		if (curTri.bPersist)
+		if (curTri.lifeTime > 0.0f)
 		{
 			vecTriTemp.push_back(curTri);
 		}
@@ -383,7 +396,8 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 	std::string errDetails;
 	if (err != GL_NO_ERROR)
 	{
-		error = decodeGLErrorFromEnum(err, errDetails);
+//		error = decodeGLErrorFromEnum(err, errDetails);
+		error = COpenGLError::TranslateErrorEnum(err);
 	}
 
 	//	numberOfBytesToCopy,
@@ -405,33 +419,102 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(void)
 }
 
 
+
+
+void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime/*=0.0f*/)
+{
+	drTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, lifeTime);
+	this->addTriangle(tempTri);
+	return;
+}
+
+
+void cDebugRenderer::addTriangle(drTri &tri)
+{
+	this->m_vecTriangles.push_back(tri);
+	return;
+}
+
+void cDebugRenderer::addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, float lifeTime/*=0.0f*/)
+{
+	drLine tempLine(startXYZ, endXYZ, colour, lifeTime);
+	this->addLine(tempLine);
+	return;
+}
+
+void cDebugRenderer::addLine(drLine &line)
+{
+	this->m_vecLines.push_back(line);
+	return;
+}
+
+void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime/*=0.0f*/, float pointSize/*=1.0f*/)
+{
+	drPoint tempPoint(xyz, colour, lifeTime, pointSize);
+	this->addPoint(tempPoint);
+	return;
+}
+
+void cDebugRenderer::addPoint(drPoint &point)
+{
+	this->m_vecPoints.push_back(point);
+	return;
+}
+
+// Replaces the DrawDebugSphere
+void cDebugRenderer::addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
+{
+	iDebugRenderer::sDebugMesh sphereMesh;
+	sphereMesh.name = iDebugRenderer::DEFAULT_DEBUG_SPHERE_MESH_NAME;
+	sphereMesh.scale = scale;
+	sphereMesh.xyz = xyz;
+	sphereMesh.colour = colour;
+	sphereMesh.lifeTime = lifeTime;
+	this->m_vecMeshes.push_back(sphereMesh);
+	return;
+}
+
+
+
+
+// *********************************************************
+//	 ___      _                ___ _                      
+//	|   \ ___| |__ _  _ __ _  / __| |_  __ _ _ __  ___ ___
+//	| |) / -_) '_ \ || / _` | \__ \ ' \/ _` | '_ \/ -_|_-<
+//	|___/\___|_.__/\_,_\__, | |___/_||_\__,_| .__/\___/__/
+//	                   |___/                |_|           
+//
+
+//static 
+const std::string iDebugRenderer::DEFAULT_DEBUG_SPHERE_MESH_NAME = "DSPHERE";
+
 iDebugRenderer::sDebugTri::sDebugTri()
 {
 	this->v[0] = glm::vec3(0.0f); this->v[1] = glm::vec3(0.0f); this->v[2] = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
-	this->bPersist = false;
+	this->lifeTime = 0.0f;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, bool bPersist/*=false*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3, glm::vec3 colour, float lifeTime/*=0.0f*/)
 {
 	this->v[0] = v1;
 	this->v[1] = v2;
 	this->v[2] = v3;
 	this->colour = colour;
-	this->bPersist = bPersist;
+	this->lifeTime = lifeTime;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, bool bPersist/*=false*/)
+iDebugRenderer::sDebugTri::sDebugTri(glm::vec3 v[3], glm::vec3 colour, float lifeTime/*=0.0f*/)
 {
 	this->v[0] = v[0];
 	this->v[1] = v[1];
 	this->v[2] = v[2];
 	this->colour = colour;
-	this->bPersist = bPersist;
+	this->lifeTime = lifeTime;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
@@ -441,27 +524,27 @@ iDebugRenderer::sDebugLine::sDebugLine()
 	this->points[0] = glm::vec3(0.0f);
 	this->points[0] = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);		// white
-	this->bPersist = false;
+	this->lifeTime = 0.0f;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, bool /*bPersist=false*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 start, glm::vec3 end, glm::vec3 colour, float lifeTime/*=0.0f*/)
 {
 	this->points[0] = start;
 	this->points[1] = end;
 	this->colour = colour;
-	this->bPersist = bPersist;
+	this->lifeTime = lifeTime;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, bool /*bPersist=false*/)
+iDebugRenderer::sDebugLine::sDebugLine(glm::vec3 points[2], glm::vec3 colour, float lifeTime/*=0.0f*/)
 {
 	this->points[0] = points[0];
 	this->points[1] = points[1];
 	this->colour = colour;
-	this->bPersist = bPersist;
+	this->lifeTime = lifeTime;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
@@ -474,84 +557,91 @@ iDebugRenderer::sDebugPoint::sDebugPoint()
 {
 	this->xyz = glm::vec3(0.0f);
 	this->colour = glm::vec3(1.0f);	// white
-	this->bPersist = false;
+	this->lifeTime = 0.0f;
 	this->pointSize = cDebugRendererDEFAULT_POINT_SIZE;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist/*=false*/)
-{
-	this->xyz = xyz;
-	this->colour = colour;
-	this->bPersist = bPersist;
-	this->pointSize = cDebugRendererDEFAULT_POINT_SIZE;
-	this->bIgnorDepthBuffer = false;
-	return;
-}
-
-iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist/*=false*/)
+iDebugRenderer::sDebugPoint::sDebugPoint(glm::vec3 xyz, glm::vec3 colour, float lifeTime/*=0.0f*/, float pointSize/*=1.0f*/)
 {
 	this->xyz = xyz;
 	this->colour = colour;
 	this->pointSize = pointSize;
-	this->bPersist = bPersist;
+	this->lifeTime = lifeTime;
 	this->bIgnorDepthBuffer = false;
 	return;
 }
 
-
-void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, bool bPersist /*=false*/)
+iDebugRenderer::sDebugMesh::sDebugMesh()
 {
-	drTri tempTri(v1XYZ, v2XYZ, v3XYZ, colour, bPersist);
-	this->addTriangle(tempTri);
+	this->name = iDebugRenderer::DEFAULT_DEBUG_SPHERE_MESH_NAME;	// = "DSPHERE";
+	this->xyz = glm::vec3(0.0f,0.0f,0.0f);
+	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
+	this->scale = 1.0f;
+	this->colour = glm::vec3(1.0f,1.0f,1.0f);
+	this->lifeTime = 0.0f;
 	return;
 }
 
-
-void cDebugRenderer::addTriangle(drTri &tri)
+// Assumes a size of 1, colour white
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name)
 {
-	this->m_vecTriangles.push_back(tri);
+	this->name = name;
+	this->xyz = glm::vec3(0.0f,0.0f,0.0f);
+	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
+	this->scale = 1.0f;
+	this->colour = glm::vec3(1.0f,1.0f,1.0f);
+	this->lifeTime = 0.0f;
 	return;
 }
 
-void cDebugRenderer::addLine(glm::vec3 startXYZ, glm::vec3 endXYZ, glm::vec3 colour, bool bPersist /*=false*/)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, float lifeTime/*=0.0f*/)
 {
-	drLine tempLine(startXYZ, endXYZ, colour, bPersist);
-	this->addLine(tempLine);
+	this->name = name;
+	this->xyz = xyz;
+	this->lifeTime = lifeTime;
+	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
+	this->scale = 1.0f;
+	this->colour = glm::vec3(1.0f,1.0f,1.0f);
 	return;
 }
 
-void cDebugRenderer::addLine(drLine &line)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 colour, float scale, float lifeTime/*=0.0f*/)
 {
-	this->m_vecLines.push_back(line);
+	this->name = name;
+	this->xyz = xyz;
+	this->lifeTime = lifeTime;
+	this->qOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
+	this->scale = 1.0f;
+	this->colour = glm::vec3(1.0f,1.0f,1.0f);
 	return;
 }
 
-void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, bool bPersist /*=false*/)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::vec3 EulerOrientation, glm::vec3 colour, 
+                                       float scale, float lifeTime/*=0.0f*/)
 {
-	drPoint tempPoint(xyz, colour, bPersist);
-	this->addPoint(tempPoint);
+	this->name = name;
+	this->xyz = xyz;
+	this->lifeTime = lifeTime;
+	this->qOrientation = glm::quat(EulerOrientation);
+	this->scale = scale;
+	this->colour = colour;
 	return;
 }
 
-void cDebugRenderer::addPoint(drPoint &point)
+iDebugRenderer::sDebugMesh::sDebugMesh(std::string name, glm::vec3 xyz, glm::quat qOrientation, glm::vec3 colour, 
+                                       float scale, float lifeTime/*=0.0f*/)
 {
-	this->m_vecPoints.push_back(point);
+	this->name = name;
+	this->xyz = xyz;
+	this->lifeTime = lifeTime;
+	this->qOrientation = qOrientation;
+	this->scale = scale;
+	this->colour = colour;
 	return;
 }
-
-void cDebugRenderer::addPoint(glm::vec3 xyz, glm::vec3 colour, float pointSize, bool bPersist /*=false*/)
-{
-	drPoint tempPoint(xyz, colour, pointSize, bPersist);
-	this->addPoint(tempPoint);
-	return;
-}
-
-
-
-
-
-
+//
+// *********************************************************
 
 

@@ -2,10 +2,11 @@
 #version 420
 
 //uniform mat4 MVP;
-uniform mat4 mModel;
 //uniform mat4 mModelRotationOnly;
 uniform mat4 mView;
 uniform mat4 mProjection;
+uniform mat4 mModel;
+uniform mat4 mWorldInvTranspose;
 
 // "Vertex" attribute (now use 'in')
 in vec4 vCol;		// attribute
@@ -32,11 +33,11 @@ void main()
 	
 	// Inv Tran - strips translation and scale from model transform
 	// Alternative is you pass a "rotation only" model mat4
-	mat4 mWorldInTranspose = inverse(transpose(mModel));
+//	mat4 mWorldInTranspose = inverse(transpose(mModel));		/*Now passed in*/
 	
 	// Was: MVP * vNorm;
 	// This normal is in "world space" but only has rotation
-	vertNormal = vec3( mWorldInTranspose * vec4(vNorm, 1.0f) ).xyz;		
+	vertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;		
 	
 	
     color = vCol;

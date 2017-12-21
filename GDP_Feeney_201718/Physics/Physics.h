@@ -1,3 +1,10 @@
+#error "This file has been replaced with the cPhysicsWorld class"
+
+/*
+
+	This entire thing is replaced with the cPhysicsWorld class
+
+	
 #ifndef _Physics_HG_
 #define _Physics_HG_
 
@@ -18,3 +25,5 @@ bool PenetrationTestSphereSphere( cGameObject* pA, cGameObject* pB );
 
 
 #endif
+
+*/

@@ -101,7 +101,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;lua5.3.3-static_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +115,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_64.lib;lua5.3.3-static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +133,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;lua5.3.3-static_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,7 +151,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_64.lib;lua5.3.3-static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -164,6 +164,7 @@
     <ClCompile Include="cCamera.cpp" />
     <ClCompile Include="cCamera_Follow.cpp" />
     <ClCompile Include="cDebugRenderer.cpp" />
+    <ClCompile Include="cDebugRenderer_BuiltInShapes.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="CHRTimer.cpp" />
     <ClCompile Include="cLightManager.cpp" />
@@ -173,8 +174,10 @@
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cTriangle.cpp" />
     <ClCompile Include="cVAOMeshManager.cpp" />
-    <ClCompile Include="generalGLStuff.cpp" />
+    <ClCompile Include="Error\CErrorLog.cpp" />
+    <ClCompile Include="Error\COpenGLError.cpp" />
     <ClCompile Include="GLFW_keyboardCallback.cpp" />
+    <ClCompile Include="Lua\cLuaBrain.cpp" />
     <ClCompile Include="ModelUtilities.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -186,16 +189,26 @@
     <ClCompile Include="Physics\cAABBBroadPhase.cpp" />
     <ClCompile Include="Physics\cAABBv2.cpp" />
     <ClCompile Include="Physics\cPhysicalProperties.cpp" />
-    <ClCompile Include="Physics\Physics.cpp" />
+    <ClCompile Include="Physics\cPhysicsWorld.cpp" />
+    <ClCompile Include="Physics\Physics.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Ply\CPlyFile5nt.cpp" />
     <ClCompile Include="Ply\CPlyFile5nt_experimental.cpp" />
     <ClCompile Include="Ply\CStringHelper.cpp" />
     <ClCompile Include="Ply\CVector3f.cpp" />
+    <ClCompile Include="Render_Calls.cpp" />
     <ClCompile Include="SceneLoader.cpp" />
+    <ClCompile Include="sMeshDrawInfo.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="Texture\C24BitBMPpixel.cpp" />
-    <ClCompile Include="Texture\cBasicTextureManager.cpp" />
+    <ClCompile Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Texture\CTextureFromBMP.cpp" />
+    <ClCompile Include="Texture\CTextureManager.cpp" />
     <ClCompile Include="TheMain.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="Utilities\cMathHelper.cpp" />
@@ -213,7 +226,11 @@
     <ClInclude Include="cShaderManager.h" />
     <ClInclude Include="cTriangle.h" />
     <ClInclude Include="cVAOMeshManager.h" />
+    <ClInclude Include="Error\CErrorLog.h" />
+    <ClInclude Include="Error\COpenGLError.h" />
     <ClInclude Include="iDebugRenderer.h" />
+    <ClInclude Include="Lua\cLuaBrain.h" />
+    <ClInclude Include="Lua\cLuaConnector.h" />
     <ClInclude Include="Persist\cPersist.h" />
     <ClInclude Include="Persist\cPersistImpSQLite.h" />
     <ClInclude Include="Persist\iPersistImp.h" />
@@ -222,20 +239,31 @@
     <ClInclude Include="Physics\cAABBBroadPhase.h" />
     <ClInclude Include="Physics\cAABBv2.h" />
     <ClInclude Include="Physics\cPhysicalProperties.h" />
+    <ClInclude Include="Physics\cPhysicsWorld.h" />
     <ClInclude Include="Physics\iPhysicalObject.h" />
-    <ClInclude Include="Physics\Physics.h" />
+    <ClInclude Include="Physics\Physics.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Ply\CPlyFile5nt.h" />
     <ClInclude Include="Ply\CPlyInfo.h" />
     <ClInclude Include="Ply\CStringHelper.h" />
     <ClInclude Include="Ply\CVector3f.h" />
+    <ClInclude Include="sMeshDrawInfo.h" />
+    <ClInclude Include="sTextureBindBlendInfo.h" />
     <ClInclude Include="sVAOInfo.h" />
     <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h" />
     <ClInclude Include="globalGameStuff.h" />
     <ClInclude Include="globalOpenGL_GLFW.h" />
     <ClInclude Include="ModelUtilities.h" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
-    <ClInclude Include="Texture\cBasicTextureManager.h" />
+    <ClInclude Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Texture\CTextureFromBMP.h" />
+    <ClInclude Include="Texture\CTextureManager.h" />
+    <ClInclude Include="Texture\CTexUnitInfoBrief.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="Utilities\cMathHelper.h" />
   </ItemGroup>
