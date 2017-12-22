@@ -162,6 +162,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="cCamera.cpp" />
+    <ClCompile Include="cCamera_Fly.cpp" />
     <ClCompile Include="cCamera_Follow.cpp" />
     <ClCompile Include="cDebugRenderer.cpp" />
     <ClCompile Include="cDebugRenderer_BuiltInShapes.cpp" />

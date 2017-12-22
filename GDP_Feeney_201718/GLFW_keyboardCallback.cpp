@@ -22,6 +22,9 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 //	const float CAMERASPEED = 100.0f;
 	switch (key)
 	{
+	case GLFW_KEY_F:
+		::g_pTheCamera->setCameraMode( cCamera::FLY_CAMERA_USING_LOOK_AT );
+		break;
 	// HACK: Change orientation of pLeftTeapot
 	// 5,6 - rotation around x
 	// 7,8 - rotation around y 

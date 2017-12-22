@@ -219,6 +219,9 @@
     <ClCompile Include="Utilities\CStringHelper.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="cCamera_Fly.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">

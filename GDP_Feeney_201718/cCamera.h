@@ -24,9 +24,14 @@ public:
 	{
 		MANUAL,			// Move along the axes (lookat)
 		FOLLOW_CAMERA,	// Follows a target (lookat)
-		FLY_CAMERA		// Movement based on direction of gaze
-						// Use quaternion orientation
-						// "catch"  is no LOOKAT
+		FLY_CAMERA_USING_LOOK_AT,	// Here, you use the "target" as direction
+									// you want to go. This allows you to transition
+									// from the FOLLOW_CAMERA to FLY seamlessly
+
+
+		FLY_CAMERA_GARBAGE_DONT_USE		// Movement based on direction of gaze
+								// Use quaternion orientation
+								// "catch"  is no LOOKAT
 	};
 
 	void setCameraMode(eMode cameraMode);
@@ -64,6 +69,14 @@ public:
 	// +ve is Clock-wise rotation (from nose to tail)
 	void Fly_yaw(float pitchDegreesPosIsClockWise);
 	void Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise);
+	// 
+	// You can use this to change the target from wherever it is
+	//	to, say, 1.0 units from the front of the camera. 
+	void RelocateTargetInFrontOfCamera(float howFarAwayFromFront);
+private:
+	// Used for the directional calculations to move the camera
+	glm::vec3 m_calcDirectionVectorFromTarget(void);
+public:
 	// ************************************************************
 
 	void overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation);

@@ -26,16 +26,17 @@ void cCamera::updateTick(double deltaTime)
 	if ( this->cameraMode == cCamera::FOLLOW_CAMERA )
 	{	// update the velocity of the camera 
 		this->m_UpdateFollowCamera_GOOD(deltaTime);
+
+		// Explicit forward Euler, like in the physics loop
+		// Acceleration comes form velocity
+		glm::vec3 accelThisStep = this->accel * static_cast<float>(deltaTime);
+		this->velocity += accelThisStep;
+
+		// Position comes from velocity over time
+		glm::vec3 velChangeThisStep = this->velocity * static_cast<float>(deltaTime);
+		this->eye += velChangeThisStep;
 	}
 
-	// Explicit forward Euler, like in the physics loop
-	// Acceleration comes form velocity
-	glm::vec3 accelThisStep = this->accel * static_cast<float>(deltaTime);
-	this->velocity += accelThisStep;
-
-	// Position comes from velocity over time
-	glm::vec3 velChangeThisStep = this->velocity * static_cast<float>(deltaTime);
-	this->eye += velChangeThisStep;
 
 	return;
 }
@@ -45,7 +46,11 @@ void cCamera::setCameraMode(eMode cameraMode)
 	// Yes, it's an enum, but you can pass anything, so double-check
 	switch (cameraMode)
 	{
-	case cCamera::eMode::FLY_CAMERA:
+	case cCamera::eMode::FLY_CAMERA_GARBAGE_DONT_USE:
+		cameraMode = cCamera::FLY_CAMERA_USING_LOOK_AT;
+		assert("What are you doing with your life? DON'T use the garbage camera");
+		break;
+	case cCamera::eMode::FLY_CAMERA_USING_LOOK_AT:
 	case cCamera::eMode::FOLLOW_CAMERA:
 	case cCamera::eMode::MANUAL:
 		this->cameraMode = cameraMode;
@@ -70,21 +75,25 @@ glm::mat4 cCamera::getViewMatrix(void)
 		                                glm::vec3(0.0f, 1.0f, 0.0f) ); // UP
 		return matView;
 		break;
-	case cCamera::eMode::FLY_CAMERA:
+
+// ************************************************************************
+// This quaternion based mess is, well, a mess. Don't use as is
+	case cCamera::eMode::FLY_CAMERA_GARBAGE_DONT_USE:
 		// Use same process as with drawing an object:
 		// Combine transform with rotation, and return that
-		glm::mat4 matCamView = glm::mat4(1.0f);
 
-		glm::mat4 trans = glm::mat4x4(1.0f);
-		trans = glm::translate(trans, this->eye);
-		matCamView = matCamView * trans;
+		glm::mat4 matCamTrans = glm::mat4x4(1.0f);
+		matCamTrans = glm::translate(matCamTrans, this->eye);
+//		matCamView = matCamView * matCamTrans;
 
 		// Like many things in GML, the conversion is done in the constructor
-		glm::mat4 postRotQuat = glm::mat4(this->qOrientation);
-		matCamView = matCamView * postRotQuat;
+		glm::mat4 matCamRotate = glm::mat4(this->qOrientation);
+
+		glm::mat4 matCamView = matCamTrans * matCamRotate;
 
 		return matCamView;
 		break;
+// ************************************************************************
 	}
 	// You need to check what you are doign with your life!
 	// return the identity matrix
@@ -96,62 +105,7 @@ glm::mat4 cCamera::getViewMatrix(void)
 //					   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
 
 
-// ************************************************************
-// For the "fly camera":
-// +ve is along z-axis
-void cCamera::Fly_moveForward(float distanceAlongRelativeZAxis_PosIsForward)
-{
-	// Along the z axis
-	this->eye.z += distanceAlongRelativeZAxis_PosIsForward;
-	return;
-}
 
-void cCamera::Fly_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight)
-{
-	// Along the x axis
-	this->eye.x += distanceAlongRelativeXAxis_PosIsRight;
-	return;
-}
-
-void cCamera::Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp)
-{
-	// Along the y
-	this->eye.y += distanceAlongRelativeYAxis_PosIsUp;
-	return;
-}
-
-// +ve is right
-void cCamera::Fly_turn_RightLeft(float turnDegreesPosIsRight)
-{
-	// From camera orientation, Y axis "turns" left and right
-	this->adjustQOrientationFormDeltaEuler(
-		glm::vec3(0.0f,
-				  glm::radians(turnDegreesPosIsRight),	// Y axis
-		          0.0f));
-	return;
-}
-// +ve it up
-void cCamera::Fly_pitch_UpDown(float pitchDegreesPosIsNoseUp)
-{
-	// From camera orientation, X axis "pitches" up and down
-	this->adjustQOrientationFormDeltaEuler(
-		glm::vec3( glm::radians(pitchDegreesPosIsNoseUp),
-			       0.0f,
-			       0.0f ));
-	return;
-}
-
-// +ve is Clock-wise rotation (from nose to tail)
-void cCamera::Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise)
-{
-	// From camera orientation, Z axis "rolls" around
-	// (assume z axis is "nose to tail"
-	this->adjustQOrientationFormDeltaEuler(
-		glm::vec3(0.0f,
-			      0.0f,
-			      glm::radians(pitchDegreesPosIsClockWise)));
-	return;
-}
 //// ************************************************************
 //
 //void cCamera::setOrientationFromEuler(glm::vec3 eulerAngles);
