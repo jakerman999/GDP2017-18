@@ -137,6 +137,13 @@ void main()
 					  (texCol05.rgb * texBlend05) +
 					  (texCol06.rgb * texBlend06) +
 					  (texCol07.rgb * texBlend07);
+		
+//	matDiffuse.rgb *= 0.01f;	// Paint it black
+//	
+//	vec4 cubeMapSampleColour = texture( texSampCube00, vertNormal.xyz );
+//	matDiffuse.rgb += cubeMapSampleColour.rgb;
+	
+					  
 	// We will look at specular or gloss maps later, 
 	// 	but making the specular white is fine
 	vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
@@ -212,6 +219,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	outDiffuse.rgb = myLight[lightID].diffuse.rgb 		// Light contribution
 	                 * matDiffuse.rgb				// Material contribution
 					 * diffFactor;						// Factor based on direction
+					 
 
 // Simple linear attenuation
 //	float attenuation = 1.0f / lightDistance; 

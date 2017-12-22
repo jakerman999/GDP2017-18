@@ -49,6 +49,7 @@ void DrawDebugSphere(glm::vec3 location, glm::vec4 colour, float scale);
 //cGameObject* g_pTheDebugSphere;
 sMeshDrawInfo* g_pTheDebugSphereMesh;
 
+cGameObject* g_pSkyBoxObject = NULL;	// (theMain.cpp)
 
 //	static const int MAXNUMBEROFGAMEOBJECTS = 10;
 //	cGameObject* g_GameObjects[MAXNUMBEROFGAMEOBJECTS];
@@ -273,6 +274,8 @@ int main(void)
 		std::cout << "Not all models were loaded..." << std::endl;
 		std::cout << error << std::endl;
 	}
+
+
 	LoadModelsIntoScene();
 
 	GLint currentProgID = ::g_pShaderManager->getIDFromFriendlyName( "mySexyShader" );
@@ -400,6 +403,17 @@ int main(void)
 		// Update camera, too
 		::g_pTheCamera->updateTick(deltaTime);
 		::g_pTheCamera->accel = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// *********************************************
+		//    ___ _        ___              __     ___                          
+		//   / __| |___  _| _ ) _____ __  __\ \   / __|__ _ _ __  ___ _ _ __ _  
+		//   \__ \ / / || | _ \/ _ \ \ / |___> > | (__/ _` | '  \/ -_) '_/ _` | 
+		//   |___/_\_\\_, |___/\___/_\_\    /_/   \___\__,_|_|_|_\___|_| \__,_| 
+		//            |__/                                                      
+		cPhysicalProperties skyBoxPP;
+		::g_pSkyBoxObject->GetPhysState(skyBoxPP);
+		skyBoxPP.position = ::g_pTheCamera->eye;
+		::g_pSkyBoxObject->SetPhysState(skyBoxPP);
 
 
 		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );

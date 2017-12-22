@@ -22,6 +22,7 @@ void LoadModelsIntoScene(void)
 		cPhysicalProperties physState;
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
+		pTempGO->SetPhysState(physState);
 
 		sMeshDrawInfo meshInfo;
 		meshInfo.scale = 1.0f;
@@ -31,6 +32,7 @@ void LoadModelsIntoScene(void)
 		pTempGO->vecMeshes.push_back(meshInfo);
 
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+
 	}
 	//{	// Right side plane
 	//	cGameObject* pTempGO = new cGameObject();
@@ -138,17 +140,19 @@ void LoadModelsIntoScene(void)
 
 	// Our skybox object
 	{
-		cGameObject* pTempGO = new cGameObject();
+		//cGameObject* pTempGO = new cGameObject();
+		::g_pSkyBoxObject = new cGameObject();
 		cPhysicalProperties physState;
-		pTempGO->SetPhysState(physState);
+		::g_pSkyBoxObject->SetPhysState(physState);
 		sMeshDrawInfo meshInfo;
-		meshInfo.scale = 100.0f;
+		meshInfo.scale = 10000.0f;
 		meshInfo.debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		meshInfo.name = "SmoothSphereRadius1";			
+		meshInfo.name = "SmoothSphereRadius1InvertedNormals";			
 		meshInfo.vecMeshCubeMaps.push_back(sTextureBindBlendInfo("space", 1.0f));
-		pTempGO->vecMeshes.push_back(meshInfo);
+		meshInfo.bIsSkyBoxObject = true;
+		::g_pSkyBoxObject->vecMeshes.push_back(meshInfo);
 		// IS SKYBOX
-		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
+		::g_vecGameObjects.push_back(::g_pSkyBoxObject);		// Fastest way to add
 	}
 
 

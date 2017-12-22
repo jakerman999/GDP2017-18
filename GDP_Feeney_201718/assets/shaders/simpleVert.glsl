@@ -8,6 +8,9 @@ uniform mat4 mProjection;
 uniform mat4 mModel;
 uniform mat4 mWorldInvTranspose;
 
+uniform bool isASkyBox;		// Same as the one in the fragments
+
+
 // "Vertex" attribute (now use 'in')
 in vec4 vCol;		// attribute
 in vec3 vPos;		// was: vec2 vPos
@@ -24,16 +27,27 @@ void main()
     //gl_Position = MVP * vec4(vPos, 0.0, 1.0);	
 	vec3 position = vPos;
 	
+	mat4 matModel = mModel;
+	
+//	if ( isASkyBox )
+//	{	// DON'T Move the skybox.
+//		// Set model matrix to identity
+//		// ("moves" the skybox to the camera)
+//		// And set the scale value, too
+//		matModel = mat4(1.0f);	
+//	}
+	
+	
 	// Calculate the model view projection matrix here
-	mat4 MVP = mProjection * mView * mModel;
+	mat4 MVP = mProjection * mView * matModel;
 	gl_Position = MVP * vec4(position, 1.0f);
 	
 	// Calculate vertex and normal based on ONLY world 
-	vecWorldPosition = vec3( mModel * vec4(position, 1.0f) ).xyz;
+	vecWorldPosition = vec3( matModel * vec4(position, 1.0f) ).xyz;
 	
 	// Inv Tran - strips translation and scale from model transform
 	// Alternative is you pass a "rotation only" model mat4
-//	mat4 mWorldInTranspose = inverse(transpose(mModel));		/*Now passed in*/
+//	mat4 mWorldInTranspose = inverse(transpose(matModel));		/*Now passed in*/
 	
 	// Was: MVP * vNorm;
 	// This normal is in "world space" but only has rotation

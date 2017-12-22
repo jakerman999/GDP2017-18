@@ -12,7 +12,13 @@
 
 class cGameObject;	// for friend declaration
 
-class cPhysicalProperties		
+//class iGameObjectSetsID
+//{
+//public:
+//	virtual void SetMyID(unsigned int ID) = 0;
+//};
+
+class cPhysicalProperties //: public iGameObjectSetsID	
 {
 public:
 	friend cGameObject;	// to access m_GameObjectID

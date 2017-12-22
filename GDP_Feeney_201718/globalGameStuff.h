@@ -64,5 +64,7 @@ extern cDebugRenderer*			g_pDebugRenderer;	// (theMain.cpp)
 
 void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime );
 
+extern cGameObject* g_pSkyBoxObject;	// (theMain.cpp)
+
 
 #endif

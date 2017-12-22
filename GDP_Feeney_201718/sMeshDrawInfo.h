@@ -24,7 +24,8 @@ public:
 		m_meshQOrientation(glm::quat(glm::vec3(0.0f,0.0f,0.0f))),
 		debugDiffuseColour(glm::vec4(1.0f,1.0f,1.0f,1.0f)), 
 		bDisableDepthTest(false),
-		globalAlpha(1.0f)
+		globalAlpha(1.0f),
+		bIsSkyBoxObject(false)
 	{};
 	std::string name;
 	unsigned int drawID;
@@ -36,6 +37,8 @@ public:
 	glm::vec4 debugDiffuseColour;	// Colour used if wireframe 
 	bool bDisableBackFaceCulling;	// Draw both sides if true
 	bool bDisableDepthTest;
+
+	bool bIsSkyBoxObject;		// Just texture, no lighting
 
 	float globalAlpha;	// Used for entire object
 

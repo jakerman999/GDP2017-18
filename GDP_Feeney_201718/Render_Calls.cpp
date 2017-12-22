@@ -138,8 +138,12 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 // If pParentGO == NULL, then IT'S the parent
 void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 {
+	if (!pTheGO)
+	{	// Shouldn't happen, but if GO pointer is invlaid, return
+		return;
+	}
 	// Is there a game object? 
-	if ( pTheGO == 0 )	//if ( ::g_GameObjects[index] == 0 )
+	if ( ! pTheGO->bIsVisible )	//if ( ::g_GameObjects[index] == 0 )
 	{	// Nothing to draw
 
 		// Draw any children
@@ -148,8 +152,6 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 		{
 			DrawObject( pTheGO->vec_pChildObjects[index], pTheGO );
 		}
-		// Skip all for loop code and go to next
-		return;		
 	}
 
 	// Go through all meshes, drawing them
@@ -328,104 +330,22 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	QnDTexureSamplerUtility::SetSamplersForMeshTextures( theMesh, mapTexNameToTexUnit );
 
 
-//	GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
-//	GLint textSampler00_ID = glGetUniformLocation(curShaderID, "texSamp2D00");
-//	glUniform1i( textSampler00_ID, 0 ); 
-//
-//	GLint textCubeSamp00_ID = glGetUniformLocation(curShaderID, "texSampCube00");
-//	glUniform1i( textCubeSamp00_ID, 1 );
+	//// Load the mesh textures, if they are invalid
+	//GLint texSampCube00_LocID = glGetUniformLocation(curShaderProgID, "texSampCube00");
+	//// At last run, "space" texture was set to TextureUnit #4
+	//// (We aren't loading any more textures RIGHT NOW, so we'll hard code it to 4)
+	//glUniform1i(texSampCube00_LocID, 4);
+	//// Our cube map (of space) is on this sampler
 
-
-
-/*
-	GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D,
-		::g_pTextureManager->getTextureIDFromTextureName("Utah_Teapot_xyz_n_uv_Enterprise.bmp"));
-
-	GLint textSamplerCube_ID = glGetUniformLocation(curShaderID, "texSampCube00");
-	GLint textSampler00_ID = glGetUniformLocation(curShaderID, "texSamp2D00");
-	GLint textSampler01_ID = glGetUniformLocation(curShaderID, "texSamp2D01");
-
-	GLint textBlend00_ID = glGetUniformLocation(curShaderID, "texBlend00");
-	GLint textBlend01_ID = glGetUniformLocation(curShaderID, "texBlend01");
-
-	glUniform1i(textSampler00_ID, 0);		// Enterprise
-	glUniform1i(textSampler01_ID, 1);		// GuysOnSharkUnicorn
-*/
-
-////		// 0 
-//		GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
-//		// Set up the textures
-////		std::string textureName = theMesh.vecMehs2DTextures[0].name;
-////		GLuint texture00Number = ::g_pTextureManager->getTextureIDFromName(textureName);
-//		GLuint texture00Number = ::g_pTextureManager->getTextureIDFromName("Utah_Teapot_xyz_n_uv_Enterprise.bmp");
-//		// Texture binding... (i.e. set the 'active' texture
-//		GLuint texture00Unit = 0;							// Texture units go from 0 to 79 (at least)
-//		glActiveTexture( texture00Unit + GL_TEXTURE0 );		// GL_TEXTURE0 = 33984
-//		glBindTexture( GL_TEXTURE_2D, texture00Number);
-
-//		GLint textSampler00_ID = glGetUniformLocation( curShaderID, "tex2D00" );
-//		glUniform1i( textSampler00_ID, texture00Unit );
-
-
-//		glActiveTexture(GL_TEXTURE0);
-//		//glBindTexture( GL_TEXTURE_2D, ::g_pTextureManager->QnD_GetFirstTextureIDFromMap() );
-//		glBindTexture( GL_TEXTURE_2D, 
-//						::g_pTextureManager->getTextureIDFromName("Utah_Teapot_xyz_n_uv_Enterprise.bmp"));
-//		GLint textSampler00_ID = glGetUniformLocation( curShaderID, "tex2D00" );
-//		glUniform1i( textSampler00_ID, 0  );		// Enterprise
-//
-//		GLint textBlend00_ID = glGetUniformLocation( curShaderID, "texBlend00" );
-//		glUniform1f( textBlend00_ID, 1.0f );
-
-//		// 1
-////		glActiveTexture(GL_TEXTURE1);
-////		glBindTexture( GL_TEXTURE_2D, 
-////						::g_pTextureManager->getTextureIDFromName(pTheGO->textureNames[1]));
-//						//::g_pTextureManager->getTextureIDFromName("GuysOnSharkUnicorn.bmp"));
-//		// 2..  and so on... 
-//	
-//		// Set sampler in the shader
-//		// NOTE: You shouldn't be doing this during the draw call...
-//		GLint textSampler01_ID = glGetUniformLocation( curShaderID, "tex2D01" );
-//		//// And so on (up to 10, or whatever number of textures)... 
-//	
-//		GLint textBlend01_ID = glGetUniformLocation( curShaderID, "texBlend01" );
-//	
-//		//// This connects the texture sampler to the texture units... 
-//		//glUniform1i( textSampler01_ID, 1  );		// GuysOnSharkUnicorn
-//		// .. and so on
-//	
-//		// And the blending values
-//		glUniform1f(textBlend00_ID, theMesh.vecMehs2DTextures[0].blendRatio);
-//		glUniform1f(textBlend01_ID, theMesh.vecMehs2DTextures[1].blendRatio);
-//		// And so on...
-//	
-////		GLint isSkyBoxID = glGetUniformLocation(curShaderID, "isASkyBox");
-////		glUniform1f(isSkyBoxID, 0.0f); // OR GLFALSE
-////	
-////		// Is this the "skybox object" (a sphere, in our case)
-////		if (pTheGO->bIsSkyBoxObject)
-////		{
-////			GLint cubeSampID = glGetUniformLocation(curShaderID, "skyBoxSampler");
-////	
-////			// Set the isSkyBox
-////			glUniform1f(isSkyBoxID, 1.0f); // OR GL_TRUE
-////	
-////			// Set up the textures SAME AS WITH ANY OTHER TEXTURE
-////			GLuint skyBoxTextueID = ::g_pTextureManager->getTextureIDFromName("space");
-////			// Texture binding... (i.e. set the 'active' texture
-////			GLuint textureUnitNum = 8;	// Doesn't really matter which one // Texture units go from 0 to 79 (at least)
-////			glActiveTexture(textureUnitNum + GL_TEXTURE0);		// GL_TEXTURE0 = 33984
-////			// Connects texture UNIT to the texture
-////			glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTextueID);
-////			// Set sampler to same texture UNIT
-////			glUniform1f(cubeSampID, textureUnitNum);
-////	
-////		}//if (pTheGO->bIsSkyBoxObject)
-	
-	// Load the mesh textures, if they are invalid
+	GLint uniLoc_bIsSkyBoxObject = glGetUniformLocation(curShaderProgID, "isASkyBox");
+	if (theMesh.bIsSkyBoxObject)
+	{
+		glUniform1f(uniLoc_bIsSkyBoxObject, GL_TRUE);
+	}
+	else
+	{
+		glUniform1f(uniLoc_bIsSkyBoxObject, GL_FALSE);
+	}
 
 
 	GLint uniLoc_bIsDebugWireFrameObject = glGetUniformLocation(curShaderProgID, "bIsDebugWireFrameObject");
