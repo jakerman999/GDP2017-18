@@ -113,8 +113,8 @@ void LoadModelsIntoScene(void)
 		meshInfo.scale = 0.1f;
 		meshInfo.name = "teapotUV";		
 		meshInfo.globalAlpha = 0.75f;
-		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 1.0f) );
-		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.0f) );
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.5f) );
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.5f) );
 		pTempGO->vecMeshes.push_back(meshInfo);
 		//
 		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
@@ -130,8 +130,8 @@ void LoadModelsIntoScene(void)
 		meshInfo.scale = 0.1f;
 		meshInfo.name = "teapotUV";		
 		meshInfo.globalAlpha = 0.75f;
-		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f) );
-		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f) );
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.5f) );
+		meshInfo.vecMehs2DTextures.push_back( sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.5f) );
 		pTempGO->vecMeshes.push_back(meshInfo);
 		//
 		::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add

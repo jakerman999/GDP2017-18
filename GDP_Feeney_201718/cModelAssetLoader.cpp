@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include "Ply/CPlyFile5nt.h"
-#include "Ply/CStringHelper.h"
+#include "Utilities/CStringHelper.h"
 
 cModelAssetLoader::cModelAssetLoader()
 {

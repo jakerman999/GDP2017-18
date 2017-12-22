@@ -7,7 +7,7 @@
 //	a way to introduce and-or review basic SQL commands. 
 //  (and SQLite is really fast, so there's that)
 
-class iPersistImp;	// Implementatiof the pimpl
+class iPersistImp;	// Implementation of the pimpl
 
 class cPersist
 {
@@ -16,10 +16,10 @@ public:
 	{
 		SQLITE,
 		WINAPPDATA,
-		TEXT_TRIVIAL	//,
+		JSON		//,
 // And whatever other ones you might want...
+//		TEXT_TRIVIAL,	
 //		TEXT_XML,
-//		TEXT_JSON,
 //		MAGIC?,
 //		DEEP_SPACE_NETWORK?,
 //		DIRECT_MENTAL_CONNECTION_TO_THE_HIVE_MIND?

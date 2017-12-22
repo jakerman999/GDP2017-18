@@ -225,7 +225,7 @@ void CErrorLog::m_PrintEndlineCharacter(void)
 
 #ifdef WIN32
 #include <Windows.h>
-#include "../CStringHelper.h"
+#include "../Utilities/CStringHelper.h"
 #endif
 
 void CErrorLog::GetListOfExistingLogs( std::vector< CSensibleLogFileData > &vecLogFileNames )

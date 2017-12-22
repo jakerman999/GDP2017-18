@@ -3,7 +3,8 @@
 #include <cassert>	// no stupid C++ 11 static_assert()
 
 // The specific back ends...
-#include "cPersistImpSQLite.h"
+#include "SQLite/cPersistImpSQLiteGDPAdapter.h"
+#include "JSON/cPersistImpRnRJSON.h"
 
 iPersistImp* cPersistImpFactory::createPersistImp(cPersist::ePersistType backendDataStore)
 {
@@ -12,12 +13,12 @@ iPersistImp* cPersistImpFactory::createPersistImp(cPersist::ePersistType backend
 	switch (backendDataStore)
 	{
 	case cPersist::ePersistType::SQLITE:
-		pDataStore = new (std::nothrow) cPersistImpSQLite();
+		pDataStore = new (std::nothrow) cPersistImpSQLiteGDPAdapter();
+		break;
+	case cPersist::ePersistType::JSON:
+		pDataStore = new (std::nothrow) cPersistImpRnRJSON();
 		break;
 	case cPersist::ePersistType::WINAPPDATA:
-		// TODO: This thing
-		break;
-	case cPersist::ePersistType::TEXT_TRIVIAL:
 		// TODO: This thing
 		break;
 

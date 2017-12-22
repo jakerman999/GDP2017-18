@@ -67,6 +67,12 @@
     <Filter Include="Error">
       <UniqueIdentifier>{1dc855b8-96b2-4b10-9cb9-efafc30e11d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Persist\NVPair">
+      <UniqueIdentifier>{9c4b7c66-dc39-47c3-a807-288823e06f19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Persist\RnRXML">
+      <UniqueIdentifier>{63366a6c-f06b-48a4-a6f6-ed5eff2a963d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -105,12 +111,6 @@
     <ClCompile Include="Persist\cPersistImpFactory.cpp">
       <Filter>Persist</Filter>
     </ClCompile>
-    <ClCompile Include="Persist\cPersistImpSQLite.cpp">
-      <Filter>Persist</Filter>
-    </ClCompile>
-    <ClCompile Include="Persist\SQLite\sqlite3.c">
-      <Filter>Persist\SQLite</Filter>
-    </ClCompile>
     <ClCompile Include="cCamera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
@@ -139,9 +139,6 @@
       <Filter>Models\PlyLoader</Filter>
     </ClCompile>
     <ClCompile Include="Ply\CPlyFile5nt_experimental.cpp">
-      <Filter>Models\PlyLoader</Filter>
-    </ClCompile>
-    <ClCompile Include="Ply\CStringHelper.cpp">
       <Filter>Models\PlyLoader</Filter>
     </ClCompile>
     <ClCompile Include="Ply\CVector3f.cpp">
@@ -201,6 +198,27 @@
     <ClCompile Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.cpp">
       <Filter>Texture</Filter>
     </ClCompile>
+    <ClCompile Include="Persist\JSON\cPersistImpRnRJSON.cpp">
+      <Filter>Persist\JSON</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\SQLite\cPersistImpSQLiteGDPAdapter.cpp">
+      <Filter>Persist\SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\CStringUtils.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\CNVPair.cpp">
+      <Filter>Persist\NVPair</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\RnRXML\wRnRXML.cpp">
+      <Filter>Persist\RnRXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Persist\RnRXML\RnRXML.cpp">
+      <Filter>Persist\RnRXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\CStringHelper.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
@@ -233,14 +251,8 @@
     <ClInclude Include="Persist\cPersist.h">
       <Filter>Persist</Filter>
     </ClInclude>
-    <ClInclude Include="Persist\cPersistImpSQLite.h">
-      <Filter>Persist</Filter>
-    </ClInclude>
     <ClInclude Include="Persist\iPersistImp.h">
       <Filter>Persist</Filter>
-    </ClInclude>
-    <ClInclude Include="Persist\SQLite\sqlite3.h">
-      <Filter>Persist\SQLite</Filter>
     </ClInclude>
     <ClInclude Include="cCamera.h">
       <Filter>Camera</Filter>
@@ -275,9 +287,6 @@
     <ClInclude Include="Ply\CPlyInfo.h">
       <Filter>Models\PlyLoader</Filter>
     </ClInclude>
-    <ClInclude Include="Ply\CStringHelper.h">
-      <Filter>Models\PlyLoader</Filter>
-    </ClInclude>
     <ClInclude Include="Ply\CVector3f.h">
       <Filter>Models\PlyLoader</Filter>
     </ClInclude>
@@ -286,9 +295,6 @@
     </ClInclude>
     <ClInclude Include="cSceneManager.h">
       <Filter>Scene and Game Managers</Filter>
-    </ClInclude>
-    <ClInclude Include="cRnRJASON.h">
-      <Filter>Persist\JSON</Filter>
     </ClInclude>
     <ClInclude Include="Physics\cPhysicalProperties.h">
       <Filter>Physics_AABB</Filter>
@@ -340,6 +346,30 @@
     </ClInclude>
     <ClInclude Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.h">
       <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\JSON\cRnRJASON.h">
+      <Filter>Persist\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\JSON\cPersistImpRnRJSON.h">
+      <Filter>Persist\JSON</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\SQLite\cPersistImpSQLiteGDPAdapter.h">
+      <Filter>Persist\SQLite</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\CStringUtils.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\CNVPair.h">
+      <Filter>Persist\NVPair</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\RnRXML\wRnRXML.h">
+      <Filter>Persist\RnRXML</Filter>
+    </ClInclude>
+    <ClInclude Include="Persist\RnRXML\RnRXML.h">
+      <Filter>Persist\RnRXML</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\CStringHelper.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

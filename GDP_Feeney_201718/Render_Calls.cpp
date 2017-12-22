@@ -185,6 +185,12 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 		return;
 	}
 
+	if ( pTheGO->friendlyName == LEFTTEAPOTNAME )
+	{
+		int sexyBreakpoint = 0;
+	}
+
+
 	sVAOInfo VAODrawInfo;
 	if ( ::g_pVAOManager->lookupVAOFromName( theMesh.name, VAODrawInfo ) == false )
 	{	// Didn't find mesh

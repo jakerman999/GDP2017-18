@@ -129,7 +129,7 @@ void main()
 //	vec3 matDiffuse = vec3(0.0f,1.0f,1.0f);
 //	vec3 matDiffuse = vec3(theUVCoords.xy, 0.0f);
 //	matDiffuse += texCol00.rgb;
-	matDiffuse.rgb += (texCol00.rgb * texBlend00);// + 
+	matDiffuse.rgb += (texCol00.rgb * texBlend00) + 
 	                  (texCol01.rgb * texBlend01) + 
 					  (texCol02.rgb * texBlend02) + 
 					  (texCol03.rgb * texBlend03) +
