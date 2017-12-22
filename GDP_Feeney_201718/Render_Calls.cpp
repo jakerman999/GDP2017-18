@@ -335,6 +335,49 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	// Now look up what textures our object is using and set the samplers
 	QnDTexureSamplerUtility::SetSamplersForMeshTextures( theMesh, mapTexNameToTexUnit );
 
+	// ***************************************
+	// Texture based height map example code
+	//	uniform sampler2D texHeightMap;
+	//	uniform bool bIsHeightMap;
+	GLint texHeightMap_UniLoc = glGetUniformLocation(curShaderProgID, "texHeightMap");
+	GLint bIsHeightMap_UniLoc = glGetUniformLocation(curShaderProgID, "bIsHeightMap");
+
+//	// HACK: Check for the mesh name
+//	if ( theMesh.name == "MeshLabTerrain_xyz_n_uv" )
+//	{	// YES! It's the height map!
+//		glUniform1f( bIsHeightMap_UniLoc, GL_TRUE );
+//		// Also set the texture in the VERTEX shader...
+//		// What texture Unit was the height map assigned to?
+////		std::map<std::string, CTexUnitInfoBrief>::iterator itTexHM 
+////					= mapTexNameToTexUnit.find("height_map_norway-height-map-aster-30m.bmp");
+////		// DANGER Will Robinson! 
+////		int texureUnit = itTexHM->second.texUnitNumOffsetBy_GL_TEXTURE0;
+////		glUniform1f(texHeightMap_UniLoc, texureUnit );
+//
+//		// This is the TEXTURE ID, NOT the "texture UNIT" ID
+//		GLint textureNameID 
+//			= ::g_pTextureManager->getTextureIDFromTextureName("A_height_map_norway-height-map-aster-30m.bmp");
+//
+//		// Pick a texture unit we are not likely using elswhere
+//		glActiveTexture(GL_TEXTURE31);
+//		// Connect the TEXTURE to the TEXTURE UNIT
+////		glBindTexture(GL_TEXTURE_2D, textureNameID);
+//		glBindTexture(GL_TEXTURE_2D, textureNameID);
+//		// Now assign the sampler to the texture Unit
+//		glUniform1f(texHeightMap_UniLoc, 31 );		// Because GL_TEXTURE31
+//
+//
+//		// At this point, the black and white height map is connected to the texture unit
+//		//	that the texture manager assigned it to in the UpdateTextureBindingsByTextureNameSimple()
+//		//	call. 
+//	}
+//	else
+	{
+		glUniform1f( bIsHeightMap_UniLoc, GL_FALSE );
+	}
+
+
+	// ***************************************
 
 	//// Load the mesh textures, if they are invalid
 	//GLint texSampCube00_LocID = glGetUniformLocation(curShaderProgID, "texSampCube00");

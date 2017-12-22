@@ -4,27 +4,42 @@ glm::vec3 cCamera::m_calcDirectionVectorFromTarget(void)
 {
 	// Get a vector from the target to the eye
 	// (i.e. what direction the camera is looking at)
-	glm::vec3 vecDirection = this->target - this->eye;
+	glm::vec3 vecDirectionAndDistanceTarget = this->target - this->eye;
 	
 	// Scale this to 1.0 (normalize)
-	vecDirection = glm::normalize(vecDirection);
+	glm::vec3 vecDirection = glm::normalize(vecDirectionAndDistanceTarget);
 
 	return vecDirection;
 }
 
 
 
-
 void cCamera::Fly_moveForward(float distanceAlongRelativeZAxis_PosIsForward)
 {
 	// Calcualte axis components based on orientation
+	glm::vec3 vecDirection = this->m_calcDirectionVectorFromTarget();
 
+	// Scale the direction we want to go towards the direction the camera is looking at
+	glm::vec3 finalDeltaPosition = vecDirection * distanceAlongRelativeZAxis_PosIsForward;
 
+	// Update the position
+	this->eye += finalDeltaPosition;
+
+	return;
 }
 
 void cCamera::Fly_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight)
 {
-	//TODO:
+	// Calcualte axis components based on orientation
+	glm::vec3 vecDirection = this->m_calcDirectionVectorFromTarget();
+
+	// Scale the direction we want to go towards the direction the camera is looking at
+	glm::vec3 moveDelta = glm::vec3( distanceAlongRelativeXAxis_PosIsRight, 0.0f, 0.0f );
+	glm::vec3 finalDeltaPosition = vecDirection * moveDelta;
+
+	// Update the position
+	this->eye += finalDeltaPosition;
+
 	return;
 }
 

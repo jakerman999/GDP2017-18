@@ -66,6 +66,8 @@ public:
 	void setLightParamDistCutOff( float distanceCutoff );				//	glm::vec4 typeParams.y = distance cut-off
 	void setLightParamSpotPrenumAngleInner( float innerPrenumAngle );	//	glm::vec4 typeParams.z = angle1
 	void setLightParamSpotPrenumAngleOuter( float outerPrenumAngle );	//	glm::vec4 typeParams.w = angle2
+	float getLightParamSpotPrenumAngleInner(void);	//	glm::vec4 typeParams.z = angle1
+	float getLightParamSpotPrenumAngleOuter(void);	//	glm::vec4 typeParams.w = angle2
 	// 
 };
 

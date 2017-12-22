@@ -10,6 +10,9 @@ uniform mat4 mWorldInvTranspose;
 
 uniform bool isASkyBox;		// Same as the one in the fragments
 
+uniform sampler2D texHeightMap;			// Is Texture Unit 0 no matter WHAT! WHY???
+uniform bool bIsHeightMap;
+
 
 // "Vertex" attribute (now use 'in')
 in vec4 vCol;		// attribute
@@ -37,6 +40,15 @@ void main()
 //		matModel = mat4(1.0f);	
 //	}
 	
+	if ( bIsHeightMap )
+	{
+		// Alter the height of the mesh using a texture...
+		vec4 heightChangeXYZ = texture( texHeightMap, uvX2.xy );
+		// The RGB is from black to white, so 000 to 111, so I'll ignore 
+		//	the the GB and just use the R
+		
+		position.y += heightChangeXYZ.r * 1000.0f;
+	}
 	
 	// Calculate the model view projection matrix here
 	mat4 MVP = mProjection * mView * matModel;

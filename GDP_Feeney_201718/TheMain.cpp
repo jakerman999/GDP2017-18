@@ -293,6 +293,13 @@ int main(void)
 	::g_pLightManager->vecLights[0].attenuation.y = 0.000456922280f;		//0.172113f;
 	::g_pLightManager->LoadShaderUniformLocations(currentProgID);
 
+	::g_pLightManager->vecLights[0].setLightParamType(cLight::SPOT);
+	// Point spot straight down at the ground
+	::g_pLightManager->vecLights[0].direction = glm::vec3(0.0f, -1.0f, 0.0f );
+	::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleInner( glm::radians(15.0f) );
+	::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter( glm::radians(45.0f) );
+	::g_pLightManager->vecLights[0].position = glm::vec3(0.0f, 50.0f, 0.0f);	
+
 
 	// Texture 
 	::g_pTextureManager = new CTextureManager();
@@ -314,6 +321,8 @@ int main(void)
 	::g_pTextureManager->Create2DTextureFromBMPFile("GuysOnSharkUnicorn.bmp", true);
 //	::g_pTextureManager->Create2DTextureFromBMPFile("Seamless_ground_sand_texture.bmp", true);
 	::g_pTextureManager->Create2DTextureFromBMPFile("barberton_etm_2001121_lrg.bmp", true);
+	::g_pTextureManager->Create2DTextureFromBMPFile("height_map_norway-height-map-aster-30m.bmp", true);
+	::g_pTextureManager->Create2DTextureFromBMPFile("A_height_map_norway-height-map-aster-30m.bmp", true);
 
 	::g_pTextureManager->setBasePath("assets/textures/skybox");
 	if (!::g_pTextureManager->CreateCubeTextureFromBMPFiles(
@@ -351,13 +360,17 @@ int main(void)
 //	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA);
 //	::g_pTheCamera->eye = glm::vec3(0.0f, 5.0f, -10.0f);
 
-	::g_pTheCamera->setCameraMode(cCamera::FOLLOW_CAMERA);
-	::g_pTheCamera->eye = glm::vec3(-100.0f, 150.0f, -300.0f);
-	::g_pTheCamera->Follow_SetMaxFollowSpeed(3.0f);
-	::g_pTheCamera->Follow_SetDistanceMaxSpeed(50.0f);	// Full speed beyond this distance
-	::g_pTheCamera->Follow_SetDistanceMinSpeed(25.0f);	// Zero speed at this distance
-	::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-	::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
+	//::g_pTheCamera->setCameraMode(cCamera::FOLLOW_CAMERA);
+	//::g_pTheCamera->eye = glm::vec3(-100.0f, 150.0f, -300.0f);
+	//::g_pTheCamera->Follow_SetMaxFollowSpeed(3.0f);
+	//::g_pTheCamera->Follow_SetDistanceMaxSpeed(50.0f);	// Full speed beyond this distance
+	//::g_pTheCamera->Follow_SetDistanceMinSpeed(25.0f);	// Zero speed at this distance
+	//::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+	//::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
+
+	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA_USING_LOOK_AT);
+	::g_pTheCamera->eye = glm::vec3(0.0f, 100.0f, 100.0f);
+	::g_pTheCamera->target = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// Follow the teapot
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
@@ -367,8 +380,8 @@ int main(void)
 	physState.velocity.x = -10.0f;
 	physState.velocity.y = +25.0f;
 	physState.integrationUpdateType = cPhysicalProperties::DYNAMIC;	//	pLeftTeapot->bIsUpdatedInPhysics = true;
-	pLeftTeapot->SetPhysState(physState);
-	::g_pTheCamera->Follow_SetOrUpdateTarget(physState.position);
+	//pLeftTeapot->SetPhysState(physState);
+	//::g_pTheCamera->Follow_SetOrUpdateTarget(physState.position);
 
 
 	::g_pPhysicsWorld = new cPhysicsWorld();
@@ -387,8 +400,8 @@ int main(void)
 	while ( ! glfwWindowShouldClose(pGLFWWindow) )
     {
 		// Update camera
-		cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
-		::g_pTheCamera->Follow_SetOrUpdateTarget(pLeftTeapot->getPosition());
+		//cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
+		//::g_pTheCamera->Follow_SetOrUpdateTarget(pLeftTeapot->getPosition());
 
 
 		// Essentially the "frame time"

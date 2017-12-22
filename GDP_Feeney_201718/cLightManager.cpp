@@ -23,6 +23,9 @@ cLight::cLight()
 
 	// x = type, y = distance cut-off, z angle1, w = angle2
 	this->typeParams = glm::vec4(0.0f);
+
+	this->setLightParamType(cLight::POINT);
+
 	// Set distance to infinity
 	// (i.e. at this point, the light won't be calculated)
 	this->typeParams.y = 1000000.0f;		// Huge number
@@ -94,6 +97,7 @@ void cLightManager::LoadShaderUniformLocations(int shaderID)
 	for ( int index = 0; index != this->vecLights.size(); index++ )
 	{
 		//"myLight[0].position"
+		std::string temp = genUniName(index, "position").c_str();
 		this->vecLights[index].shaderlocID_position 
 			= glGetUniformLocation( shaderID, genUniName(index, "position").c_str() );
 
@@ -315,6 +319,25 @@ float cLight::getLightAttenQuad(void)
 void cLight::setLightParamType( eLightType lightType )
 {	//	glm::vec4 typeParams.x = type
 	// TODO:
+	// 		0 = point
+	// 		1 = directional
+	// 		2 = spot
+	// z angle1, w = angle2		- only for spot
+	switch ( lightType )
+	{
+	case cLight::POINT:
+		this->typeParams.x = 0;	// point
+		break;
+	case cLight::DIRECTIONAL:
+		this->typeParams.x = 1;	// directional
+		break;
+	case cLight::SPOT:
+		this->typeParams.x = 2;	// spot
+		break;
+	default:
+		this->typeParams.x = 0;	// point
+		// Choose point...
+	};//switch ( lightType )
 	return;
 }
 
@@ -336,3 +359,12 @@ void cLight::setLightParamSpotPrenumAngleOuter( float outerPrenumAngle )
 	return;
 }
 
+float cLight::getLightParamSpotPrenumAngleInner(void)	
+{
+	return this->typeParams.z;	//	glm::vec4 typeParams.z = angle1
+}
+
+float cLight::getLightParamSpotPrenumAngleOuter(void)	//	glm::vec4 typeParams.w = angle2
+{
+	return this->typeParams.w; //	glm::vec4 typeParams.w = angle2
+}

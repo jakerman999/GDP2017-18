@@ -89,6 +89,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 		cMesh testMesh;
 		testMesh.name = "MeshLabTerrain_xyz_n_uv";
 		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "MeshLabTerrain_xyz_n_uv.ply", testMesh ) )
+		//if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "MeshLabTerrain_FLAT_xyz_n_uv.ply", testMesh ) )
 		{ 
 			//std::cout << "Didn't load model" << std::endl;
 			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;

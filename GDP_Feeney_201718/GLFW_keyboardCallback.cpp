@@ -15,7 +15,7 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
-	const float CAMERASPEED = 10.0f;
+	const float CAMERASPEED = 100.0f;
 
 	const float CAM_ACCELL_THRUST = 100.0f;
 
@@ -216,6 +216,19 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 		if ( ::g_pLightManager->vecLights[0].attenuation.z <= 0.0f )
 		{
 			::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
+		}
+		break;
+
+	case GLFW_KEY_G:
+		{
+			float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
+			::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle + 0.01f);
+		}
+		break;
+	case GLFW_KEY_H:
+		{
+			float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
+			::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle - 0.01f);
 		}
 		break;
 

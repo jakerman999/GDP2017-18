@@ -64,8 +64,12 @@ struct sLightDesc {
 	vec4 specular;		// Colour (xyz), intensity (w)
 	vec4 attenuation;	// x = constant, y = linear, z = quadratic
 	vec4 direction;
-	vec4 typeParams;	// x = type, y = distance cut-off
-	                    // z angle1, w = angle2
+	vec4 typeParams;	// x = type
+						// 		0 = point
+						// 		1 = directional
+						// 		2 = spot
+						// y = distance cut-off
+	                    // z angle1, w = angle2		- only for spot
 };
 
 const int NUMBEROFLIGHTS = 10;
@@ -149,9 +153,8 @@ void main()
 	vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
 
 //	fragColourOut.rgb += texCol00.rgb;
-	fragColourOut.rgb += matDiffuse;
-	fragColourOut.a = 1.0f;
-	return;
+//	fragColourOut.rgb += matDiffuse;
+//	fragColourOut.a = 1.0f;
 	
 	// ****************************************************************/	
 	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
@@ -258,6 +261,54 @@ vec3 calcLightColour( in vec3 vecNormal,
 // For now, to simplify, eliminate the specular
 	colour = outDiffuse + outSpecular;
 //	colour = outDiffuse;
+
+
+	// Now we have the colour if this was a point light 
+	// See if it's a spot light...
+	if ( myLight[lightID].typeParams.x == 2.0f ) 			// x = type
+	{	// Then it's a spot light! 
+		// 		0 = point
+		// 		1 = directional
+		// 		2 = spot
+	    // z angle1, w = angle2		- only for spot
+		
+		// Vector from the vertex to the light... 
+		vec3 vecVertexToLight = vecWorldPosition - myLight[lightID].position.xyz;
+		// Normalize to unit length vector
+		vec3 vecVtoLDirection = normalize(vecVertexToLight);
+		
+		float vertSpotAngle = max(0.0f, dot( vecVtoLDirection, myLight[lightID].direction.xyz ));
+		// Is this withing the angle1?
+		
+//		float angleInsideCutCos = cos(myLight[lightID].typeParams.z);		// z angle1
+//		float angleOutsideCutCos = cos(myLight[lightID].typeParams.w);		// z angle2
+		float angleInsideCutCos = cos(myLight[lightID].typeParams.z);		// z angle1
+		float angleOutsideCutCos = cos(myLight[lightID].typeParams.w);		// z angle2
+		
+		if ( vertSpotAngle <= angleOutsideCutCos )
+		{	// NO, it's outside this angle1
+			colour = vec3(0.0f, 0.0f, 0.0f );
+		}
+		else if ( (vertSpotAngle > angleOutsideCutCos ) && 
+		          (vertSpotAngle <= angleInsideCutCos) )
+		{	// inside the 'penumbra' region
+			// Use smoothstep to get the gradual drop off in brightness
+			float penRatio = smoothstep(angleOutsideCutCos, 
+			                            angleInsideCutCos, 
+										vertSpotAngle );          
+			
+			colour *= penRatio;
+		}
+//		else if ( vertSpotAngle <= angleInsideCutCos )
+//		{
+//			// Full brightness .... do nothing
+//		}
+
+//		colour.rgb*= 0.0001f;
+//		colour.r = 1.0f;
+
+	}//if ( typeParams.x
+
 	
 	return colour;
 }// vec3 calcLightColour(...) 

@@ -60,6 +60,7 @@ public:
 	void Fly_moveForward(float distanceAlongRelativeZAxis_PosIsForward);
 	void Fly_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight);
 	void Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp);
+	void Fly_move(glm::vec3 directionIWantToMove_Zforward_Yup_Xleftright);
 	// +ve is right
 	void Fly_turn(float turnDegreesPosIsRight);
 	void Fly_turn_RightLeft(float turnDegreesPosIsRight);
