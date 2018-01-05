@@ -9,7 +9,7 @@ in vec4 uvX2out;			// Added: UV 1 and 2 to fragment
 							// UV #2 is .zw
 //uniform vec4 diffuseColour;		// New variable
 
-// gl_FragColor is depricated after version 120
+// gl_FragColor is deprecated after version 120
 // Now we specify a specific variable.
 // If there is only 1, then GL will assume it's the colour 
 out vec4 fragColourOut;
@@ -56,6 +56,13 @@ uniform float texCubeBlend01;
 uniform float texCubeBlend02;
 uniform float texCubeBlend03;
 
+// For env. mapping (reflection and refraction)
+uniform bool isReflectRefract;
+uniform float reflectBlendRatio;		// How much reflection (0-1)
+uniform float refractBlendRatio;		// How much refraction (0-1)
+uniform float coefficientRefract; 		// coefficient of refraction 
+
+
 /*****************************************************/
 struct sLightDesc {
 	vec4 position;
@@ -97,6 +104,8 @@ void main()
 		fragColourOut.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
 		fragColourOut.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
 		fragColourOut.rgb += vec3(0.0f, 0.0f, 1.0f);
+		
+		fragColourOut * 1.5f;	// Room too bright
 		return;		// Immediate return
 	}
 	
@@ -113,6 +122,39 @@ void main()
 //		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 		return;	
 	}
+	
+// uniform bool isReflectRefract;
+// uniform float reflectBlendRatio;		// How much reflection (0-1)
+// uniform float refractBlendRatio;		// How much refraction (0-1)
+// uniform float coefficientRefract; 	// coefficient of refraction 
+	if ( isReflectRefract )
+	{			
+		// Have "eyePosition" (camera eye) in WORLD space
+		
+		// reFLECTion value 
+		vec3 vecReflectEyeToVertex = vecWorldPosition - eyePosition;
+		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
+		vec3 vecReflect = reflect( vecReflectEyeToVertex, vertNormal.xyz );
+		// Look up colour for reflection
+		vec4 rgbReflection = texture( texSampCube00, vecReflect );
+		
+		
+		vec3 vecReFRACT_EyeToVertex = eyePosition - vecWorldPosition;
+		vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
+		vec3 vecRefract = refract( vecReFRACT_EyeToVertex, vertNormal.xyz, 
+                                   coefficientRefract );
+		// Look up colour for reflection
+		vec4 rgbRefraction = texture( texSampCube00, vecRefract );
+		
+		
+		// Mix the two, based on how reflective the surface is
+		fragColourOut = (rgbReflection * reflectBlendRatio) + 
+		                (rgbRefraction * refractBlendRatio);
+		
+	//	fragColourOut.r = 1.0f;
+		
+		return;	
+	}	
 	
 	vec3 matDiffuse = vec3(0.0f, 0.0f, 0.0f);
 	

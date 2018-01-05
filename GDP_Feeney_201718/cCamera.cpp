@@ -68,6 +68,10 @@ glm::mat4 cCamera::getViewMatrix(void)
 	{
 	case cCamera::eMode::MANUAL:
 		// Use LookAT
+		glm::mat4 matView = glm::lookAt(this->eye,
+										this->target,
+										glm::vec3(0.0f, 1.0f, 0.0f) ); // UP
+		return matView;
 		break;
 	case cCamera::eMode::FOLLOW_CAMERA:
 		{

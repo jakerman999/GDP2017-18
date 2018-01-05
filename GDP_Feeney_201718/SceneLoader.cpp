@@ -22,6 +22,41 @@ void LoadModelsIntoScene(void)
 		cPhysicalProperties physState;
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
+		physState.position.x = 4.0f;
+		physState.position.y = -25.0f;
+//		physState.position.y = -100.0f;
+		physState.setRotationalSpeedEuler( glm::vec3(0.0f, 0.5f, 0.0f) );
+		pTempGO->SetPhysState(physState);
+
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+		meshInfo.scale = 450.0f;
+		meshInfo.name = "bunny";	
+
+		//meshInfo.scale = 0.65f;
+		//meshInfo.name = "teapotUV";	
+
+		// Make bunny reflective...
+		meshInfo.bIsEnvirMapped = true;
+		meshInfo.reflectBlendRatio = 0.5f;
+		meshInfo.refractBlendRatio = 0.5f;
+		meshInfo.coefficientRefract = 0.1f;
+
+		// 
+		pTempGO->friendlyName = "bugs";
+
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("barberton_etm_2001121_lrg.bmp", 1.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("height_map_norway-height-map-aster-30m.bmp", 0.0f));
+		pTempGO->vecMeshes.push_back(meshInfo);
+
+		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	}	
+	{
+		cGameObject* pTempGO = new cGameObject();
+		cPhysicalProperties physState;
+		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
+		physState.mass = physState.inverseMass = 0.0f;	// Infinite
 		physState.position.y = -100.0f;
 		pTempGO->SetPhysState(physState);
 
@@ -34,7 +69,6 @@ void LoadModelsIntoScene(void)
 		pTempGO->vecMeshes.push_back(meshInfo);
 
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
-
 	}
 	//{	// Right side plane
 	//	cGameObject* pTempGO = new cGameObject();
@@ -213,30 +247,30 @@ void LoadModelsIntoScene(void)
 //  }// ENDOF: Add the debug sphere
 
 
-	// Add a whole bunch of spheres!
-	float limit = 200.0f;
-	float step = 25.0f;
-	for ( float x = -limit; x <= limit; x += step )
-	{
-		for ( float y = -limit; y <= limit; y += step )
-		{
-			for ( float z = -limit; z <= limit; z += step )
-			{
-				cGameObject* pTempGO = new cGameObject();
-				cPhysicalProperties physState;
-				physState.position = glm::vec3(x, y, z);
-				physState.rigidBodyShape = cPhysicalProperties::SPHERE;
-				physState.rigidBodyMeasurements.sphere_capsule_radius = 1.0f;
-				pTempGO->SetPhysState(physState);
-				sMeshDrawInfo meshInfo;
-				meshInfo.scale = step / 16.0f;
-				meshInfo.debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-				meshInfo.name = "SphereRadius1";			// was dolphin
-				pTempGO->vecMeshes.push_back(meshInfo);
-				::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
-			}
-		}
-	}
+	//// Add a whole bunch of spheres!
+	//float limit = 200.0f;
+	//float step = 25.0f;
+	//for ( float x = -limit; x <= limit; x += step )
+	//{
+	//	for ( float y = -limit; y <= limit; y += step )
+	//	{
+	//		for ( float z = -limit; z <= limit; z += step )
+	//		{
+	//			cGameObject* pTempGO = new cGameObject();
+	//			cPhysicalProperties physState;
+	//			physState.position = glm::vec3(x, y, z);
+	//			physState.rigidBodyShape = cPhysicalProperties::SPHERE;
+	//			physState.rigidBodyMeasurements.sphere_capsule_radius = 1.0f;
+	//			pTempGO->SetPhysState(physState);
+	//			sMeshDrawInfo meshInfo;
+	//			meshInfo.scale = step / 16.0f;
+	//			meshInfo.debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	//			meshInfo.name = "SphereRadius1";			// was dolphin
+	//			pTempGO->vecMeshes.push_back(meshInfo);
+	//			::g_vecGameObjects.push_back(pTempGO);		// Fastest way to add
+	//		}
+	//	}
+	//}
 
 	
 	

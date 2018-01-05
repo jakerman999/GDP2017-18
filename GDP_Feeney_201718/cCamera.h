@@ -76,7 +76,8 @@ public:
 	void RelocateTargetInFrontOfCamera(float howFarAwayFromFront);
 private:
 	// Used for the directional calculations to move the camera
-	glm::vec3 m_calcDirectionVectorFromTarget(void);
+	void m_calcDirectionVectorFromTarget(glm::vec3 &vEyeToTargetDirection, float &eyeToTargetLength);
+	void m_calcDirectionVectorFromTarget(glm::vec3 &vEyeToTargetDirection);
 public:
 	// ************************************************************
 

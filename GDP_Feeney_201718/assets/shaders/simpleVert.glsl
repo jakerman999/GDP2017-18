@@ -28,7 +28,7 @@ out vec4 uvX2out;			// Added: UV 1 and 2 to fragment
 void main()
 {
     //gl_Position = MVP * vec4(vPos, 0.0, 1.0);	
-	vec3 position = vPos;
+	vec3 vertPosition = vPos;
 	
 	mat4 matModel = mModel;
 	
@@ -47,15 +47,15 @@ void main()
 		// The RGB is from black to white, so 000 to 111, so I'll ignore 
 		//	the the GB and just use the R
 		
-		position.y += heightChangeXYZ.r * 1000.0f;
+		vertPosition.y += heightChangeXYZ.r * 1000.0f;
 	}
 	
 	// Calculate the model view projection matrix here
 	mat4 MVP = mProjection * mView * matModel;
-	gl_Position = MVP * vec4(position, 1.0f);
+	gl_Position = MVP * vec4(vertPosition, 1.0f);
 	
 	// Calculate vertex and normal based on ONLY world 
-	vecWorldPosition = vec3( matModel * vec4(position, 1.0f) ).xyz;
+	vecWorldPosition = vec3( matModel * vec4(vertPosition, 1.0f) ).xyz;
 	
 	// Inv Tran - strips translation and scale from model transform
 	// Alternative is you pass a "rotation only" model mat4

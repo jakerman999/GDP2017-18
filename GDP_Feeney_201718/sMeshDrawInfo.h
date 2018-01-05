@@ -25,7 +25,9 @@ public:
 		debugDiffuseColour(glm::vec4(1.0f,1.0f,1.0f,1.0f)), 
 		bDisableDepthTest(false),
 		globalAlpha(1.0f),
-		bIsSkyBoxObject(false)
+		bIsSkyBoxObject(false), 
+		bIsEnvirMapped(false), 
+		reflectBlendRatio(0.0f), refractBlendRatio(0.0f), coefficientRefract(1.0f) 
 	{};
 	std::string name;
 	unsigned int drawID;
@@ -41,6 +43,11 @@ public:
 	bool bIsSkyBoxObject;		// Just texture, no lighting
 
 	float globalAlpha;	// Used for entire object
+	
+	bool bIsEnvirMapped; 
+	float reflectBlendRatio;
+	float refractBlendRatio; 
+	float coefficientRefract;
 
 	// Textures only have name and blending info
 	std::vector<sTextureBindBlendInfo> vecMehs2DTextures;

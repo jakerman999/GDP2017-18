@@ -38,10 +38,6 @@
 
 #include "cCamera.h"
 
-// Forward declaration of the function
-void DrawObject( cGameObject* pTheGO );
-
-
 
 // Used by the light drawing thingy
 // Will draw a wireframe sphere at this location with this colour
@@ -368,9 +364,9 @@ int main(void)
 	//::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	//::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
 
-	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA_USING_LOOK_AT);
-	::g_pTheCamera->eye = glm::vec3(0.0f, 100.0f, 100.0f);
-	::g_pTheCamera->target = glm::vec3(0.0f, 0.0f, 0.0f);
+	::g_pTheCamera->setCameraMode(cCamera::MANUAL);
+	::g_pTheCamera->eye = glm::vec3(0.0f, 10.0f, 100.0f);
+	::g_pTheCamera->target = glm::vec3(0.0f, 20.0f, 0.0f);
 
 	// Follow the teapot
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
@@ -430,6 +426,7 @@ int main(void)
 
 
 		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
+
 
 		//DEBUG sphere
 		::g_pDebugRenderer->addDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ), 

@@ -112,6 +112,12 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 		for ( int index = 0; index != sizeOfVector; index++ )
 		{
 			cGameObject* pTheGO = ::g_vecGameObjects[index];
+
+			// HACK!
+			if ( pTheGO->friendlyName == "bugs" )
+			{	// SUPER HACK: Slightly adjust the mesh inside the game object each frame
+				pTheGO->vecMeshes[0].adjMeshOrientationEulerAngles(glm::vec3(0.0f, 0.1f, 0.0f), true );
+			}
 	
 			// This is the top level vector, so they are all "parents" 
 			DrawObject( pTheGO, NULL );
@@ -200,6 +206,7 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	
 	// 'model' or 'world' matrix
 	glm::mat4x4 mModel = glm::mat4x4(1.0f);	//		mat4x4_identity(m);
+//	glm::mat4x4 mModel = pTheGO->getFinalMeshQOrientation();
 
 	glm::mat4 trans = glm::mat4x4(1.0f);
 	trans = glm::translate( trans, 
@@ -295,6 +302,9 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 
 	// Other uniforms:
 	GLint uniLoc_eyePosition = glGetUniformLocation(curShaderProgID, "eyePosition");
+	glUniform3f(uniLoc_eyePosition, 
+				::g_pTheCamera->eye.x, ::g_pTheCamera->eye.y, ::g_pTheCamera->eye.z );
+
 
 	// Diffuse is often 0.2-0.3 the value of the diffuse
 	GLint uniLoc_ambientToDiffuseRatio = glGetUniformLocation(curShaderProgID, "ambientToDiffuseRatio");
@@ -433,6 +443,29 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	}// GL_DEPTH_TEST
 
 
+	// STARTOF: Reflection and refraction shader uniforms
+	GLint isReflectRefract_UniLoc = glGetUniformLocation(curShaderProgID, "isReflectRefract" );
+	GLint reflectBlendRatio_UniLoc = glGetUniformLocation(curShaderProgID, "reflectBlendRatio");		// How much reflection (0-1)
+	GLint refractBlendRatio_UniLoc = glGetUniformLocation(curShaderProgID, "refractBlendRatio");		// How much refraction (0-1)
+	GLint coefficientRefract_UniLoc = glGetUniformLocation(curShaderProgID, "coefficientRefract");		// coefficient of refraction 
+
+	// Is this the reflective sphere
+	if ( theMesh.bIsEnvirMapped )
+	{
+		glUniform1f( isReflectRefract_UniLoc, GL_TRUE );
+	}
+	else
+	{
+		glUniform1f( isReflectRefract_UniLoc, GL_FALSE );
+	}
+	// 
+	glUniform1f( reflectBlendRatio_UniLoc, theMesh.reflectBlendRatio );
+	glUniform1f(refractBlendRatio_UniLoc, theMesh.refractBlendRatio );
+	glUniform1f(coefficientRefract_UniLoc, theMesh.coefficientRefract );
+	// And more environment things
+
+
+	// EDNOF: Reflection and refraction shader uniforms
 
 	glBindVertexArray( VAODrawInfo.VAO_ID );
 
