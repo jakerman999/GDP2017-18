@@ -63,7 +63,10 @@ void main()
 	
 	// Was: MVP * vNorm;
 	// This normal is in "world space" but only has rotation
-	vertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;		
+	vertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;	
+
+//	mat4 mWorldInverseTranspose = inverse(transpose(matModel));
+//	vertNormal = vec3( mWorldInverseTranspose * vec4(vNorm, 1.0f) ).xyz;		
 	
 	
     color = vCol;

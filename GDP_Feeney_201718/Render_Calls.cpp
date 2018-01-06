@@ -116,7 +116,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 			// HACK!
 			if ( pTheGO->friendlyName == "bugs" )
 			{	// SUPER HACK: Slightly adjust the mesh inside the game object each frame
-				pTheGO->vecMeshes[0].adjMeshOrientationEulerAngles(glm::vec3(0.0f, 0.1f, 0.0f), true );
+				pTheGO->vecMeshes[0].adjMeshOrientationEulerAngles(glm::vec3(0.35f, 0.5f, 0.15f), true );
 			}
 	
 			// This is the top level vector, so they are all "parents" 
@@ -127,7 +127,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	
 	
 		
-//		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection, deltaTime);
+		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection, deltaTime);
 
 
 	

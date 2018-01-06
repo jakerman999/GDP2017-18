@@ -23,7 +23,7 @@ void LoadModelsIntoScene(void)
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
 		physState.position.x = 4.0f;
-		physState.position.y = -25.0f;
+		physState.position.y = 25.0f;
 //		physState.position.y = -100.0f;
 		physState.setRotationalSpeedEuler( glm::vec3(0.0f, 0.5f, 0.0f) );
 		pTempGO->SetPhysState(physState);
@@ -31,7 +31,7 @@ void LoadModelsIntoScene(void)
 
 		sMeshDrawInfo meshInfo;
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-		meshInfo.scale = 450.0f;
+		meshInfo.scale = 350.0f;
 		meshInfo.name = "bunny";	
 
 		//meshInfo.scale = 0.65f;
@@ -39,8 +39,8 @@ void LoadModelsIntoScene(void)
 
 		// Make bunny reflective...
 		meshInfo.bIsEnvirMapped = true;
-		meshInfo.reflectBlendRatio = 0.5f;
-		meshInfo.refractBlendRatio = 0.5f;
+		meshInfo.reflectBlendRatio = 1.0f;
+		meshInfo.refractBlendRatio = 0.0f;
 		meshInfo.coefficientRefract = 0.1f;
 
 		// 

@@ -237,24 +237,26 @@ int main(void)
 	{
 		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
 	}
-	//::g_pDebugRenderer->addTriangle( glm::vec3( -1000.0f, 0.0f, 0.0f ), 
-	//								 glm::vec3( 1000.0f, 0.0f, 0.0f ),
-	//								 glm::vec3( 0.0f, 1000.0f, 0.0f), 
-	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	//for (int count = 0; count != 100; count++)
-	//{
-	//	::g_pDebugRenderer->addTriangle(
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3(getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f),
-	//		          getRandInRange(-1000.0f, 1000.0f)),
-	//		glm::vec3( 1.0f, 1.0f, 1.0f ), true );
-	//}//for (int count
+
+	const float WORLDMAX = 25.0f;
+	::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
+									 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
+									 glm::vec3( 0.0f, WORLDMAX, 0.0f),
+									 glm::vec3( 1.0f, 1.0f, 1.0f ), 5.0f );
+	for (int count = 0; count != 100; count++)
+	{
+		::g_pDebugRenderer->addTriangle(
+			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+			          getRandInRange(-WORLDMAX, WORLDMAX),
+			          getRandInRange(-WORLDMAX, WORLDMAX)),
+			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX), 
+			          getRandInRange(-WORLDMAX, WORLDMAX),
+			          getRandInRange(-WORLDMAX, WORLDMAX)),
+			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+			          getRandInRange(-WORLDMAX, WORLDMAX),
+			          getRandInRange(-WORLDMAX, WORLDMAX)),
+			glm::vec3( 1.0f, 1.0f, 1.0f ), 2.0f );
+	}//for ...
 
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();

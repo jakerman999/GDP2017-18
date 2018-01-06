@@ -133,10 +133,15 @@ void main()
 		
 		// reFLECTion value 
 		vec3 vecReflectEyeToVertex = vecWorldPosition - eyePosition;
+//		vec3 vecReflectEyeToVertex = eyePosition - vecWorldPosition;
 		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
 		vec3 vecReflect = reflect( vecReflectEyeToVertex, vertNormal.xyz );
 		// Look up colour for reflection
-		vec4 rgbReflection = texture( texSampCube00, vecReflect );
+		vec4 rgbReflection = texture( texSampCube00, vertNormal.xyz );
+
+		rgbReflection = texture( texSampCube00, vecReflect );
+		rgbReflection.rgb * 0.01f;
+		rgbReflection.rgb += normalize(vertNormal.xyz);
 		
 		
 		vec3 vecReFRACT_EyeToVertex = eyePosition - vecWorldPosition;
@@ -161,6 +166,7 @@ void main()
 	// ****************************************************************/
 	//uniform sampler2D myAmazingTexture00;
 	vec2 theUVCoords = uvX2out.xy;		// use UV #1 of vertex
+		
 	vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
 	vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
 	vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
