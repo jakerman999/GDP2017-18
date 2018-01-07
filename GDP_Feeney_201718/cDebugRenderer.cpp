@@ -260,9 +260,19 @@ cDebugRenderer::~cDebugRenderer()
 void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime)
 {
 	this->m_copyTrianglesIntoRenderBuffer(deltaTime);
-//	this->m_copyLinesIntoRenderBuffer();
-//	this->m_copyPointsIntoRenderBuffer();
+	this->m_RenderDebugTriangles(matCameraView, matProjection, deltaTime);
 
+	this->m_copyLinesIntoRenderBuffer(deltaTime);
+	this->m_RenderDebugLines(matCameraView, matProjection, deltaTime);
+
+	this->m_copyPointsIntoRenderBuffer(deltaTime);
+	this->m_RenderDebugPoints(matCameraView, matProjection, deltaTime);
+
+	return;
+}
+
+void cDebugRenderer::m_RenderDebugTriangles(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime)
+{
 	// Start rendering 
 	glUseProgram(this->m_pShaderProg->shaderProgramID);
 
@@ -308,6 +318,21 @@ void cDebugRenderer::RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matPr
 
 	return;
 }
+
+void cDebugRenderer::m_RenderDebugLines(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime)
+{
+	// TODO: 
+
+	return;
+}
+
+void cDebugRenderer::m_RenderDebugPoints(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime)
+{
+	// TODO:
+	
+	return;
+}
+
 
 void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(double deltaTime)
 {
@@ -411,15 +436,25 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(double deltaTime)
 	//	pGPUBuff,
 	//	numberOfBytesToCopy);
 
-
-
 //	glUnmapBuffer(this->m_VAOBufferInfoTriangles.vertex_buffer_ID);
 
 	return;
 }
 
 
+void cDebugRenderer::m_copyLinesIntoRenderBuffer(double deltaTime)
+{
+	//TODO:
 
+	return;
+}
+
+void cDebugRenderer::m_copyPointsIntoRenderBuffer(double deltaTime)
+{
+	// TODO: 
+
+	return;
+}
 
 void cDebugRenderer::addTriangle(glm::vec3 v1XYZ, glm::vec3 v2XYZ, glm::vec3 v3XYZ, glm::vec3 colour, float lifeTime/*=0.0f*/)
 {

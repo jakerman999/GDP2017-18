@@ -133,16 +133,13 @@ void main()
 		
 		// reFLECTion value 
 		vec3 vecReflectEyeToVertex = vecWorldPosition - eyePosition;
-//		vec3 vecReflectEyeToVertex = eyePosition - vecWorldPosition;
 		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
 		vec3 vecReflect = reflect( vecReflectEyeToVertex, vertNormal.xyz );
 		// Look up colour for reflection
+//		vec4 rgbReflection = texture( texSampCube00, vecReflect );
 		vec4 rgbReflection = texture( texSampCube00, vertNormal.xyz );
 
-		rgbReflection = texture( texSampCube00, vecReflect );
-		rgbReflection.rgb * 0.01f;
-		rgbReflection.rgb += normalize(vertNormal.xyz);
-		
+	
 		
 		vec3 vecReFRACT_EyeToVertex = eyePosition - vecWorldPosition;
 		vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				

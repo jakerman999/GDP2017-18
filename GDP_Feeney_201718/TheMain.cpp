@@ -41,9 +41,9 @@
 
 // Used by the light drawing thingy
 // Will draw a wireframe sphere at this location with this colour
-void DrawDebugSphere(glm::vec3 location, glm::vec4 colour, float scale);
+//void DrawDebugSphere(glm::vec3 location, glm::vec4 colour, float scale);
 //cGameObject* g_pTheDebugSphere;
-sMeshDrawInfo* g_pTheDebugSphereMesh;
+//sMeshDrawInfo* g_pTheDebugSphereMesh;
 
 cGameObject* g_pSkyBoxObject = NULL;	// (theMain.cpp)
 
@@ -242,7 +242,7 @@ int main(void)
 	::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
 									 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
 									 glm::vec3( 0.0f, WORLDMAX, 0.0f),
-									 glm::vec3( 1.0f, 1.0f, 1.0f ), 5.0f );
+									 glm::vec3( 1.0f, 1.0f, 1.0f ), 20.0f );
 	for (int count = 0; count != 100; count++)
 	{
 		::g_pDebugRenderer->addTriangle(
@@ -255,7 +255,7 @@ int main(void)
 			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
 			          getRandInRange(-WORLDMAX, WORLDMAX),
 			          getRandInRange(-WORLDMAX, WORLDMAX)),
-			glm::vec3( 1.0f, 1.0f, 1.0f ), 2.0f );
+			glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
 	}//for ...
 
 	// Load models
@@ -272,7 +272,6 @@ int main(void)
 		std::cout << "Not all models were loaded..." << std::endl;
 		std::cout << error << std::endl;
 	}
-
 
 	LoadModelsIntoScene();
 
@@ -366,7 +365,7 @@ int main(void)
 	//::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	//::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
 
-	::g_pTheCamera->setCameraMode(cCamera::MANUAL);
+	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA_USING_LOOK_AT);
 	::g_pTheCamera->eye = glm::vec3(0.0f, 10.0f, 100.0f);
 	::g_pTheCamera->target = glm::vec3(0.0f, 20.0f, 0.0f);
 

@@ -34,7 +34,12 @@ public:
 
 	// Renders scene
 	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
+private:
+	void m_RenderDebugTriangles(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
+	void m_RenderDebugLines(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
+	void m_RenderDebugPoints(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
 
+public:
 	// These are now in the iDebugRenderer
 	//struct sDebugTri
 	//{

@@ -39,8 +39,8 @@ void LoadModelsIntoScene(void)
 
 		// Make bunny reflective...
 		meshInfo.bIsEnvirMapped = true;
-		meshInfo.reflectBlendRatio = 1.0f;
-		meshInfo.refractBlendRatio = 0.0f;
+		meshInfo.reflectBlendRatio = 0.5f;
+		meshInfo.refractBlendRatio = 0.5f;
 		meshInfo.coefficientRefract = 0.1f;
 
 		// 
