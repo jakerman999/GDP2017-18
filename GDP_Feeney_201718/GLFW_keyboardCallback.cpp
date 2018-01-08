@@ -23,7 +23,7 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 	switch (key)
 	{
 	case GLFW_KEY_F:
-		::g_pTheCamera->setCameraMode( cCamera::FLY_CAMERA_USING_LOOK_AT );
+		::g_pTheCamera->setCameraMode( cCamera::MODE_FLY_USING_LOOK_AT );
 		break;
 	// HACK: Change orientation of pLeftTeapot
 	// 5,6 - rotation around x
@@ -88,11 +88,11 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			else if (isAltKeyDown(mods, true))
 			{	// F=ma, so changing the accel REALLY is like putting a force
 				//	on an object
-				::g_pTheCamera->accel.x = -CAM_ACCELL_THRUST;	// Force to the left!
+//				::g_pTheCamera->accel.x = -CAM_ACCELL_THRUST;	// Force to the left!
 			}
 			else
 			{	// Turn camera 
-				::g_pTheCamera->FlyCam->yawRight(-1.0f);
+				::g_pTheCamera->FlyCam->yawOrTurnRight(-1.0f);
 			}
 		}
 		break;
@@ -106,16 +106,16 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveRightLeft(+CAMERASPEED);	// strafe
+				::g_pTheCamera->FlyCam->moveRight(+CAMERASPEED);	// strafe
 			}
 			else if (isAltKeyDown(mods, true))
 			{	// F=ma, so changing the accel REALLY is like putting a force
 				//	on an object
-				::g_pTheCamera->accel.x = +CAM_ACCELL_THRUST;	// Force to the left!
+//				::g_pTheCamera->accel.x = +CAM_ACCELL_THRUST;	// Force to the left!
 			}
 			else
 			{	// Turn camera 
-				::g_pTheCamera->Fly_turn_RightLeft(+1.0f);
+				::g_pTheCamera->FlyCam->yawOrTurnRight(+1.0f);
 			}
 		}
 		break;
@@ -128,16 +128,16 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveForward(+CAMERASPEED);
+				::g_pTheCamera->FlyCam->moveForward(+CAMERASPEED);
 			}
 			else if (isAltKeyDown(mods, true))
 			{	// F=ma, so changing the accel REALLY is like putting a force
 				//	on an object
-				::g_pTheCamera->accel.z = +CAM_ACCELL_THRUST;	// Force to the left!
+//				::g_pTheCamera->accel.z = +CAM_ACCELL_THRUST;	// Force to the left!
 			}
 			else
 			{	// Pitch down
-				::g_pTheCamera->Fly_pitch_UpDown(-1.0f);
+				::g_pTheCamera->FlyCam->pitchUp(-1.0f);
 			}
 		}
 		break;
@@ -150,16 +150,16 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveForward(-CAMERASPEED);		// Backwards
+				::g_pTheCamera->FlyCam->moveForward(-CAMERASPEED);		// Backwards
 			}
 			else if (isAltKeyDown(mods, true))
 			{	// F=ma, so changing the accel REALLY is like putting a force
 				//	on an object
-				::g_pTheCamera->accel.z = -CAM_ACCELL_THRUST;	// Force to the left!
+//				::g_pTheCamera->accel.z = -CAM_ACCELL_THRUST;	// Force to the left!
 			}
 			else
 			{	// Pitch down
-				::g_pTheCamera->Fly_pitch_UpDown(+1.0f);
+				::g_pTheCamera->FlyCam->pitchUp(+1.0f);
 			}
 		}
 		break;
@@ -172,11 +172,11 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveUpDown(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+				::g_pTheCamera->FlyCam->moveUp(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
 			}
 			else
 			{	// "roll" left (counter-clockwise)
-				::g_pTheCamera->Fly_yaw_CWorCCW(-1.0f);
+				::g_pTheCamera->FlyCam->rollClockWise(-1.0f);
 			}
 		}
 		break;
@@ -189,11 +189,11 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveUpDown(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+				::g_pTheCamera->FlyCam->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
 			}
 			else
 			{	// "roll" left (counter-clockwise)
-				::g_pTheCamera->Fly_yaw_CWorCCW(+1.0f);
+				::g_pTheCamera->FlyCam->rollClockWise(+1.0f);
 			}
 		}
 		break;

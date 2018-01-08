@@ -365,9 +365,10 @@ int main(void)
 	//::g_pTheCamera->Follow_SetOrUpdateTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 	//::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
 
-	::g_pTheCamera->setCameraMode(cCamera::FLY_CAMERA_USING_LOOK_AT);
-	::g_pTheCamera->eye = glm::vec3(0.0f, 10.0f, 100.0f);
-	::g_pTheCamera->target = glm::vec3(0.0f, 20.0f, 0.0f);
+	::g_pTheCamera->setCameraMode(cCamera::MODE_FLY_USING_LOOK_AT);
+	::g_pTheCamera->ManualCam->setEyePosition(glm::vec3(0.0f, 10.0f, 100.0f));
+	::g_pTheCamera->ManualCam->setTargetInWorld(glm::vec3(0.0f, 20.0f, 0.0f));
+	::g_pTheCamera->ManualCam->setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
 
 //	::g_pTheCamera->FollowCam->SetOrUpdateTarget(glm::vec3(1.0f));
 
@@ -396,26 +397,53 @@ int main(void)
 	// Gets the "current" time "tick" or "step"
 	double lastTimeStep = glfwGetTime();
 
+	double hackDebugCountDown = 1.0f;
+	float hackDebugLeft = -100.0f;
+	float hackDebugStep = 10.0f;
+
 	// Main game or application loop
 	while ( ! glfwWindowShouldClose(pGLFWWindow) )
     {
-		// Update camera
-		//cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
-		//::g_pTheCamera->Follow_SetOrUpdateTarget(pLeftTeapot->getPosition());
-
-
 		// Essentially the "frame time"
 		// Now many seconds that have elapsed since we last checked
 		double curTime = glfwGetTime();
 		double deltaTime =  curTime - lastTimeStep;
 		lastTimeStep = curTime;
 
+		hackDebugCountDown -= deltaTime;
+
+		if ( hackDebugCountDown <= 0.0 )
+		{
+			//float limit = 50.0f;
+			//::g_pDebugRenderer->addTriangle( 
+			//	glm::vec3( getRandInRange(-limit, limit), getRandInRange(-limit, limit), getRandInRange(-limit, limit) ),
+			//	glm::vec3( getRandInRange(-limit, limit), getRandInRange(-limit, limit), getRandInRange(-limit, limit) ),
+			//	glm::vec3( getRandInRange(-limit, limit), getRandInRange(-limit, limit), getRandInRange(-limit, limit) ),
+			//	glm::vec3( getRandInRange(0.0f, 1.0f), getRandInRange(0.0f, 1.0f), getRandInRange(0.0f, 1.0f) ),
+			//	getRandInRange(2.0f, 5.0f));
+			
+			::g_pDebugRenderer->addTriangle( 
+				glm::vec3(hackDebugLeft, 0.0f, 0.0f), 
+				glm::vec3(hackDebugLeft + hackDebugStep/2.0f, hackDebugStep, 0.0f),
+				glm::vec3(hackDebugLeft + hackDebugStep, 0.0f, 0.0f),
+				glm::vec3( getRandInRange(0.0f, 1.0f), getRandInRange(0.0f, 1.0f), getRandInRange(0.0f, 1.0f) ),
+				getRandInRange(0.5f, 2.0f) );
+			hackDebugLeft += hackDebugStep;
+			if ( hackDebugLeft > 100.0f) 
+			{
+				hackDebugLeft = 0.0f;
+			}
+			hackDebugCountDown = getRandInRange(0.01f, 0.5f);
+		}
+										 
+
+
 //		PhysicsStep( deltaTime );
 		::g_pPhysicsWorld->IntegrationStep(deltaTime);
 
 		// Update camera, too
 		::g_pTheCamera->updateTick(deltaTime);
-		::g_pTheCamera->accel = glm::vec3(0.0f, 0.0f, 0.0f);
+//		::g_pTheCamera->accel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		// *********************************************
 		//    ___ _        ___              __     ___                          
@@ -425,7 +453,7 @@ int main(void)
 		//            |__/                                                      
 		cPhysicalProperties skyBoxPP;
 		::g_pSkyBoxObject->GetPhysState(skyBoxPP);
-		skyBoxPP.position = ::g_pTheCamera->eye;
+		skyBoxPP.position = ::g_pTheCamera->getEyePosition();
 		::g_pSkyBoxObject->SetPhysState(skyBoxPP);
 
 

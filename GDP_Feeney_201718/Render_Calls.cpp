@@ -302,8 +302,8 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 
 	// Other uniforms:
 	GLint uniLoc_eyePosition = glGetUniformLocation(curShaderProgID, "eyePosition");
-	glUniform3f(uniLoc_eyePosition, 
-				::g_pTheCamera->eye.x, ::g_pTheCamera->eye.y, ::g_pTheCamera->eye.z );
+	glm::vec3 eye = ::g_pTheCamera->getEyePosition();
+	glUniform3f(uniLoc_eyePosition, eye.x, eye.y, eye.z );
 
 
 	// Diffuse is often 0.2-0.3 the value of the diffuse

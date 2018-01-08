@@ -11,19 +11,50 @@ class cCamera
 {
 public:
 	cCamera();
-
-	glm::vec3 eye;			// position
-	glm::vec3 target;
-	glm::vec3 up;
-
-	glm::vec3 velocity;		// For "fly camera", like in blender
-	glm::vec3 accel;		// For "thruster" like with rockets
+	~cCamera();
 
 	// For following, etc. 
 	void updateTick(double deltaTime);
 
+	glm::mat4 getViewMatrix(void);
+
+	enum eMode
+	{
+		MODE_MANUAL,				// Move along the axes (lookat)
+		MODE_FOLLOW,				// Follows a target (lookat)
+		MODE_FLY_USING_LOOK_AT		// Here, you use the "target" as direction
+									// you want to go. This allows you to transition
+									// from the FOLLOW_CAMERA to FLY seamlessly
+	};
+
+	void setCameraMode(eMode cameraMode);
+	eMode getCameraMode(void);
+	std::string getCameraModeString(void);
+
+	glm::vec3 getEyePosition(void);
+
 	// These are used to simplify the interface for the programmer, 
 	//	breaking the various modes of the camera into groups
+	class cManualCameraRedirect
+	{
+	public:
+		void setEyePosition(glm::vec3 newPos);
+		void adjustEyePosition(glm::vec3 deltaPos);
+		void setTargetInWorld(glm::vec3 worldLocation);
+		void adjustTargetInWorld(glm::vec3 deltaWorldLocation);
+		void setUpVector(glm::vec3 up);
+
+		glm::vec3 getTargetPosition(void);
+		glm::vec3 getUpVector(void);
+	private:
+		friend cCamera;
+		cManualCameraRedirect(cCamera* pTheCamera);
+		cManualCameraRedirect();		// Don't call
+		cCamera* pParentCamera;
+		// called BY camera
+		void m_updateTick(double deltaTime);
+	};
+
 	class cFollowCameraRedirect
 	{
 	public:
@@ -39,8 +70,9 @@ public:
 		cFollowCameraRedirect(cCamera *pTheCamera);
 		cFollowCameraRedirect();	// Don't call
 		cCamera* pParentCamera;
+		// called by camera
+		void m_updateTick(double deltaTime);
 	};
-	cFollowCameraRedirect* FollowCam;
 
 	class cFlyCameraRedirect
 	{
@@ -61,81 +93,35 @@ public:
 		cFlyCameraRedirect(cCamera* pTheCamera);
 		cFlyCameraRedirect();		// Don't call
 		cCamera* pParentCamera;
-	};
-	cFlyCameraRedirect* FlyCam;
-
-	enum eMode
-	{
-		MODE_MANUAL,				// Move along the axes (lookat)
-		MODE_FOLLOW,				// Follows a target (lookat)
-		MODE_FLY_USING_LOOK_AT,		// Here, you use the "target" as direction
-									// you want to go. This allows you to transition
-									// from the FOLLOW_CAMERA to FLY seamlessly
-
-		MODE_FLY_CAMERA_GARBAGE_DONT_USE		// Movement based on direction of gaze
-												// Use quaternion orientation
-												// "catch"  is no LOOKAT
+		// called by camera
+		void m_updateTick(double deltaTime);
 	};
 
-	void setCameraMode(eMode cameraMode);
-	eMode getCameraMode(void);
-	std::string getCameraModeString(void);
+
+
+
+	// The public variables for the various modes
+	cManualCameraRedirect*	ManualCam;
+	cFollowCameraRedirect*	FollowCam;
+	cFlyCameraRedirect*		FlyCam;
+
 
 private:
 
 	eMode m_cameraMode;
 
-	// Follow camera
-	void m_Follow_SetOrUpdateTarget(glm::vec3 target);
-	void m_Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget);
-	void m_Follow_SetMaxFollowSpeed(float speed);
-	void m_Follow_SetDistanceMaxSpeed(float distanceToTarget);
-	void m_Follow_SetDistanceZeroSpeed(float distanceToTarget);
+	// connect this to the physics updater??
+	void m_EulerIntegrate(double deltaTime);
 
-	glm::vec3 follow_idealCameraLocationRelToTarget;
-	float follow_max_speed;
-	float follow_distance_max_speed;
-	float follow_distance_zero_speed;
-
-	void m_UpdateFollowCamera_SUCKS(double deltaTime);
-	void m_UpdateFollowCamera_GOOD(double deltaTime);
-
-	// ************************************************************
-	// For the "fly camera":
-	// +ve is along z-axis
-	void Fly_moveForward(float distanceAlongRelativeZAxis_PosIsForward);
-	void Fly_moveRightLeft(float distanceAlongRelativeXAxis_PosIsRight);
-	void Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp);
-	void Fly_move(glm::vec3 directionIWantToMove_Zforward_Yup_Xleftright);
-	// +ve is right
-	void Fly_turn_RightLeft(float turnDegreesPosIsRight);
-	// +ve it up
-	void Fly_pitch_UpDown(float pitchDegreesPosIsNoseUp);
-	// +ve is Clock-wise rotation (from nose to tail)
-	void Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise);
-	// 
-	// You can use this to change the target from wherever it is
-	//	to, say, 1.0 units from the front of the camera. 
-	void RelocateTargetInFrontOfCamera(float howFarAwayFromFront);
-private:
-	// Used for the directional calculations to move the camera
-	void m_calcDirectionVectorFromTarget(glm::vec3 &vEyeToTargetDirection, float &eyeToTargetLength);
-	void m_calcDirectionVectorFromTarget(glm::vec3 &vEyeToTargetDirection);
-public:
-	// ************************************************************
-
-	void overwrtiteQOrientationFormEuler(glm::vec3 eulerAxisOrientation);
-	// NOTE: Use THIS, not just setting the values
-	void adjustQOrientationFormDeltaEuler(glm::vec3 eulerAxisOrientChange);
-
-//	glm::mat4 getMat4FromOrientation(void);
-	glm::mat4 getViewMatrix(void);
+	// State:
+	glm::quat m_qOrientation;
+	glm::vec3 m_eye;			// position
+	glm::vec3 m_target;
+	glm::vec3 m_up;
+	glm::vec3 m_velocity;		// For "fly camera", like in blender
+	glm::vec3 m_accel;			// For "thruster" like with rockets
 
 
-	// 
-	glm::quat qOrientation;
-
-	glm::vec3 EulerAngles;	// Ya get gimbal lock, yo.
 };
 
 #endif

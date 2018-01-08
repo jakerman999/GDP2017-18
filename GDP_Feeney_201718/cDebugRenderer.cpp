@@ -354,7 +354,7 @@ void cDebugRenderer::m_copyTrianglesIntoRenderBuffer(double deltaTime)
 	unsigned int vertexIndex = 0;	// index of the vertex buffer to copy into 
 	unsigned int triIndex = 0;		// index of the triangle buffer
 	for (; triIndex != this->m_VAOBufferInfoTriangles.numberOfObjectsToDraw; 
-		   triIndex++, vertexIndex++)
+		   triIndex++, vertexIndex += 3)
 	{
 		drTri& curTri = this->m_vecTriangles[triIndex];
 		this->m_VAOBufferInfoTriangles.pLocalVertexArray[vertexIndex+0].x = curTri.v[0].x;

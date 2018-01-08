@@ -225,6 +225,9 @@
     <ClCompile Include="cCamera_Fly.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="cCamera_Manual.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
