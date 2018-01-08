@@ -369,6 +369,9 @@ int main(void)
 	::g_pTheCamera->eye = glm::vec3(0.0f, 10.0f, 100.0f);
 	::g_pTheCamera->target = glm::vec3(0.0f, 20.0f, 0.0f);
 
+//	::g_pTheCamera->FollowCam->SetOrUpdateTarget(glm::vec3(1.0f));
+
+
 	// Follow the teapot
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 	cPhysicalProperties physState;

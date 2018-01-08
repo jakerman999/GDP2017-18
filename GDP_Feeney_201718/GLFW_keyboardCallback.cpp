@@ -83,7 +83,7 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			if (isCtrlKeyDown(mods, true))
 			{
 				// Move camera (ctrl)
-				::g_pTheCamera->Fly_moveRightLeft(-CAMERASPEED);	// strafe
+				::g_pTheCamera->FlyCam->moveRight(-CAMERASPEED);	// strafe
 			}
 			else if (isAltKeyDown(mods, true))
 			{	// F=ma, so changing the accel REALLY is like putting a force
@@ -92,7 +92,7 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 			}
 			else
 			{	// Turn camera 
-				::g_pTheCamera->Fly_turn_RightLeft(-1.0f);
+				::g_pTheCamera->FlyCam->yawRight(-1.0f);
 			}
 		}
 		break;

@@ -15,6 +15,9 @@ cCamera::cCamera()
 	this->accel = glm::vec3(0.0f);
 	this->velocity = glm::vec3(0.0f);
 
+	// Create the "redirection" classes
+	this->FollowCam = new cFollowCameraRedirect(this);
+
 	return;
 }
 
@@ -46,25 +49,52 @@ void cCamera::setCameraMode(eMode cameraMode)
 	// Yes, it's an enum, but you can pass anything, so double-check
 	switch (cameraMode)
 	{
-	case cCamera::eMode::FLY_CAMERA_GARBAGE_DONT_USE:
-		cameraMode = cCamera::FLY_CAMERA_USING_LOOK_AT;
+	case cCamera::eMode::MODE_FLY_CAMERA_GARBAGE_DONT_USE:
+		cameraMode = cCamera::MODE_FLY_USING_LOOK_AT;
 		assert("What are you doing with your life? DON'T use the garbage camera");
 		break;
-	case cCamera::eMode::FLY_CAMERA_USING_LOOK_AT:
-	case cCamera::eMode::FOLLOW_CAMERA:
-	case cCamera::eMode::MANUAL:
-		this->cameraMode = cameraMode;
+	case cCamera::eMode::MODE_FLY_USING_LOOK_AT:
+	case cCamera::eMode::MODE_FOLLOW:
+	case cCamera::eMode::MODE_MANUAL:
+		this->m_cameraMode = cameraMode;
 		return;
 	}
 
 	// Something is wrong, so set to manual
-	this->cameraMode = cCamera::eMode::MANUAL;
+	this->m_cameraMode = cCamera::eMode::MODE_MANUAL;
 	return;
 }
+
+cCamera::eMode cCamera::getCameraMode(void)
+{
+	return this->m_cameraMode;
+}
+
+std::string cCamera::getCameraModeString(void)
+{
+	switch (this->m_cameraMode)
+	{
+	case cCamera::MODE_MANUAL:
+		return "MANUAL";
+		break;
+	case cCamera::eMode::MODE_FLY_USING_LOOK_AT:
+		return "FLY_CAMERA_USING_LOOK_AT";
+		break;
+	case cCamera::eMode::MODE_FOLLOW:
+		return "FOLLOW_CAMERA";
+		break;
+	default:
+		return "Unkown camera mode";
+		break;
+	}
+	return "Unknown camera mode";
+}
+
+
 glm::mat4 cCamera::getViewMatrix(void)
 {
 	// Based on the mode, calculate the view matrix
-	switch (cameraMode)
+	switch (m_cameraMode)
 	{
 	case cCamera::eMode::MANUAL:
 		// Use LookAT

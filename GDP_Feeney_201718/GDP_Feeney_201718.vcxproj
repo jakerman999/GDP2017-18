@@ -237,6 +237,7 @@
     <ClInclude Include="Error\CErrorLog.h" />
     <ClInclude Include="Error\COpenGLError.h" />
     <ClInclude Include="iDebugRenderer.h" />
+    <ClInclude Include="Input\iInput.h" />
     <ClInclude Include="Lua\cLuaBrain.h" />
     <ClInclude Include="Lua\cLuaConnector.h" />
     <ClInclude Include="Persist\CNVPair.h" />

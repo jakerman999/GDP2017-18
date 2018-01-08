@@ -5,29 +5,50 @@ float smoothstep(float edge0, float edge1, float x);
 float smootherstep(float edge0, float edge1, float x);
 float clamp(float x, float lowerlimit, float upperlimit);
 
-void cCamera::Follow_SetOrUpdateTarget(glm::vec3 target)
+//****************************************************
+void cCamera::cFollowCameraRedirect::setOrUpdateTarget(glm::vec3 target)
+{
+	this->pParentCamera->m_Follow_SetOrUpdateTarget(target);
+	return;
+}
+
+cCamera::cFollowCameraRedirect::cFollowCameraRedirect(cCamera *pTheCamera)
+{
+	this->pParentCamera = pTheCamera;
+	return;
+}
+
+cCamera::cFollowCameraRedirect::cFollowCameraRedirect()	// Don't call
+{
+	assert(true);
+}
+//****************************************************
+
+
+
+void cCamera::m_Follow_SetOrUpdateTarget(glm::vec3 target)
 {
 	this->target = target;
 	return;
 }
-void cCamera::Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget)
+void cCamera::m_Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget)
 {
 	this->follow_idealCameraLocationRelToTarget = relativeToTarget;
 	return;
 }
-void cCamera::Follow_SetMaxFollowSpeed(float speed)
+void cCamera::m_Follow_SetMaxFollowSpeed(float speed)
 {
 	this->follow_max_speed = speed;
 	return;
 }
 
-void cCamera::Follow_SetDistanceMaxSpeed(float distanceToTarget)
+void cCamera::m_Follow_SetDistanceMaxSpeed(float distanceToTarget)
 {
 	this->follow_distance_max_speed = distanceToTarget;
 	return;
 }
 
-void cCamera::Follow_SetDistanceMinSpeed(float distanceToTarget)
+void cCamera::m_Follow_SetDistanceZeroSpeed(float distanceToTarget)
 {
 	this->follow_distance_zero_speed = distanceToTarget;
 	return;

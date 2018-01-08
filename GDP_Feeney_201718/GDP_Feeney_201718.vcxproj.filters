@@ -19,9 +19,6 @@
     <Filter Include="Global">
       <UniqueIdentifier>{5b036a86-ffcf-40b2-8016-60d37a7ba79e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Texture">
-      <UniqueIdentifier>{5be69afd-2a1f-4fbd-95d3-db710b5e0b50}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Persist">
       <UniqueIdentifier>{df010c60-dbde-4437-9d1b-331dc08f3541}</UniqueIdentifier>
     </Filter>
@@ -73,6 +70,12 @@
     <Filter Include="Persist\RnRXML">
       <UniqueIdentifier>{63366a6c-f06b-48a4-a6f6-ed5eff2a963d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Texture">
+      <UniqueIdentifier>{5be69afd-2a1f-4fbd-95d3-db710b5e0b50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{eef0b455-027b-4e49-b5e8-4ad04b20d5c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -94,13 +97,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture\C24BitBMPpixel.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Texture\CTextureFromBMP.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="cModelAssetLoader.cpp">
       <Filter>Source Files</Filter>
@@ -193,10 +196,10 @@
       <Filter>Error</Filter>
     </ClCompile>
     <ClCompile Include="Texture\CTextureManager.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Persist\JSON\cPersistImpRnRJSON.cpp">
       <Filter>Persist\JSON</Filter>
@@ -243,10 +246,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Texture\C24BitBMPpixel.h">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Texture\CTextureFromBMP.h">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="cModelAssetLoader.h">
       <Filter>Header Files</Filter>
@@ -336,7 +339,7 @@
       <Filter>ShaderManager</Filter>
     </ClInclude>
     <ClInclude Include="Texture\CTextureManager.h">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Error\CErrorLog.h">
       <Filter>Error</Filter>
@@ -345,10 +348,10 @@
       <Filter>Error</Filter>
     </ClInclude>
     <ClInclude Include="Texture\CTexUnitInfoBrief.h">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.h">
-      <Filter>Texture</Filter>
+      <Filter>Source Files\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Persist\JSON\cRnRJASON.h">
       <Filter>Persist\JSON</Filter>
@@ -373,6 +376,9 @@
     </ClInclude>
     <ClInclude Include="Utilities\CStringHelper.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\iInput.h">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

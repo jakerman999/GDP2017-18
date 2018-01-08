@@ -1,5 +1,51 @@
 #include "cCamera.h"
 
+
+// From indirection interface
+void cCamera::cFlyCameraRedirect::moveForward(float distance)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::moveRight(float distance)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::moveUp(float distance)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::move(glm::vec3 direction_Zforward_Yup_Xright)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::yawOrTurnRight(float angle, bool isDegrees /*=true*/)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::pitchUp(float angle, bool isDegrees /*=true*/)
+{
+	//TODO
+	return;
+}
+
+void cCamera::cFlyCameraRedirect::rollClockWise(float angle, bool isDegrees /*=true*/)
+{
+	//TODO
+	return;
+}
+
+
+
 void cCamera::m_calcDirectionVectorFromTarget(glm::vec3 &eyeToTargetDirection, float &eyeToTargetLength)
 {
 	// Get a vector from the target to the eye
@@ -66,7 +112,7 @@ void cCamera::Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp)
 	return;
 }
 // +ve is right
-void cCamera::Fly_turn(float turnDegreesPosIsRight)
+void cCamera::Fly_turn_RightLeft(float turnDegreesPosIsRight)
 {
 	// Get direction vector and length
 	glm::vec3 vEyeToTargetDirection;
@@ -83,28 +129,14 @@ void cCamera::Fly_turn(float turnDegreesPosIsRight)
 	//TODO:
 	return;
 }
-void cCamera::Fly_turn_RightLeft(float turnDegreesPosIsRight)
-{
-	//TODO:
-	return;
-}
+
 // +ve it up
-void cCamera::Fly_pitch(float pitchDegreesPosIsNoseUp)
-{
-	//TODO:
-	return;
-}
 void cCamera::Fly_pitch_UpDown(float pitchDegreesPosIsNoseUp)
 {
 	//TODO:
 	return;
 }
 // +ve is Clock-wise rotation (from nose to tail)
-void cCamera::Fly_yaw(float pitchDegreesPosIsClockWise)
-{
-	//TODO:
-	return;
-}
 void cCamera::Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise)
 {
 	//TODO:

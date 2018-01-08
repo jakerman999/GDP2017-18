@@ -5,6 +5,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
+#include <string>
+
 class cCamera
 {
 public:
@@ -20,39 +22,83 @@ public:
 	// For following, etc. 
 	void updateTick(double deltaTime);
 
+	// These are used to simplify the interface for the programmer, 
+	//	breaking the various modes of the camera into groups
+	class cFollowCameraRedirect
+	{
+	public:
+		void setOrUpdateTarget(glm::vec3 target);
+		void setIdealCameraLocation(glm::vec3 relativeToTarget);
+		void setMaxFollowSpeed(float speed);
+		void setDistanceMaxSpeed(float distanceToTarget);
+		void setDistanceZeroSpeed(float distanceToTarget);
+		void setAll(glm::vec3 target, glm::vec3 idealCamLocRelToTarget, 
+					float maxSpeed, float maxSpeedDistance, float zeroSpeedDistance);
+	private:
+		friend cCamera;
+		cFollowCameraRedirect(cCamera *pTheCamera);
+		cFollowCameraRedirect();	// Don't call
+		cCamera* pParentCamera;
+	};
+	cFollowCameraRedirect* FollowCam;
+
+	class cFlyCameraRedirect
+	{
+	public:
+		void moveForward(float distance);
+		void moveRight(float distance);
+		void moveUp(float distance);
+		void move(glm::vec3 direction_Zforward_Yup_Xright);
+		void yawOrTurnRight(float angle, bool isDegrees = true);
+		void pitchUp(float angle, bool isDegrees = true);
+		void rollClockWise(float angle, bool isDegrees = true);
+		// 
+		void setTargetInWorld(glm::vec3 worldLocation);
+		void setDirectionRelative(glm::vec3 relativeDirection);
+
+	private:
+		friend cCamera;
+		cFlyCameraRedirect(cCamera* pTheCamera);
+		cFlyCameraRedirect();		// Don't call
+		cCamera* pParentCamera;
+	};
+	cFlyCameraRedirect* FlyCam;
+
 	enum eMode
 	{
-		MANUAL,			// Move along the axes (lookat)
-		FOLLOW_CAMERA,	// Follows a target (lookat)
-		FLY_CAMERA_USING_LOOK_AT,	// Here, you use the "target" as direction
+		MODE_MANUAL,				// Move along the axes (lookat)
+		MODE_FOLLOW,				// Follows a target (lookat)
+		MODE_FLY_USING_LOOK_AT,		// Here, you use the "target" as direction
 									// you want to go. This allows you to transition
 									// from the FOLLOW_CAMERA to FLY seamlessly
 
-
-		FLY_CAMERA_GARBAGE_DONT_USE		// Movement based on direction of gaze
-								// Use quaternion orientation
-								// "catch"  is no LOOKAT
+		MODE_FLY_CAMERA_GARBAGE_DONT_USE		// Movement based on direction of gaze
+												// Use quaternion orientation
+												// "catch"  is no LOOKAT
 	};
 
 	void setCameraMode(eMode cameraMode);
-	eMode cameraMode;
+	eMode getCameraMode(void);
+	std::string getCameraModeString(void);
+
+private:
+
+	eMode m_cameraMode;
 
 	// Follow camera
-	void Follow_SetOrUpdateTarget(glm::vec3 target);
-	void Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget);
-	void Follow_SetMaxFollowSpeed(float speed);
-	void Follow_SetDistanceMaxSpeed(float distanceToTarget);
-	void Follow_SetDistanceMinSpeed(float distanceToTarget);
+	void m_Follow_SetOrUpdateTarget(glm::vec3 target);
+	void m_Follow_SetIdealCameraLocation(glm::vec3 relativeToTarget);
+	void m_Follow_SetMaxFollowSpeed(float speed);
+	void m_Follow_SetDistanceMaxSpeed(float distanceToTarget);
+	void m_Follow_SetDistanceZeroSpeed(float distanceToTarget);
 
 	glm::vec3 follow_idealCameraLocationRelToTarget;
 	float follow_max_speed;
 	float follow_distance_max_speed;
 	float follow_distance_zero_speed;
-private:
+
 	void m_UpdateFollowCamera_SUCKS(double deltaTime);
 	void m_UpdateFollowCamera_GOOD(double deltaTime);
-public:
-
 
 	// ************************************************************
 	// For the "fly camera":
@@ -62,13 +108,10 @@ public:
 	void Fly_moveUpDown(float distanceAlongRelativeYAxis_PosIsUp);
 	void Fly_move(glm::vec3 directionIWantToMove_Zforward_Yup_Xleftright);
 	// +ve is right
-	void Fly_turn(float turnDegreesPosIsRight);
 	void Fly_turn_RightLeft(float turnDegreesPosIsRight);
 	// +ve it up
-	void Fly_pitch(float pitchDegreesPosIsNoseUp);
 	void Fly_pitch_UpDown(float pitchDegreesPosIsNoseUp);
 	// +ve is Clock-wise rotation (from nose to tail)
-	void Fly_yaw(float pitchDegreesPosIsClockWise);
 	void Fly_yaw_CWorCCW(float pitchDegreesPosIsClockWise);
 	// 
 	// You can use this to change the target from wherever it is
