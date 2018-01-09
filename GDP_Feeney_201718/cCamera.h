@@ -99,6 +99,10 @@ public:
 		cCamera* pParentCamera;
 		// called by camera
 		void m_updateTick(double deltaTime);
+		// Specific to the fly camera
+		glm::quat m_calcRotationBetweenVector( glm::vec3 start, glm::vec3 destination);
+		glm::quat m_quatLookAtWithUp(glm::vec3 direction, glm::vec3 frontVector = glm::vec3(0.0f, 0.0f, 1.0f) /*+z axis default forward*/);
+		void m_calcDirectionFromTarget(glm::vec3 &direction, float &distanceToTarget);
 	};
 
 

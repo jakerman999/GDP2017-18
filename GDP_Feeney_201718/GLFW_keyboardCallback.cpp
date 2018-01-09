@@ -17,7 +17,7 @@ bool areAnyModifierKeysDown(int mods);
 
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
-	const float CAMERASPEED = 100.0f;
+	const float CAMERASPEED = 10.0f;
 
 	const float CAM_ACCELL_THRUST = 100.0f;
 
@@ -26,16 +26,24 @@ bool areAnyModifierKeysDown(int mods);
 		switch (key)
 		{
 		case GLFW_KEY_1:
-			::g_pTheCamera->setCameraMode(cCamera::MODE_FLY_USING_LOOK_AT);
-			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+			::g_pLightManager->vecLights[0].attenuation.y *= 0.99f;	// less 1%
 			break;
 		case GLFW_KEY_2:
-			::g_pTheCamera->setCameraMode(cCamera::MODE_FOLLOW);
-			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+			::g_pLightManager->vecLights[0].attenuation.y *= 1.01f; // more 1%
+			if (::g_pLightManager->vecLights[0].attenuation.y <= 0.0f)
+			{
+				::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Some really tiny value
+			}
 			break;
-		case GLFW_KEY_3:
-			::g_pTheCamera->setCameraMode(cCamera::MODE_MANUAL);
-			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+		case GLFW_KEY_3:	// Quad
+			::g_pLightManager->vecLights[0].attenuation.z *= 0.99f;	// less 1%
+			break;
+		case GLFW_KEY_4:	//  Quad
+			::g_pLightManager->vecLights[0].attenuation.z *= 1.01f; // more 1%
+			if (::g_pLightManager->vecLights[0].attenuation.z <= 0.0f)
+			{
+				::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
+			}
 			break;
 
 		// Lights
@@ -80,43 +88,17 @@ bool areAnyModifierKeysDown(int mods);
 		switch (key)
 		{
 		case GLFW_KEY_1:
-			::g_pLightManager->vecLights[0].attenuation.y *= 0.99f;	// less 1%
+			::g_pTheCamera->setCameraMode(cCamera::MODE_FLY_USING_LOOK_AT);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
 			break;
 		case GLFW_KEY_2:
-			::g_pLightManager->vecLights[0].attenuation.y *= 1.01f; // more 1%
-			if (::g_pLightManager->vecLights[0].attenuation.y <= 0.0f)
-			{
-				::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Some really tiny value
-			}
+			::g_pTheCamera->setCameraMode(cCamera::MODE_FOLLOW);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
 			break;
-		case GLFW_KEY_3:	// Quad
-			::g_pLightManager->vecLights[0].attenuation.z *= 0.99f;	// less 1%
+		case GLFW_KEY_3:
+			::g_pTheCamera->setCameraMode(cCamera::MODE_MANUAL);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
 			break;
-		case GLFW_KEY_4:	//  Quad
-			::g_pLightManager->vecLights[0].attenuation.z *= 1.01f; // more 1%
-			if (::g_pLightManager->vecLights[0].attenuation.z <= 0.0f)
-			{
-				::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
-			}
-			break;
-		case GLFW_KEY_5:
-			break;
-		case GLFW_KEY_6:
-			break;
-		case GLFW_KEY_7:
-			break;
-		case GLFW_KEY_8:
-			break;
-		case GLFW_KEY_9:
-			break;
-		case GLFW_KEY_0:
-			break;
-
-		case GLFW_KEY_N:
-			break;
-		case GLFW_KEY_M:
-			break;
-
 
 		// CAMERA and lighting
 		case GLFW_KEY_A:		// Left
@@ -137,6 +119,27 @@ bool areAnyModifierKeysDown(int mods);
 		case GLFW_KEY_E:		// "Up" (along y axis)
 			::g_pTheCamera->FlyCamLA->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
 			break;
+
+		case GLFW_KEY_5:
+			break;
+		case GLFW_KEY_6:
+			break;
+		case GLFW_KEY_7:
+			break;
+		case GLFW_KEY_8:
+			break;
+		case GLFW_KEY_9:
+			break;
+		case GLFW_KEY_0:
+			break;
+
+		case GLFW_KEY_N:
+			break;
+		case GLFW_KEY_M:
+			break;
+
+
+
 
 		}//switch
 	}//if (areAllModifierKeysUp(mods))
