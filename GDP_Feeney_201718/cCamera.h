@@ -74,24 +74,28 @@ public:
 		void m_updateTick(double deltaTime);
 	};
 
-	class cFlyCameraRedirect
+	// This adjusts the target
+	class cFlyCameraLookAtRedirect
 	{
 	public:
-		void moveForward(float distance);
-		void moveRight(float distance);
-		void moveUp(float distance);
-		void move(glm::vec3 direction_Zforward_Yup_Xright);
-		void yawOrTurnRight(float angle, bool isDegrees = true);
-		void pitchUp(float angle, bool isDegrees = true);
-		void rollClockWise(float angle, bool isDegrees = true);
-		// 
+		void setEyePosition(glm::vec3 newPos);
 		void setTargetInWorld(glm::vec3 worldLocation);
+		void setUpVector(glm::vec3 up);
+		// Sets the target relative to where the camera eye is
 		void setDirectionRelative(glm::vec3 relativeDirection);
+		//
+		void moveForward(float distance);		// void moveBackwards(float distance);
+		void moveRight(float distance);			// void moveLeft(float distance);
+		void moveUp(float distance);			// void moveDown(float distance);
+		void move(glm::vec3 direction_Zforward_Yup_Xright);
+		void yawOrTurnRight(float angle, bool isDegrees = true);	// void yawOrTurnLeft(float angle, bool isDegrees = true);
+		void pitchUp(float angle, bool isDegrees = true);			// void pitchDown(float angle, bool isDegrees = true);
+		void rollClockWise(float angle, bool isDegrees = true);		// void rollCClockWise(float angle, bool isDegrees = true);
 
 	private:
 		friend cCamera;
-		cFlyCameraRedirect(cCamera* pTheCamera);
-		cFlyCameraRedirect();		// Don't call
+		cFlyCameraLookAtRedirect(cCamera* pTheCamera);
+		cFlyCameraLookAtRedirect();		// Don't call
 		cCamera* pParentCamera;
 		// called by camera
 		void m_updateTick(double deltaTime);
@@ -99,12 +103,10 @@ public:
 
 
 
-
 	// The public variables for the various modes
-	cManualCameraRedirect*	ManualCam;
-	cFollowCameraRedirect*	FollowCam;
-	cFlyCameraRedirect*		FlyCam;
-
+	cManualCameraRedirect*		ManualCam;
+	cFollowCameraRedirect*		FollowCam;
+	cFlyCameraLookAtRedirect*	FlyCamLA;
 
 private:
 

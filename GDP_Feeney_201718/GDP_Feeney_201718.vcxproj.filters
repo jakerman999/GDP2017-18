@@ -222,10 +222,10 @@
     <ClCompile Include="Utilities\CStringHelper.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="cCamera_Fly.cpp">
+    <ClCompile Include="cCamera_Manual.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="cCamera_Manual.cpp">
+    <ClCompile Include="cCamera_FlyLookAt.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
   </ItemGroup>

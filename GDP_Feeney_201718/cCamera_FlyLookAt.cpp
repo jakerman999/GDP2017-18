@@ -1,64 +1,89 @@
 #include "cCamera.h"
 
 
-cCamera::cFlyCameraRedirect::cFlyCameraRedirect(cCamera* pTheCamera)
+cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect(cCamera* pTheCamera)
 {
 	this->pParentCamera = pTheCamera;
 	return;
 }
 
 // Don't call
-cCamera::cFlyCameraRedirect::cFlyCameraRedirect()
+cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect()
 {
 	assert(true);
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::m_updateTick(double deltaTime)
+void cCamera::cFlyCameraLookAtRedirect::m_updateTick(double deltaTime)
 {
 
+	return;
+}
+
+void cCamera::cFlyCameraLookAtRedirect::setEyePosition(glm::vec3 newPos)
+{
+	this->pParentCamera->m_eye = newPos;
+	return;
+}
+
+void cCamera::cFlyCameraLookAtRedirect::setTargetInWorld(glm::vec3 worldLocation)
+{
+	this->pParentCamera->m_target = worldLocation;
+	return;
+}
+
+void cCamera::cFlyCameraLookAtRedirect::setUpVector(glm::vec3 up)
+{
+	this->pParentCamera->m_up = up;
+	return;
+}
+
+
+void cCamera::cFlyCameraLookAtRedirect::setDirectionRelative(glm::vec3 relativeDirection)
+{
+	this->pParentCamera->m_target = this->pParentCamera->m_eye + relativeDirection;
 	return;
 }
 
 
 // From indirection interface
-void cCamera::cFlyCameraRedirect::moveForward(float distance)
+void cCamera::cFlyCameraLookAtRedirect::moveForward(float distance)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::moveRight(float distance)
+void cCamera::cFlyCameraLookAtRedirect::moveRight(float distance)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::moveUp(float distance)
+void cCamera::cFlyCameraLookAtRedirect::moveUp(float distance)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::move(glm::vec3 direction_Zforward_Yup_Xright)
+void cCamera::cFlyCameraLookAtRedirect::move(glm::vec3 direction_Zforward_Yup_Xright)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::yawOrTurnRight(float angle, bool isDegrees /*=true*/)
+void cCamera::cFlyCameraLookAtRedirect::yawOrTurnRight(float angle, bool isDegrees /*=true*/)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::pitchUp(float angle, bool isDegrees /*=true*/)
+void cCamera::cFlyCameraLookAtRedirect::pitchUp(float angle, bool isDegrees /*=true*/)
 {
 	//TODO
 	return;
 }
 
-void cCamera::cFlyCameraRedirect::rollClockWise(float angle, bool isDegrees /*=true*/)
+void cCamera::cFlyCameraLookAtRedirect::rollClockWise(float angle, bool isDegrees /*=true*/)
 {
 	//TODO
 	return;

@@ -17,7 +17,7 @@ cCamera::cCamera()
 
 	// Create the "redirection" classes
 	this->FollowCam = new cFollowCameraRedirect(this);
-	this->FlyCam = new cFlyCameraRedirect(this);
+	this->FlyCamLA = new cFlyCameraLookAtRedirect(this);
 	this->ManualCam = new cManualCameraRedirect(this);
 
 	return;
@@ -26,7 +26,7 @@ cCamera::cCamera()
 cCamera::~cCamera()
 {
 	delete this->FollowCam;
-	delete this->FlyCam;
+	delete this->FlyCamLA;
 	delete this->ManualCam;
 	return;
 }
@@ -46,7 +46,7 @@ void cCamera::updateTick(double deltaTime)
 		this->ManualCam->m_updateTick(deltaTime);
 		break;
 	case cCamera::eMode::MODE_FLY_USING_LOOK_AT:
-		this->FlyCam->m_updateTick(deltaTime);
+		this->FlyCamLA->m_updateTick(deltaTime);
 		break;
 	case cCamera::eMode::MODE_FOLLOW:
 		this->m_EulerIntegrate(deltaTime);

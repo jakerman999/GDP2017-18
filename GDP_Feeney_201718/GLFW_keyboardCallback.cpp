@@ -6,6 +6,8 @@
 bool isShiftKeyDown( int mods, bool bByItself = true );
 bool isCtrlKeyDown( int mods, bool bByItself = true );
 bool isAltKeyDown( int mods, bool bByItself = true );
+bool areAllModifierKeysUp(int mods);
+bool areAnyModifierKeysDown(int mods);
 
 /*static*/ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -19,220 +21,126 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 
 	const float CAM_ACCELL_THRUST = 100.0f;
 
-//	const float CAMERASPEED = 100.0f;
-	switch (key)
+	if ( isShiftKeyDown(mods, true) && (action == GLFW_PRESS) )
 	{
-	case GLFW_KEY_F:
-		::g_pTheCamera->setCameraMode( cCamera::MODE_FLY_USING_LOOK_AT );
-		break;
-	// HACK: Change orientation of pLeftTeapot
-	// 5,6 - rotation around x
-	// 7,8 - rotation around y 
-	// 9,0 - rotation around z
-	case GLFW_KEY_5:
-		//pLeftTeapot->qOrientation.x += 1.0f;		// NOT Euler x axis!!
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(+0.1f, 0.0f, 0.0f));
-		break;
-	case GLFW_KEY_6:
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(-0.1f, 0.0f, 0.0f));
-		break;
-	case GLFW_KEY_7:
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, +0.1f, 0.0f));
-		break;
-	case GLFW_KEY_8:
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, -0.1f, 0.0f));
-		break;
-	case GLFW_KEY_9:
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, +0.1f));
-		break;
-	case GLFW_KEY_0:
-//		pLeftTeapot->adjustQOrientationFormDeltaEuler(glm::vec3(0.0f, 0.0f, -0.1f));
-		break;
+		switch (key)
+		{
+		case GLFW_KEY_1:
+			::g_pTheCamera->setCameraMode(cCamera::MODE_FLY_USING_LOOK_AT);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+			break;
+		case GLFW_KEY_2:
+			::g_pTheCamera->setCameraMode(cCamera::MODE_FOLLOW);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+			break;
+		case GLFW_KEY_3:
+			::g_pTheCamera->setCameraMode(cCamera::MODE_MANUAL);
+			std::cout << "Camera now in " << ::g_pTheCamera->getCameraModeString() << std::endl;;
+			break;
 
-	case GLFW_KEY_N:
-		if (pLeftTeapot)
-		{
-//			pLeftTeapot->textureBlend[0] -= 0.01f;
-//			if (pLeftTeapot->textureBlend[0] <= 0.0f)
-//			{
-//				pLeftTeapot->textureBlend[0] = 0.0f;
-//			}
-//			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
-		}
-		break;
-	case GLFW_KEY_M:
-		if (pLeftTeapot)
-		{
-//			pLeftTeapot->textureBlend[0] += 0.01f;
-//			if (pLeftTeapot->textureBlend[0] > 1.0f)
-//			{
-//				pLeftTeapot->textureBlend[0] = 1.0f;
-//			}
-//			pLeftTeapot->textureBlend[1] = 1.0f - pLeftTeapot->textureBlend[0];
-		}
-		break;
+		// Lights
+		// CAMERA and lighting
+		case GLFW_KEY_A:		// Left
+			::g_pLightManager->vecLights[0].position.x -= CAMERASPEED;
+			break;
+		case GLFW_KEY_D:		// Right
+			::g_pLightManager->vecLights[0].position.x += CAMERASPEED;
+			break;
+		case GLFW_KEY_W:		// Forward (along z)
+			::g_pLightManager->vecLights[0].position.z += CAMERASPEED;
+			break;
+		case GLFW_KEY_S:		// Backwards (along z)
+			::g_pLightManager->vecLights[0].position.z -= CAMERASPEED;
+			break;
+		case GLFW_KEY_Q:		// "Down" (along y axis)
+			::g_pLightManager->vecLights[0].position.y -= CAMERASPEED;
+			break;
+		case GLFW_KEY_E:		// "Up" (along y axis)
+			::g_pLightManager->vecLights[0].position.y += CAMERASPEED;
+			break;
+		case GLFW_KEY_G:
+			{
+				float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
+				::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle + 0.01f);
+			}
+			break;
+		case GLFW_KEY_H:
+			{
+				float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
+				::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle - 0.01f);
+			}
+			break;
+		};//switch (key)
+	}//if ( isShiftKeyDown(mods, true) )
 
-	// CAMERA and lighting
-	case GLFW_KEY_A:		// Left
-//		g_cameraTarget_XYZ.x -= CAMERASPEED;
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.x -= CAMERASPEED;	}
-		else								
-		{	
-			//::g_cameraXYZ.x -= CAMERASPEED;
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveRight(-CAMERASPEED);	// strafe
-			}
-			else if (isAltKeyDown(mods, true))
-			{	// F=ma, so changing the accel REALLY is like putting a force
-				//	on an object
-//				::g_pTheCamera->accel.x = -CAM_ACCELL_THRUST;	// Force to the left!
-			}
-			else
-			{	// Turn camera 
-				::g_pTheCamera->FlyCam->yawOrTurnRight(-1.0f);
-			}
-		}
-		break;
-	case GLFW_KEY_D:		// Right
-//		g_cameraTarget_XYZ.x += CAMERASPEED;
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.x += CAMERASPEED;	}
-		else
-		{	
-			//::g_cameraXYZ.x += CAMERASPEED;
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveRight(+CAMERASPEED);	// strafe
-			}
-			else if (isAltKeyDown(mods, true))
-			{	// F=ma, so changing the accel REALLY is like putting a force
-				//	on an object
-//				::g_pTheCamera->accel.x = +CAM_ACCELL_THRUST;	// Force to the left!
-			}
-			else
-			{	// Turn camera 
-				::g_pTheCamera->FlyCam->yawOrTurnRight(+1.0f);
-			}
-		}
-		break;
-	case GLFW_KEY_W:		// Forward (along z)
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.z += CAMERASPEED;	}
-		else
-		{	
-			//::g_cameraXYZ.z += CAMERASPEED;
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveForward(+CAMERASPEED);
-			}
-			else if (isAltKeyDown(mods, true))
-			{	// F=ma, so changing the accel REALLY is like putting a force
-				//	on an object
-//				::g_pTheCamera->accel.z = +CAM_ACCELL_THRUST;	// Force to the left!
-			}
-			else
-			{	// Pitch down
-				::g_pTheCamera->FlyCam->pitchUp(-1.0f);
-			}
-		}
-		break;
-	case GLFW_KEY_S:		// Backwards (along z)
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.z -= CAMERASPEED;	}
-		else
-		{	
-			//::g_cameraXYZ.z -= CAMERASPEED;	
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveForward(-CAMERASPEED);		// Backwards
-			}
-			else if (isAltKeyDown(mods, true))
-			{	// F=ma, so changing the accel REALLY is like putting a force
-				//	on an object
-//				::g_pTheCamera->accel.z = -CAM_ACCELL_THRUST;	// Force to the left!
-			}
-			else
-			{	// Pitch down
-				::g_pTheCamera->FlyCam->pitchUp(+1.0f);
-			}
-		}
-		break;
-	case GLFW_KEY_Q:		// "Down" (along y axis)
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.y -= CAMERASPEED;	}
-		else
-		{	
-			//::g_cameraXYZ.y -= CAMERASPEED;	
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveUp(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
-			}
-			else
-			{	// "roll" left (counter-clockwise)
-				::g_pTheCamera->FlyCam->rollClockWise(-1.0f);
-			}
-		}
-		break;
-	case GLFW_KEY_E:		// "Up" (along y axis)
-		if ( isShiftKeyDown(mods, true) )	
-		{	::g_pLightManager->vecLights[0].position.y += CAMERASPEED;	}
-		else
-		{	
-			//::g_cameraXYZ.y += CAMERASPEED;	
-			if (isCtrlKeyDown(mods, true))
-			{
-				// Move camera (ctrl)
-				::g_pTheCamera->FlyCam->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
-			}
-			else
-			{	// "roll" left (counter-clockwise)
-				::g_pTheCamera->FlyCam->rollClockWise(+1.0f);
-			}
-		}
-		break;
 
-	case GLFW_KEY_1:
-		::g_pLightManager->vecLights[0].attenuation.y *= 0.99f;	// less 1%
-		break;
-	case GLFW_KEY_2:
-		::g_pLightManager->vecLights[0].attenuation.y *= 1.01f; // more 1%
-		if ( ::g_pLightManager->vecLights[0].attenuation.y <= 0.0f )
+	if (areAllModifierKeysUp(mods))
+	{
+		//	const float CAMERASPEED = 100.0f;
+		switch (key)
 		{
-			::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Some really tiny value
-		}
-		break;
-	case GLFW_KEY_3:	// Quad
-		::g_pLightManager->vecLights[0].attenuation.z *= 0.99f;	// less 1%
-		break;
-	case GLFW_KEY_4:	//  Quad
-		::g_pLightManager->vecLights[0].attenuation.z *= 1.01f; // more 1%
-		if ( ::g_pLightManager->vecLights[0].attenuation.z <= 0.0f )
-		{
-			::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
-		}
-		break;
+		case GLFW_KEY_1:
+			::g_pLightManager->vecLights[0].attenuation.y *= 0.99f;	// less 1%
+			break;
+		case GLFW_KEY_2:
+			::g_pLightManager->vecLights[0].attenuation.y *= 1.01f; // more 1%
+			if (::g_pLightManager->vecLights[0].attenuation.y <= 0.0f)
+			{
+				::g_pLightManager->vecLights[0].attenuation.y = 0.001f;	// Some really tiny value
+			}
+			break;
+		case GLFW_KEY_3:	// Quad
+			::g_pLightManager->vecLights[0].attenuation.z *= 0.99f;	// less 1%
+			break;
+		case GLFW_KEY_4:	//  Quad
+			::g_pLightManager->vecLights[0].attenuation.z *= 1.01f; // more 1%
+			if (::g_pLightManager->vecLights[0].attenuation.z <= 0.0f)
+			{
+				::g_pLightManager->vecLights[0].attenuation.z = 0.001f;	// Some really tiny value
+			}
+			break;
+		case GLFW_KEY_5:
+			break;
+		case GLFW_KEY_6:
+			break;
+		case GLFW_KEY_7:
+			break;
+		case GLFW_KEY_8:
+			break;
+		case GLFW_KEY_9:
+			break;
+		case GLFW_KEY_0:
+			break;
 
-	case GLFW_KEY_G:
-		{
-			float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
-			::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle + 0.01f);
-		}
-		break;
-	case GLFW_KEY_H:
-		{
-			float angle = ::g_pLightManager->vecLights[0].getLightParamSpotPrenumAngleOuter();
-			::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter(angle - 0.01f);
-		}
-		break;
+		case GLFW_KEY_N:
+			break;
+		case GLFW_KEY_M:
+			break;
 
-	}
+
+		// CAMERA and lighting
+		case GLFW_KEY_A:		// Left
+			::g_pTheCamera->FlyCamLA->moveRight(-CAMERASPEED);	// strafe
+			break;
+		case GLFW_KEY_D:		// Right
+			::g_pTheCamera->FlyCamLA->moveRight(+CAMERASPEED);	// strafe
+			break;
+		case GLFW_KEY_W:		// Forward (along z)
+			::g_pTheCamera->FlyCamLA->moveForward(+CAMERASPEED);
+			break;
+		case GLFW_KEY_S:		// Backwards (along z)
+			::g_pTheCamera->FlyCamLA->moveForward(-CAMERASPEED);		// Backwards
+			break;
+		case GLFW_KEY_Q:		// "Down" (along y axis)
+			::g_pTheCamera->FlyCamLA->moveUp(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+			break;
+		case GLFW_KEY_E:		// "Up" (along y axis)
+			::g_pTheCamera->FlyCamLA->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+			break;
+
+		}//switch
+	}//if (areAllModifierKeysUp(mods))
+
 	// HACK: print output to the console
 //	std::cout << "Light[0] linear atten: "
 //		<< ::g_pLightManager->vecLights[0].attenuation.y << ", "
@@ -288,5 +196,24 @@ bool isAltKeyDown( int mods, bool bByItself /*=true*/ )
 		else { return false; }
 	}
 	// Shouldn't never get here, so return false? I guess?
+	return false;
+}
+
+bool areAllModifierKeysUp(int mods)
+{
+	if ( isShiftKeyDown(mods) )	{	return false;	}
+	if ( isCtrlKeyDown(mods) ) 	{	return false;	}
+	if ( isAltKeyDown(mods) )	{	return false;	}
+
+	// All of them are up
+	return true;
+}//areAllModifierKeysUp()
+
+bool areAnyModifierKeysDown(int mods)
+{
+	if ( isShiftKeyDown(mods) )		{	return true;	}
+	if ( isCtrlKeyDown(mods) )		{	return true;	}
+	if ( isAltKeyDown(mods) )		{	return true;	}
+	// None of them are down
 	return false;
 }
