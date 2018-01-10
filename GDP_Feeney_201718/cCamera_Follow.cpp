@@ -5,11 +5,13 @@ float smoothstep(float edge0, float edge1, float x);
 float smootherstep(float edge0, float edge1, float x);
 float clamp(float x, float lowerlimit, float upperlimit);
 
-//****************************************************
-void cCamera::cFollowCameraRedirect::setOrUpdateTarget(glm::vec3 target)
+
+// Don't call
+// This class is only used with the camera, and needs a callback to the "parent" camera object. 
+// So you NEVER create it without passing the parent camera.
+cCamera::cFollowCameraRedirect::cFollowCameraRedirect()	
 {
-	this->pParentCamera->m_target = target;
-	return;
+	assert(true);
 }
 
 cCamera::cFollowCameraRedirect::cFollowCameraRedirect(cCamera *pTheCamera)
@@ -18,11 +20,16 @@ cCamera::cFollowCameraRedirect::cFollowCameraRedirect(cCamera *pTheCamera)
 	return;
 }
 
-// Don't call
-cCamera::cFollowCameraRedirect::cFollowCameraRedirect()	
+
+
+//****************************************************
+void cCamera::cFollowCameraRedirect::setOrUpdateTarget(glm::vec3 target)
 {
-	assert(true);
+	this->pParentCamera->m_target = target;
+	return;
 }
+
+
 //****************************************************
 
 

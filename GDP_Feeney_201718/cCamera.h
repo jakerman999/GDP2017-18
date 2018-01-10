@@ -75,14 +75,40 @@ public:
 	};
 
 	// This adjusts the target
+	// To set, do one of the following:
+	//	- If target matters, set target, then orientation
+	//	- If specific target doesn't matter, you can set orientation only
+	// Moving:
+	//  - If target +IS+ updated, then it flies like a typical camera
+	//  - If target is NOT updated, then the camera always flies towards target
+	//    ++i.e.++ the orientation WILL CHANGE to align with the target
 	class cFlyCameraLookAtRedirect
 	{
 	public:
+		// If true, target is updated when camera moves.
+		//	- This is a 'normal' fly camera, where the movement determines the target
+		// If false, target stays locked. 
+		void setModeUpdateTargetWithMovement(bool bUpdateTargetWithMovement /*default is true*/);
+		void setModeKeepCameraAlignedWithUpVector(bool bAlignWithUpVector /*default is true*/);
+
+		// These change the state when the camera is dynamically changing, over multiple frames
+		enum eDynamicState
+		{
+			IS_STATIC,						// normal mode
+			IS_TRACKING_TO_NEW_TARGET,
+			IS_TRACKING_TO_NEW_ORIENTATION
+		};
+		void trackToNewTarget(glm::vec3 targetWorldLocation, float maxAnglePerSecond, bool bIsDegrees = true);
+		void trackToNewOrientation(glm::vec3 eulerNewOrientation, float maxAnglesPerSecond, bool bIsDegrees = true);
+		void trackToNewOrientation(glm::quat qNewOrientation, float maxAnglesPerSecond, bool bIsDegrees = true);
+
 		void setEyePosition(glm::vec3 newPos);
 		void setTargetInWorld(glm::vec3 worldLocation);
 		void setUpVector(glm::vec3 up);
 		// Sets the target relative to where the camera eye is
 		void setDirectionRelative(glm::vec3 relativeDirection);
+		void setOrientationFromTarget(void);
+		void setOrientationFromTarget(glm::vec3 targetWorldLocation);
 		//
 		void moveForward(float distance);		// void moveBackwards(float distance);
 		void moveRight(float distance);			// void moveLeft(float distance);
@@ -103,6 +129,10 @@ public:
 		glm::quat m_calcRotationBetweenVector( glm::vec3 start, glm::vec3 destination);
 		glm::quat m_quatLookAtWithUp(glm::vec3 direction, glm::vec3 frontVector = glm::vec3(0.0f, 0.0f, 1.0f) /*+z axis default forward*/);
 		void m_calcDirectionFromTarget(glm::vec3 &direction, float &distanceToTarget);
+		bool m_bUpdateTargetWithMovement;
+		bool m_bKeepAlignedWithUpVector;
+		// Dynamic state...
+		eDynamicState m_curDynamicState;	// = IS_STATIC
 	};
 
 

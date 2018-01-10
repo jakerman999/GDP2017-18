@@ -1,5 +1,33 @@
 #include "cCamera.h"
 
+// Don't call
+// This class is only used with the camera, and needs a callback to the "parent" camera object. 
+// So you NEVER create it without passing the parent camera.
+cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect()
+{
+	assert(true);
+	return;
+}
+
+cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect(cCamera* pTheCamera)
+{
+	this->pParentCamera = pTheCamera;
+	this->m_bUpdateTargetWithMovement = true;
+	this->m_bKeepAlignedWithUpVector = true;
+	return;
+}
+
+void cCamera::cFlyCameraLookAtRedirect::setModeUpdateTargetWithMovement(bool bUpdateTarget /*default is true*/)
+{
+	this->m_bUpdateTargetWithMovement = true;
+	return;
+}
+
+void cCamera::cFlyCameraLookAtRedirect::setModeKeepCameraAlignedWithUpVector(bool bAlignWithUpVector /*default is true*/)
+{
+	this->m_bKeepAlignedWithUpVector = bAlignWithUpVector;
+	return;
+}
 
 void cCamera::cFlyCameraLookAtRedirect::m_calcDirectionFromTarget(glm::vec3 &direction, float &distanceToTarget)
 {
@@ -17,13 +45,16 @@ glm::quat cCamera::cFlyCameraLookAtRedirect::m_calcRotationBetweenVector( glm::v
 	float cosTheta = glm::dot(start, destination);
 	glm::vec3 rotationAxis;
 
-	if (cosTheta < -1 + 0.001f){
+	if (cosTheta < -1 + 0.001f)
+	{
 		// special case when vectors in opposite directions:
 		// there is no "ideal" rotation axis
 		// So guess one; any will do as long as it's perpendicular to start
 		rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
-		if (glm::length2(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
+		if (glm::length2(rotationAxis) < 0.01 ) 
+		{	// bad luck, they were parallel, try again!
 			rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+		}
 
 		rotationAxis = normalize(rotationAxis);
 		return glm::angleAxis(glm::radians(180.0f), rotationAxis);
@@ -46,37 +77,38 @@ glm::quat cCamera::cFlyCameraLookAtRedirect::m_calcRotationBetweenVector( glm::v
 glm::quat cCamera::cFlyCameraLookAtRedirect::m_quatLookAtWithUp(glm::vec3 direction, 
                                                                 glm::vec3 frontVector /*=glm::vec3(0.0f, 0.0f, 1.0f), +z axis default forward*/)
 {
+	glm::quat targetOrientation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));
+
 	glm::quat rot1 = this->m_calcRotationBetweenVector(frontVector, direction);
 
-	glm::vec3 desiredUp = this->pParentCamera->m_up;
+	// Are we updating the "up" vector? 
+	if ( ! this->m_bKeepAlignedWithUpVector )
+	{
+		// No, we are changing the "up" when we rotate
+		// HACK: Not 100% sure if this is doing what we want... (updating the up vector)
+		glm::vec3 right = glm::cross(direction, this->pParentCamera->m_up);
+		this->pParentCamera->m_up = glm::cross(right, direction);
 
-	// Update the up vector if you want to do that
-//	glm::vec3 right = glm::cross(direction, desiredUp);
-//	desiredUp = glm::cross(right, direction);
+		targetOrientation = rot1;
 
-	// Otherwise, fix rotation to match current 'up' vector
-	// fixed messed up rotation
-	glm::vec3 newUp = rot1 * this->pParentCamera->m_up;
-	glm::quat rot2 = this->m_calcRotationBetweenVector(newUp, this->pParentCamera->m_up);
+	}
+	else
+	{	
+		// Fix rotation to match current 'up' vector (as roll orientation is likely turned)
+		glm::vec3 newUp = rot1 * this->pParentCamera->m_up;
+		glm::quat rot2 = this->m_calcRotationBetweenVector(newUp, this->pParentCamera->m_up);
+	
+		targetOrientation = rot2 * rot1;
 
-	glm::quat targetOrientation = rot2 * rot1;
+	}//if ( ! this->m_bKeepAlignedWithUpVector )
 
 	return targetOrientation;
 }
 
 
-cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect(cCamera* pTheCamera)
-{
-	this->pParentCamera = pTheCamera;
-	return;
-}
 
-// Don't call
-cCamera::cFlyCameraLookAtRedirect::cFlyCameraLookAtRedirect()
-{
-	assert(true);
-	return;
-}
+
+
 
 void cCamera::cFlyCameraLookAtRedirect::m_updateTick(double deltaTime)
 {
@@ -117,48 +149,61 @@ glm::vec3 calcDirectionVector(glm::vec3 target, glm::vec3 eye)
 // From indirection interface
 void cCamera::cFlyCameraLookAtRedirect::moveForward(float distance)
 {
-	glm::vec3 direction = calcDirectionVector(this->pParentCamera->m_target, this->pParentCamera->m_eye);
-
-	glm::vec3 deltaPos = direction * glm::vec3(0.0f, 0.0f, distance);
-
-	this->pParentCamera->m_eye += deltaPos;
-	this->pParentCamera->m_target += deltaPos;
-		
+	this->move(glm::vec3(0.0f,0.0f,distance));
 	return;
 }
 
 void cCamera::cFlyCameraLookAtRedirect::moveRight(float distance)
 {
-	glm::vec3 direction = calcDirectionVector(this->pParentCamera->m_target, this->pParentCamera->m_eye);
-
-	glm::vec3 dirBiNormal = glm::cross(direction, this->pParentCamera->m_up);
-
-	glm::vec3 deltaPos = dirBiNormal * glm::vec3(distance, 0.0f, 0.0f );
-
-	this->pParentCamera->m_eye += deltaPos;
-	this->pParentCamera->m_target += deltaPos;
+	this->move(glm::vec3(distance, 0.0f, 0.0f));
 
 	return;
 }
 
 void cCamera::cFlyCameraLookAtRedirect::moveUp(float distance)
 {
-	glm::vec3 direction = calcDirectionVector(this->pParentCamera->m_target, this->pParentCamera->m_eye);
-
-	glm::vec3 dirBiNormal = glm::cross(direction, this->pParentCamera->m_up);
-	dirBiNormal = glm::cross(direction, dirBiNormal);
-
-	glm::vec3 deltaPos = dirBiNormal * glm::vec3(0.0f, -distance, 0.0f );
-
-	this->pParentCamera->m_eye += deltaPos;
-	this->pParentCamera->m_target += deltaPos;
-
+	this->move(glm::vec3(0.0f, distance, 0.0f));
 	return;
 }
 
 void cCamera::cFlyCameraLookAtRedirect::move(glm::vec3 direction_Zforward_Yup_Xright)
 {
-	//TODO
+	//// For forward direction
+	//glm::vec3 direction = calcDirectionVector(this->pParentCamera->m_target, this->pParentCamera->m_eye);
+
+	//// For right left (perpendicular from direction and up)
+	//glm::vec3 dirLeftRight = glm::normalize(glm::cross(direction, this->pParentCamera->m_up));
+	//
+	//// Move "up" relative to camera, not the "up" vector (which is just where "up" is in the world)
+	//glm::vec3 dirUpDown = glm::normalize(glm::cross(direction, dirLeftRight));
+
+	//// Forward is based on direction
+	//direction_Zforward_Yup_Xright.z = direction_Zforward_Yup_Xright.z * direction.z;
+	//// Left-right...
+	//direction_Zforward_Yup_Xright.x = direction_Zforward_Yup_Xright.x * direction.x;
+	//// Up-down...
+	//direction_Zforward_Yup_Xright.y = direction_Zforward_Yup_Xright.y * direction.y;
+
+	//this->pParentCamera->m_eye += direction_Zforward_Yup_Xright;
+	//this->pParentCamera->m_target += direction_Zforward_Yup_Xright;
+
+
+	glm::vec3 direction = glm::vec3(0.0f);
+	float distanceToTarget = 0.0f;
+	this->m_calcDirectionFromTarget(direction, distanceToTarget);
+
+	glm::quat qOrientation = this->m_quatLookAtWithUp(direction, glm::vec3(0.0f, 0.0f, 1.0f));
+
+	glm::mat3 matRotation(qOrientation);
+
+	glm::vec3 deltaMove = matRotation * direction_Zforward_Yup_Xright;
+
+	this->pParentCamera->m_eye += deltaMove;
+	if ( this->m_bUpdateTarget )
+	{
+		this->pParentCamera->m_target += deltaMove;
+	}
+
 	return;
 }
 

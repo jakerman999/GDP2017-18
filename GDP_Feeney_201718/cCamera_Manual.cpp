@@ -5,18 +5,22 @@
 
 //corner = matInvTranp * corner;		// object space
 
+// Don't call
+// This class is only used with the camera, and needs a callback to the "parent" camera object. 
+// So you NEVER create it without passing the parent camera.
+cCamera::cManualCameraRedirect::cManualCameraRedirect()
+{
+	assert(true);
+	return;
+}
+
 cCamera::cManualCameraRedirect::cManualCameraRedirect(cCamera* pTheCamera)
 {
 	this->pParentCamera = pTheCamera;
 	return;
 }
 
-// Don't call
-cCamera::cManualCameraRedirect::cManualCameraRedirect()
-{
-	assert(true);
-	return;
-}
+
 
 void cCamera::cManualCameraRedirect::setEyePosition(glm::vec3 newPos)
 {

@@ -102,22 +102,28 @@ bool areAnyModifierKeysDown(int mods);
 
 		// CAMERA and lighting
 		case GLFW_KEY_A:		// Left
-			::g_pTheCamera->FlyCamLA->moveRight(-CAMERASPEED);	// strafe
+//			::g_pTheCamera->FlyCamLA->moveRight(-CAMERASPEED);	// strafe
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(-CAMERASPEED, 0.0f, 0.0f));
 			break;
 		case GLFW_KEY_D:		// Right
-			::g_pTheCamera->FlyCamLA->moveRight(+CAMERASPEED);	// strafe
+//			::g_pTheCamera->FlyCamLA->moveRight(+CAMERASPEED);	// strafe
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(+CAMERASPEED, 0.0f, 0.0f));
 			break;
 		case GLFW_KEY_W:		// Forward (along z)
-			::g_pTheCamera->FlyCamLA->moveForward(+CAMERASPEED);
+//			::g_pTheCamera->FlyCamLA->moveForward(+CAMERASPEED);
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(0.0f, 0.0f, +CAMERASPEED));
 			break;
 		case GLFW_KEY_S:		// Backwards (along z)
-			::g_pTheCamera->FlyCamLA->moveForward(-CAMERASPEED);		// Backwards
+//			::g_pTheCamera->FlyCamLA->moveForward(-CAMERASPEED);		// Backwards
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(0.0f, 0.0f, -CAMERASPEED));		// Backwards
 			break;
 		case GLFW_KEY_Q:		// "Down" (along y axis)
-			::g_pTheCamera->FlyCamLA->moveUp(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+//			::g_pTheCamera->FlyCamLA->moveUp(-CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(0.0f, -CAMERASPEED, 0.0f));		// Backwards
 			break;
 		case GLFW_KEY_E:		// "Up" (along y axis)
-			::g_pTheCamera->FlyCamLA->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+//			::g_pTheCamera->FlyCamLA->moveUp(+CAMERASPEED);	// "Z minus 10000 meters, Mr. Sulu!"
+			::g_pTheCamera->FlyCamLA->move(glm::vec3(0.0f, +CAMERASPEED, 0.0f));		// Backwards
 			break;
 
 		case GLFW_KEY_5:
