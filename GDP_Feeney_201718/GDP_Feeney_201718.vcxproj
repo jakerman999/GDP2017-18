@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="assimp\cAssimpBasic.cpp" />
+    <ClCompile Include="assimp\cAssimpBasic_Imp.cpp" />
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -224,6 +226,8 @@
     <ClCompile Include="Utilities\CStringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assimp\cAssimpBasic.h" />
+    <ClInclude Include="assimp\cAssimpBasic_Imp.h" />
     <ClInclude Include="cCamera.h" />
     <ClInclude Include="cDebugRenderer.h" />
     <ClInclude Include="cGameObject.h" />

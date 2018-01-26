@@ -76,6 +76,9 @@
     <Filter Include="Input">
       <UniqueIdentifier>{eef0b455-027b-4e49-b5e8-4ad04b20d5c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models\AssimpFBX">
+      <UniqueIdentifier>{7a2cb125-e094-4674-bff7-9001b900efd3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -227,6 +230,12 @@
     </ClCompile>
     <ClCompile Include="cCamera_FlyLookAt.cpp">
       <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="assimp\cAssimpBasic.cpp">
+      <Filter>Models\AssimpFBX</Filter>
+    </ClCompile>
+    <ClCompile Include="assimp\cAssimpBasic_Imp.cpp">
+      <Filter>Models\AssimpFBX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -382,6 +391,12 @@
     </ClInclude>
     <ClInclude Include="Input\iInput.h">
       <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp\cAssimpBasic.h">
+      <Filter>Models\AssimpFBX</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp\cAssimpBasic_Imp.h">
+      <Filter>Models\AssimpFBX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
