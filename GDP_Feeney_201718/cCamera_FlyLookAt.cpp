@@ -199,7 +199,7 @@ void cCamera::cFlyCameraLookAtRedirect::move(glm::vec3 direction_Zforward_Yup_Xr
 	glm::vec3 deltaMove = matRotation * direction_Zforward_Yup_Xright;
 
 	this->pParentCamera->m_eye += deltaMove;
-	if ( this->m_bUpdateTarget )
+	if ( this->m_bUpdateTargetWithMovement)
 	{
 		this->pParentCamera->m_target += deltaMove;
 	}

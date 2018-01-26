@@ -39,38 +39,23 @@
 #include "cCamera.h"
 
 
-// Used by the light drawing thingy
-// Will draw a wireframe sphere at this location with this colour
-//void DrawDebugSphere(glm::vec3 location, glm::vec4 colour, float scale);
-//cGameObject* g_pTheDebugSphere;
-//sMeshDrawInfo* g_pTheDebugSphereMesh;
+void DrawDebugLightingSpheres(void);
+
 
 cGameObject* g_pSkyBoxObject = NULL;	// (theMain.cpp)
 
-//	static const int MAXNUMBEROFGAMEOBJECTS = 10;
-//	cGameObject* g_GameObjects[MAXNUMBEROFGAMEOBJECTS];
 
 // Remember to #include <vector>...
 std::vector< cGameObject* >  g_vecGameObjects;
-
-
-////glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 9000.0f, 16000.0f );	
-////glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, -50.0f, 0.0f );
-//
-//glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 100.0f, 500.0f );	
-////glm::vec3 g_cameraXYZ = glm::vec3( 0.0f, 16.1f, 22.4f );	
-//glm::vec3 g_cameraTarget_XYZ = glm::vec3( 0.0f, 0.0f, 0.0f );
 
 cCamera* g_pTheCamera = NULL;
 
 
 cVAOMeshManager* g_pVAOManager = 0;		// or NULL, or nullptr
 
-//cShaderManager	g_ShaderManager;			// Stack (no new)
 cShaderManager*		g_pShaderManager = 0;		// Heap, new (and delete)
 cLightManager*		g_pLightManager = 0;
 
-//cBasicTextureManager*	g_pTextureManager = 0;	
 CTextureManager*		g_pTextureManager = 0;
 
 cDebugRenderer*			g_pDebugRenderer = 0;
@@ -82,7 +67,7 @@ cAABBBroadPhase* g_terrainAABBBroadPhase = 0;
 cPhysicsWorld*	g_pPhysicsWorld = NULL;	// (theMain.cpp)
 
 
-
+#include "cFrameBuffer.h"
 
 
 static void error_callback(int error, const char* description)
@@ -91,31 +76,15 @@ static void error_callback(int error, const char* description)
 }
 
 
-
 // Moved to GLFW_keyboardCallback.cpp
 //static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main(void)
 {
-//	cAABBv2 testAABB(glm::vec3(-10.0f, -50.0f, -190.0f), 5.0f /*HALF size*/);
 
 	GLFWwindow* pGLFWWindow;
-//    GLuint vertex_buffer, vertex_shader, fragment_shader, program;
-//    GLint mvp_location;	// , vpos_location, vcol_location;
     glfwSetErrorCallback(error_callback);
 
-	//// Other uniforms:
-	// Moved to "global" scope 
-	// (you might want to place these inside the shader class)
-	//GLint uniLoc_materialDiffuse = -1;	
-	//GLint uniLoc_materialAmbient = -1;   
-	//GLint uniLoc_ambientToDiffuseRatio = -1; 	// Maybe	// 0.2 or 0.3
-	//GLint uniLoc_materialSpecular = -1;  // rgb = colour of HIGHLIGHT only
-	//							// w = shininess of the 
-	//GLint uniLoc_eyePosition = -1;	// Camera position
-	//GLint uniLoc_mModel = -1;
-	//GLint uniLoc_mView = -1;
-	//GLint uniLoc_mProjection = -1;
 
 
     if (!glfwInit())
@@ -124,14 +93,6 @@ int main(void)
 		std::cout << "ERROR: Couldn't init GLFW, so we're pretty much stuck; do you have OpenGL??" << std::endl;
 		return -1;
 	}
-
-
-	// Print to the console...(if a console is there)
-	//std::cout << "Hello" << std::endl;
-	//int q = 8;
-	//std::cout << "Type a number:";
-	//std::cin >> q;
-	//std::cout << "You typed " << q << ". Hazzah." << std::endl;
 
 	int height = 480;	/* default */
 	int width = 640;	// default
@@ -232,31 +193,32 @@ int main(void)
 	std::cout << "The shaders comipled and linked OK" << std::endl;
 
 
-	::g_pDebugRenderer = new cDebugRenderer();
-	if ( ! ::g_pDebugRenderer->initialize(error) )
-	{
-		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
-	}
+// Triangle debug renderer test...
+	//::g_pDebugRenderer = new cDebugRenderer();
+	//if ( ! ::g_pDebugRenderer->initialize(error) )
+	//{
+	//	std::cout << "Warning: couldn't init the debug renderer." << std::endl;
+	//}
 
-	const float WORLDMAX = 25.0f;
-	::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
-									 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
-									 glm::vec3( 0.0f, WORLDMAX, 0.0f),
-									 glm::vec3( 1.0f, 1.0f, 1.0f ), 20.0f );
-	for (int count = 0; count != 100; count++)
-	{
-		::g_pDebugRenderer->addTriangle(
-			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
-			          getRandInRange(-WORLDMAX, WORLDMAX),
-			          getRandInRange(-WORLDMAX, WORLDMAX)),
-			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX), 
-			          getRandInRange(-WORLDMAX, WORLDMAX),
-			          getRandInRange(-WORLDMAX, WORLDMAX)),
-			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
-			          getRandInRange(-WORLDMAX, WORLDMAX),
-			          getRandInRange(-WORLDMAX, WORLDMAX)),
-			glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
-	}//for ...
+	//const float WORLDMAX = 25.0f;
+	//::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
+	//								 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
+	//								 glm::vec3( 0.0f, WORLDMAX, 0.0f),
+	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), 20.0f );
+	//for (int count = 0; count != 100; count++)
+	//{
+	//	::g_pDebugRenderer->addTriangle(
+	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+	//		          getRandInRange(-WORLDMAX, WORLDMAX),
+	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
+	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX), 
+	//		          getRandInRange(-WORLDMAX, WORLDMAX),
+	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
+	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+	//		          getRandInRange(-WORLDMAX, WORLDMAX),
+	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
+	//		glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
+	//}//for ...
 
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();
@@ -407,12 +369,9 @@ int main(void)
 		lastTimeStep = curTime;
 
 
-//		PhysicsStep( deltaTime );
 		::g_pPhysicsWorld->IntegrationStep(deltaTime);
 
-		// Update camera, too
 		::g_pTheCamera->updateTick(deltaTime);
-//		::g_pTheCamera->accel = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		// *********************************************
 		//    ___ _        ___              __     ___                          
@@ -429,28 +388,7 @@ int main(void)
 		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
 
 
-		//DEBUG sphere
-		::g_pDebugRenderer->addDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ), 
-											glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), 1.0f );
-		// Light at 95% 
-		float scaleAt99 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.99f );	
-		::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
-											glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt99 );
-	
-		// Light at 50% 
-		float scaleAt50 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.5f );	
-		::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
-											glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt50 );
-	
-		// Light at 25% 
-		float scaleAt25 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.25f );	
-		::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
-											glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt25 );
-	
-		// Light at 1% 
-		float scaleAt01 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.01f );	
-		::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
-											glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt01 );
+
 	
 
 		std::stringstream ssTitle;
@@ -489,6 +427,32 @@ int main(void)
 }
 
 
+void DrawDebugLightingSpheres(void)
+{
+	//DEBUG sphere
+	::g_pDebugRenderer->addDebugSphere( glm::vec3( 0.0f, 0.0f, 0.0f ), 
+										glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), 1.0f );
+	// Light at 95% 
+	float scaleAt99 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.99f );	
+	::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
+										glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt99 );
+
+	// Light at 50% 
+	float scaleAt50 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.5f );	
+	::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
+										glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt50 );
+
+	// Light at 25% 
+	float scaleAt25 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.25f );	
+	::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
+										glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt25 );
+
+	// Light at 1% 
+	float scaleAt01 = ::g_pLightManager->vecLights[0].calcApproxDistFromAtten( 0.01f );	
+	::g_pDebugRenderer->addDebugSphere( ::g_pLightManager->vecLights[0].position, 
+										glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f ), scaleAt01 );
+	return;
+}
 
 //// Used by the light drawing thingy
 //// Will draw a wireframe sphere at this location with this colour
