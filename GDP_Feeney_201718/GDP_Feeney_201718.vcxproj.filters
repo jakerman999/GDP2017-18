@@ -79,6 +79,9 @@
     <Filter Include="Models\AssimpFBX">
       <UniqueIdentifier>{7a2cb125-e094-4674-bff7-9001b900efd3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FrameBuffer">
+      <UniqueIdentifier>{f53cefaa-2995-456e-83b8-dee70ebd56fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -236,6 +239,9 @@
     </ClCompile>
     <ClCompile Include="assimp\cAssimpBasic_Imp.cpp">
       <Filter>Models\AssimpFBX</Filter>
+    </ClCompile>
+    <ClCompile Include="cFBO.cpp">
+      <Filter>FrameBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -397,6 +403,12 @@
     </ClInclude>
     <ClInclude Include="assimp\cAssimpBasic_Imp.h">
       <Filter>Models\AssimpFBX</Filter>
+    </ClInclude>
+    <ClInclude Include="cFrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO.h">
+      <Filter>FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

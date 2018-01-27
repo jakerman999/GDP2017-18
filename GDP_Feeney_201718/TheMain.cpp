@@ -38,6 +38,10 @@
 
 #include "cCamera.h"
 
+#include "cFBO.h" 
+
+cFBO g_myFBO;
+
 
 void DrawDebugLightingSpheres(void);
 
@@ -194,11 +198,11 @@ int main(void)
 
 
 // Triangle debug renderer test...
-	//::g_pDebugRenderer = new cDebugRenderer();
-	//if ( ! ::g_pDebugRenderer->initialize(error) )
-	//{
-	//	std::cout << "Warning: couldn't init the debug renderer." << std::endl;
-	//}
+	::g_pDebugRenderer = new cDebugRenderer();
+	if ( ! ::g_pDebugRenderer->initialize(error) )
+	{
+		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
+	}
 
 	//const float WORLDMAX = 25.0f;
 	//::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
@@ -353,8 +357,23 @@ int main(void)
 	// All loaded!
 	std::cout << "And we're good to go! Staring the main loop..." << std::endl;
 
-
 	glEnable( GL_DEPTH );
+
+
+	// Create an FBO
+	if ( ! g_myFBO.init(width, height, error) )
+	{
+		std::cout << "FBO error: " << error << std::endl;
+	}
+	else
+	{
+		std::cout << "FBO is good." << std::endl;
+		std::cout << "\tFBO ID = " << g_myFBO.ID << std::endl;
+		std::cout << "\tcolour texture ID = " << g_myFBO.colourTexture_ID << std::endl;
+	}
+
+
+
 
 	// Gets the "current" time "tick" or "step"
 	double lastTimeStep = glfwGetTime();
@@ -385,10 +404,48 @@ int main(void)
 		::g_pSkyBoxObject->SetPhysState(skyBoxPP);
 
 
+
+
+		::g_pShaderManager->useShaderProgram("mySexyShader");
+
+		// Direct everything to the FBO
+		GLint bIsSecondPassLocID = glGetUniformLocation(sexyShaderID, "bIsSecondPass");
+
+		glUniform1i( bIsSecondPassLocID, GL_FALSE );
+
+		glBindFramebuffer(GL_FRAMEBUFFER, g_myFBO.ID );
+		// Clear colour AND depth buffer
+		g_myFBO.clearBuffers();
+
 		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
 
 
+		// Render it again, but point the the FBO texture... 
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		::g_pShaderManager->useShaderProgram("mySexyShader");
+
+		glUniform1i(bIsSecondPassLocID, GL_TRUE);
+		
+		GLint offscreenTextureUnitID = 10;
+		GLint tex2ndPassSamp2DLocID = glGetUniformLocation(sexyShaderID, "tex2ndPassSamp2D");
+
+		// Pick a texture unit... 
+		glActiveTexture(GL_TEXTURE0 + offscreenTextureUnitID);
+		// Assign 'this' texture to it
+		glBindTexture(GL_TEXTURE_2D, g_myFBO.colourTexture_ID);
+		// Set the sampler in the shader to the same texture unit (20)
+		glUniform1i(tex2ndPassSamp2DLocID, offscreenTextureUnitID);
+
+		glfwGetFramebufferSize(pGLFWWindow, &width, &height);
+
+		GLint screenWidthLocID = glGetUniformLocation(sexyShaderID, "screenWidth");
+		GLint screenHeightLocID = glGetUniformLocation(sexyShaderID, "screenHeight");
+		glUniform1f(screenWidthLocID, width);
+		glUniform1f(screenHeightLocID, height);
+
+		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
 	
 
 		std::stringstream ssTitle;

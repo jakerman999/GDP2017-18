@@ -17,7 +17,7 @@ cAABBBroadPhase::~cAABBBroadPhase()
 bool cAABBBroadPhase::genAABBGridFromMesh(cMesh &theMesh)
 {
 	// Assume that the debug renderer is valid
-	this->pDebugRenderer->addTriangle( drTri(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(2.0f), glm::vec3(1.0f)) );
+//	this->pDebugRenderer->addTriangle( drTri(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(2.0f), glm::vec3(1.0f)) );
 
 
 

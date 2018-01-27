@@ -5,6 +5,10 @@
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
 
+// HACK
+#include "cFBO.h"
+extern cFBO g_myFBO;
+
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
 void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO );
@@ -29,8 +33,8 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 		ratio = width / (float) height;
 		glViewport(0, 0, width, height);
 	
-		// Clear colour AND depth buffer
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+//		// Clear colour AND depth buffer
+//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		//glEnable(GL_DEPTH_TEST);
 	
 		//        glUseProgram(program);
@@ -127,7 +131,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	
 	
 		
-		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection, deltaTime);
+//		::g_pDebugRenderer->RenderDebugObjects(matView, matProjection, deltaTime);
 
 
 	
@@ -344,6 +348,11 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 
 	// Now look up what textures our object is using and set the samplers
 	QnDTexureSamplerUtility::SetSamplersForMeshTextures( theMesh, mapTexNameToTexUnit );
+
+
+	// change one of the samplers to be the FBO texture texture
+	// uniform sampler2D texSamp2D00;		// Represents a 2D image
+
 
 	// ***************************************
 	// Texture based height map example code

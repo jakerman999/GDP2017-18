@@ -169,6 +169,7 @@
     <ClCompile Include="cCamera_Manual.cpp" />
     <ClCompile Include="cDebugRenderer.cpp" />
     <ClCompile Include="cDebugRenderer_BuiltInShapes.cpp" />
+    <ClCompile Include="cFBO.cpp" />
     <ClCompile Include="cGameObject.cpp" />
     <ClCompile Include="CHRTimer.cpp" />
     <ClCompile Include="cLightManager.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="assimp\cAssimpBasic_Imp.h" />
     <ClInclude Include="cCamera.h" />
     <ClInclude Include="cDebugRenderer.h" />
+    <ClInclude Include="cFBO.h" />
     <ClInclude Include="cFrameBuffer.h" />
     <ClInclude Include="cGameObject.h" />
     <ClInclude Include="CHRTimer.h" />

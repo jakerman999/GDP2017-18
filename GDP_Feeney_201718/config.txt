@@ -1,6 +1,6 @@
 Game Config
-width 1280
-height 768
+width 1600
+height 1200
 Title_Start
-Welcome to OpenGL, people! 
+Note the FBO size is set at start...
 Title_End

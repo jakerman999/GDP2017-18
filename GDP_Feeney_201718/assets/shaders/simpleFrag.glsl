@@ -63,6 +63,11 @@ uniform float refractBlendRatio;		// How much refraction (0-1)
 uniform float coefficientRefract; 		// coefficient of refraction 
 
 
+uniform bool bIsSecondPass;			// True if the render is doing 2nd pass  
+uniform sampler2D tex2ndPassSamp2D;		// Offscreen texture for 2nd pass
+uniform float screenWidth;
+uniform float screenHeight;
+
 /*****************************************************/
 struct sLightDesc {
 	vec4 position;
@@ -109,6 +114,22 @@ void main()
 		return;		// Immediate return
 	}
 	
+	if ( bIsSecondPass )
+	{
+//		fragColourOut.rgb = texture( tex2ndPassSamp2D, uvX2out.xy ).rgb;
+//		fragColourOut.a = 1.0f;
+		//fragColourOut.rgba = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y  / screenHeight );
+		fragColourOut.rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
+		fragColourOut.a = 1.0f;
+		return;
+	}
+	//else
+	//{
+	//	fragColourOut.rgba = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	//	return;
+	//}
 	
 	if ( isASkyBox )
 	{	// Sample from skybox texture and exit
