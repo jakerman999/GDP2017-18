@@ -40,6 +40,8 @@
 
 #include "cFBO.h" 
 
+#include "assimp/cAssimpBasic.h"
+
 cFBO g_myFBO;
 
 
@@ -224,12 +226,17 @@ int main(void)
 	//		glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
 	//}//for ...
 
+
+
+
 	// Load models
 	::g_pModelAssetLoader = new cModelAssetLoader();
 	::g_pModelAssetLoader->setBasePath("assets/models/");
 
-
 	::g_pVAOManager = new cVAOMeshManager();
+
+	GLint currentProgID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
+
 
 	GLint sexyShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
 
@@ -239,9 +246,38 @@ int main(void)
 		std::cout << error << std::endl;
 	}
 
+	// *******************************************************
+	// Test the assimp loader before the "old" loader
+	cAssimpBasic myAssimpLoader;
+	cMesh bunnyTestMesh;
+	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/RPG-Character(FBX2013).FBX",
+	//						           bunnyTestMesh, error ) )
+	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX",
+	//						           bunnyTestMesh, error ) )
+	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/ArmyPilot(FBX2013).fbx",
+	//						           bunnyTestMesh, error ) )
+	//if ( ! myAssimpLoader.loadModelA( "assets/models/bun_zipper_res2_xyz_n.ply",
+	//						           bunnyTestMesh, error ) )
+	//if ( ! myAssimpLoader.loadModelA( "assets/models/Ship_Pack_WIP_mod-command_xyz_n_uv.ply",
+	//						           bunnyTestMesh, error ) )
+	if (!myAssimpLoader.loadModelA("assets/models/Ship_Pack_WIP_mod-command_xyz_n_uv.obj",
+		bunnyTestMesh, error))
+	{
+		std::cout << "All is lost! Forever lost!! Assimp didn't load the bunny: "
+			<< error << std::endl;
+	}
+
+
+	bunnyTestMesh.name = "Ship_Pack_WIP_mod - command_xyz_n_uv.obj";
+	if (!::g_pVAOManager->loadMeshIntoVAO(bunnyTestMesh, sexyShaderID, false))
+	{
+		std::cout << "Assimp loaded mesh didn't load into VAO" << std::endl;
+	}
+	// *******************************************************
+
 	LoadModelsIntoScene();
 
-	GLint currentProgID = ::g_pShaderManager->getIDFromFriendlyName( "mySexyShader" );
+
 
 	// Get the uniform locations for this shader
 //	mvp_location = glGetUniformLocation(currentProgID, "MVP");		// program, "MVP");
@@ -422,6 +458,7 @@ int main(void)
 
 		// Render it again, but point the the FBO texture... 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");

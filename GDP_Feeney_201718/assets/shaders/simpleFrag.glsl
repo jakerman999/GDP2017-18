@@ -116,20 +116,16 @@ void main()
 	
 	if ( bIsSecondPass )
 	{
-//		fragColourOut.rgb = texture( tex2ndPassSamp2D, uvX2out.xy ).rgb;
-//		fragColourOut.a = 1.0f;
-		//fragColourOut.rgba = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-
 		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y  / screenHeight );
 		fragColourOut.rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
+
+//		float average = (fragColourOut.r + fragColourOut.g + fragColourOut.b / 3.0f);
+//		fragColourOut.rgb = vec3(average, average, average);
+
 		fragColourOut.a = 1.0f;
 		return;
 	}
-	//else
-	//{
-	//	fragColourOut.rgba = vec4(0.0f, 1.0f, 0.0f, 1.0f);
-	//	return;
-	//}
+
 	
 	if ( isASkyBox )
 	{	// Sample from skybox texture and exit

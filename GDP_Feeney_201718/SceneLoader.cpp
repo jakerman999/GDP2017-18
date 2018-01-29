@@ -22,6 +22,25 @@ void LoadModelsIntoScene(void)
 		cPhysicalProperties physState;
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
+		pTempGO->SetPhysState(physState);
+
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 1.0f;
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+		meshInfo.name = "Ship_Pack_WIP_mod - command_xyz_n_uv.obj";
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f));
+		pTempGO->vecMeshes.push_back(meshInfo);
+
+		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	}	
+	
+	
+	{
+		cGameObject* pTempGO = new cGameObject();
+		cPhysicalProperties physState;
+		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
+		physState.mass = physState.inverseMass = 0.0f;	// Infinite
 		physState.position.x = 4.0f;
 		physState.position.y = 25.0f;
 //		physState.position.y = -100.0f;
@@ -64,8 +83,8 @@ void LoadModelsIntoScene(void)
 		meshInfo.scale = 1.0f;
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		meshInfo.name = "MeshLabTerrain_xyz_n_uv";	
-		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("barberton_etm_2001121_lrg.bmp", 1.0f));
-		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("height_map_norway-height-map-aster-30m.bmp", 0.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f));
 		pTempGO->vecMeshes.push_back(meshInfo);
 
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add

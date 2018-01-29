@@ -20,6 +20,7 @@ in vec3 vPos;		// was: vec2 vPos
 in vec3 vNorm;		// Vertex normal
 in vec4 uvX2;		// Added: UV 1 and 2
 
+
 out vec4 color;				// was: vec4
 out vec3 vertNormal;		// Also in "world" (no view or projection)
 out vec3 vecWorldPosition;	// 
