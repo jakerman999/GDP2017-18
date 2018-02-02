@@ -397,7 +397,8 @@ int main(void)
 
 
 	// Create an FBO
-	if ( ! g_myFBO.init(width, height, error) )
+//	if ( ! g_myFBO.init(width, height, error) )
+	if ( ! g_myFBO.init(1920, 1080, error) )
 	{
 		std::cout << "FBO error: " << error << std::endl;
 	}
@@ -482,7 +483,10 @@ int main(void)
 		glUniform1f(screenWidthLocID, width);
 		glUniform1f(screenHeightLocID, height);
 
-		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
+		std::vector< cGameObject* >  vecCopy2ndPass;
+		// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+		vecCopy2ndPass.push_back( ::g_vecGameObjects[0] );
+		RenderScene(vecCopy2ndPass, pGLFWWindow, deltaTime );
 	
 
 		std::stringstream ssTitle;

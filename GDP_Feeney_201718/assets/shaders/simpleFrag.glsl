@@ -116,11 +116,10 @@ void main()
 	
 	if ( bIsSecondPass )
 	{
-		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y  / screenHeight );
-		fragColourOut.rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
+		//uniform sampler2D tex2ndPassSamp2D
 
-//		float average = (fragColourOut.r + fragColourOut.g + fragColourOut.b / 3.0f);
-//		fragColourOut.rgb = vec3(average, average, average);
+		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
+		fragColourOut.rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
 
 		fragColourOut.a = 1.0f;
 		return;
