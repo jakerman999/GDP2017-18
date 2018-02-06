@@ -12,7 +12,9 @@ in vec4 uvX2out;			// Added: UV 1 and 2 to fragment
 // gl_FragColor is deprecated after version 120
 // Now we specify a specific variable.
 // If there is only 1, then GL will assume it's the colour 
-out vec4 fragColourOut;
+//out vec4 fragColourOut;			// Assumes it GL_COLOR_ATTACHMENT0
+
+out vec4 fragColourOut[2];			// Assumes it GL_COLOR_ATTACHMENT0
 
 
 // The values our OBJECT material
@@ -101,16 +103,17 @@ vec3 calcLightColour( in vec3 vecNormal,
 void main()
 {	
 
-	fragColourOut = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	fragColourOut[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	fragColourOut[1] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
 	if ( bIsDebugWireFrameObject )
 	{
-		fragColourOut.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
-		fragColourOut.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
-		fragColourOut.rgb += vec3(0.0f, 0.0f, 1.0f);
+		fragColourOut[0].rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);
 		
-		fragColourOut * 1.5f;	// Room too bright
+		fragColourOut[0] * 1.5f;	// Room too bright
 		return;		// Immediate return
 	}
 	
@@ -119,9 +122,9 @@ void main()
 		//uniform sampler2D tex2ndPassSamp2D
 
 		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
-		fragColourOut.rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
+		fragColourOut[0].rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
 
-		fragColourOut.a = 1.0f;
+		fragColourOut[0].a = 1.0f;
 		return;
 	}
 
@@ -134,7 +137,7 @@ void main()
 		//	to determine the point on the inside of the box
 		vec4 skyRGBA = texture( texSampCube00, vertNormal.xyz );
 		
-		fragColourOut = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
+		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
 //		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 		return;	
 	}
@@ -166,7 +169,7 @@ void main()
 		
 		
 		// Mix the two, based on how reflective the surface is
-		fragColourOut = (rgbReflection * reflectBlendRatio) + 
+		fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
 		                (rgbRefraction * refractBlendRatio);
 		
 	//	fragColourOut.r = 1.0f;
@@ -222,7 +225,7 @@ void main()
 	{
 		// Old version, which used 'global' diffuse and specular
 		//gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
-		fragColourOut.rgb += calcLightColour( vertNormal, 					
+		fragColourOut[0].rgb += calcLightColour( vertNormal, 					
 		                                      vecWorldPosition, 
 											  index, 
 		                                      matDiffuse, 
@@ -233,13 +236,17 @@ void main()
 	// We have materialAmbient, but ambient is often 
 	//	just a percentage ratio of the diffuse
 	vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
-	fragColourOut.rgb += ambientContribution.rgb;
+	fragColourOut[0].rgb += ambientContribution.rgb;
 	
 	// Screen is so dim...
 	//fragColourOut *= 1.5f;	// 150% brighter
 	
 	// Copy object material diffuse to alpha
-	fragColourOut.a = materialDiffuse.a;
+	fragColourOut[0].a = materialDiffuse.a;
+
+	// Write to the "normal" layer of the G-Buffer
+	// (Colour_attachment_1)
+	fragColourOut[1].rgb = vertNormal.xyz;
 	
 	return;
 }

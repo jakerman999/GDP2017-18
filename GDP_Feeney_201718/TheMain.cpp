@@ -406,7 +406,12 @@ int main(void)
 	{
 		std::cout << "FBO is good." << std::endl;
 		std::cout << "\tFBO ID = " << g_myFBO.ID << std::endl;
-		std::cout << "\tcolour texture ID = " << g_myFBO.colourTexture_ID << std::endl;
+		std::cout << "\tcolour texture ID = " << g_myFBO.colourTexture_0_ID << std::endl;
+		std::cout << "\tnormal texture ID = " << g_myFBO.normalTexture_1_ID << std::endl;
+
+		std::cout << "GL_MAX_COLOR_ATTACHMENTS = " << g_myFBO.getMaxColourAttachments() << std::endl;
+		std::cout << "GL_MAX_DRAW_BUFFERS = " << g_myFBO.getMaxDrawBuffers() << std::endl;
+
 	}
 
 
@@ -472,7 +477,10 @@ int main(void)
 		// Pick a texture unit... 
 		glActiveTexture(GL_TEXTURE0 + offscreenTextureUnitID);
 		// Assign 'this' texture to it
-		glBindTexture(GL_TEXTURE_2D, g_myFBO.colourTexture_ID);
+//		glBindTexture(GL_TEXTURE_2D, g_myFBO.colourTexture_0_ID);
+//		glBindTexture(GL_TEXTURE_2D, g_myFBO.normalTexture_1_ID);
+		glBindTexture(GL_TEXTURE_2D, g_myFBO.depthTexture_ID);
+		
 		// Set the sampler in the shader to the same texture unit (20)
 		glUniform1i(tex2ndPassSamp2DLocID, offscreenTextureUnitID);
 

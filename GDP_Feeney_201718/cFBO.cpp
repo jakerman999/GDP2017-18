@@ -8,16 +8,32 @@ bool cFBO::init( int width, int height, std::string &error )
 	glCreateFramebuffers(1, &( this->ID ) );			//g_FBO
 	glBindFramebuffer(GL_FRAMEBUFFER, this->ID);
 
+//************************************************************
 	// Create the colour buffer (texture)
-	glGenTextures(1, &(this->colourTexture_ID) );		//g_FBO_colourTexture
-	glBindTexture(GL_TEXTURE_2D, this->colourTexture_ID);
+	glGenTextures(1, &(this->colourTexture_0_ID ) );		//g_FBO_colourTexture
+	glBindTexture(GL_TEXTURE_2D, this->colourTexture_0_ID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, 
+//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8,		// 8 bits per colour
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 8 bits per colour
 				   this->width,				// g_FBO_SizeInPixes
 				   this->height);			// g_FBO_SizeInPixes
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//***************************************************************
+//************************************************************
+// Create the NORMAL buffer (texture)
+	glGenTextures(1, &( this->normalTexture_1_ID ));		//g_FBO_colourTexture
+	glBindTexture(GL_TEXTURE_2D, this->normalTexture_1_ID);
+
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 32 bits per "colour"
+				   this->width,				// g_FBO_SizeInPixes
+				   this->height);			// g_FBO_SizeInPixes
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//***************************************************************
+
 
 	// Create the depth buffer (texture)
 	glGenTextures(1, &( this->depthTexture_ID ));			//g_FBO_depthTexture
@@ -27,15 +43,30 @@ bool cFBO::init( int width, int height, std::string &error )
 				   this->width,		//g_FBO_SizeInPixes
 				   this->height);
 
+// ***************************************************************
+
 	glFramebufferTexture(GL_FRAMEBUFFER,
-						 GL_COLOR_ATTACHMENT0,
-						 this->colourTexture_ID, 0);
+						 GL_COLOR_ATTACHMENT0,			// Colour goes to #0
+						 this->colourTexture_0_ID, 0);
+
+	glFramebufferTexture(GL_FRAMEBUFFER,
+						 GL_COLOR_ATTACHMENT1,			// Normal goes to #1
+						 this->normalTexture_1_ID, 0);
+
 	glFramebufferTexture(GL_FRAMEBUFFER,
 						 GL_DEPTH_ATTACHMENT,
 						 this->depthTexture_ID, 0);
 
-	static const GLenum draw_bufers[] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, draw_bufers);
+	static const GLenum draw_bufers[] = 
+	{ 
+		GL_COLOR_ATTACHMENT0, 
+		GL_COLOR_ATTACHMENT1
+	};
+	glDrawBuffers(2, draw_bufers);		// There are 2 outputs now
+
+	// ***************************************************************
+
+
 
 
 	// ADD ONE MORE THING...
@@ -83,3 +114,21 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 }
 
 
+int cFBO::getMaxColourAttachments(void)
+{
+	//  void glGetIntegerv(GLenum pname,
+	// 				       GLint * data);
+	
+	int maxColourAttach = 0;
+	glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &maxColourAttach );
+
+	return maxColourAttach;
+}
+
+int cFBO::getMaxDrawBuffers(void)
+{
+	int maxDrawBuffers = 0;
+	glGetIntegerv( GL_MAX_DRAW_BUFFERS, &maxDrawBuffers );
+	
+	return maxDrawBuffers;
+}
