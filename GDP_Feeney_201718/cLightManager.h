@@ -6,11 +6,13 @@
 #include <vector>
 
 
+
 class cLight
 {
 public:
 	cLight();
 
+	// These were all vec3, but now with NUB, they are all vec4
 	glm::vec3 position;
 	glm::vec3 diffuse;		// rgb
 	glm::vec3 ambient;
@@ -71,6 +73,9 @@ public:
 	// 
 };
 
+
+
+
 class cLightManager
 {
 public:
@@ -82,9 +87,32 @@ public:
 	void LoadShaderUniformLocations(int shaderID);
 	void CopyLightInformationToCurrentShader(void);
 
+	// The C++ side class for the lights
 	std::vector<cLight> vecLights;
 
+	// CopyLightInfoToNUBArray()
+	// GetNUBlocation()
+	// CopyLightInfoToNUB()
 
+	struct sLightDescNUB
+	{
+		glm::vec4 position;
+		glm::vec4 diffuse;
+		glm::vec4 ambient;
+		glm::vec4 specular;		// Colour (xyz), intensity (w)
+		glm::vec4 attenuation;	// x = constant, y = linear, z = quadratic
+		glm::vec4 direction;
+		glm::vec4 typeParams;	// x = type
+	};
+	//layout(std140) uniform NUB_lighting
+	//{
+	//	sLightDesc myLight[NUMBEROFLIGHTS];
+	//} lightingNUB;
+	static const int NUMBEROFLIGHTS = 100;
+	struct sNUB_lighting
+	{
+		sLightDescNUB myLight[NUMBEROFLIGHTS];
+	};
 };
 
 #endif

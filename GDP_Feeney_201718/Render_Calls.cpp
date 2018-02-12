@@ -48,8 +48,8 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 		// Projection and view don't change per scene (maybe)
 		matProjection = glm::perspective( 0.6f,			// FOV
 											ratio,		// Aspect ratio
-											1.0f,			// Near (as big as possible)
-											100000.0f );	// Far (as small as possible)
+											1.0f,		// Near (as big as possible)
+											10000.0f );	// Far (as small as possible)
 	
 	
 		// View or "camera" matrix

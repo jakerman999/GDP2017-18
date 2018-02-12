@@ -4,6 +4,7 @@
 class cAssimpBasic_Imp;
 #include "../cMesh.h"
 
+
 class cAssimpBasic
 {
 public:

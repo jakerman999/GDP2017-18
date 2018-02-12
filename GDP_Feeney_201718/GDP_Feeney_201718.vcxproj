@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="assimp\cAssimpBasic.cpp" />
     <ClCompile Include="assimp\cAssimpBasic_Imp.cpp" />
+    <ClCompile Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp" />
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -229,6 +230,7 @@
   <ItemGroup>
     <ClInclude Include="assimp\cAssimpBasic.h" />
     <ClInclude Include="assimp\cAssimpBasic_Imp.h" />
+    <ClInclude Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.h" />
     <ClInclude Include="cCamera.h" />
     <ClInclude Include="cDebugRenderer.h" />
     <ClInclude Include="cFBO.h" />
@@ -274,10 +276,13 @@
     <ClInclude Include="sMeshDrawInfo.h" />
     <ClInclude Include="sTextureBindBlendInfo.h" />
     <ClInclude Include="sVAOInfo.h" />
-    <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h" />
+    <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="globalGameStuff.h" />
     <ClInclude Include="globalOpenGL_GLFW.h" />
     <ClInclude Include="ModelUtilities.h" />
+    <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt_4Bones.h" />
     <ClInclude Include="Texture\C24BitBMPpixel.h" />
     <ClInclude Include="Texture\cBasicTextureManager_OLD_DONT_INCLUDE.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

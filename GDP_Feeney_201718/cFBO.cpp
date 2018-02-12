@@ -5,7 +5,8 @@ bool cFBO::init( int width, int height, std::string &error )
 	this->width = width;
 	this->height = height;
 
-	glCreateFramebuffers(1, &( this->ID ) );			//g_FBO
+//	glCreateFramebuffers(1, &( this->ID ) );	// GL 4.5		//g_FBO
+	glGenFramebuffers( 1, &( this->ID ) );		// GL 3.0
 	glBindFramebuffer(GL_FRAMEBUFFER, this->ID);
 
 //************************************************************
@@ -25,6 +26,18 @@ bool cFBO::init( int width, int height, std::string &error )
 // Create the NORMAL buffer (texture)
 	glGenTextures(1, &( this->normalTexture_1_ID ));		//g_FBO_colourTexture
 	glBindTexture(GL_TEXTURE_2D, this->normalTexture_1_ID);
+
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 32 bits per "colour"
+				   this->width,				// g_FBO_SizeInPixes
+				   this->height);			// g_FBO_SizeInPixes
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//***************************************************************
+//************************************************************
+// Create the Vertex World position buffer (texture)
+	glGenTextures(1, &( this->vertexWorldPos_2_ID ));		//g_FBO_colourTexture
+	glBindTexture(GL_TEXTURE_2D, this->vertexWorldPos_2_ID);
 
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 32 bits per "colour"
 				   this->width,				// g_FBO_SizeInPixes
@@ -54,15 +67,20 @@ bool cFBO::init( int width, int height, std::string &error )
 						 this->normalTexture_1_ID, 0);
 
 	glFramebufferTexture(GL_FRAMEBUFFER,
+						 GL_COLOR_ATTACHMENT2,			// Vertex world position #2
+						 this->vertexWorldPos_2_ID, 0);
+
+	glFramebufferTexture(GL_FRAMEBUFFER,
 						 GL_DEPTH_ATTACHMENT,
 						 this->depthTexture_ID, 0);
 
 	static const GLenum draw_bufers[] = 
 	{ 
 		GL_COLOR_ATTACHMENT0, 
-		GL_COLOR_ATTACHMENT1
+		GL_COLOR_ATTACHMENT1, 
+		GL_COLOR_ATTACHMENT2
 	};
-	glDrawBuffers(2, draw_bufers);		// There are 2 outputs now
+	glDrawBuffers(3, draw_bufers);		// There are 2 outputs now
 
 	// ***************************************************************
 

@@ -243,6 +243,9 @@
     <ClCompile Include="cFBO.cpp">
       <Filter>FrameBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp">
+      <Filter>Models\AssimpFBX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
@@ -409,6 +412,12 @@
     </ClInclude>
     <ClInclude Include="cFBO.h">
       <Filter>FrameBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.h">
+      <Filter>Models\AssimpFBX</Filter>
+    </ClInclude>
+    <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt_4Bones.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

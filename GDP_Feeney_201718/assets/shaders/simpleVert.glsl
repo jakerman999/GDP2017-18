@@ -19,12 +19,33 @@ in vec4 vCol;		// attribute
 in vec3 vPos;		// was: vec2 vPos
 in vec3 vNorm;		// Vertex normal
 in vec4 uvX2;		// Added: UV 1 and 2
+// Added for bump mapping:
+in vec3 vTangent;		// For bump (or normal) mapping
+in vec3 vBitangent;		// For bump (or normal) mapping
+// For skinned mesh
+in vec4 vBoneIDs_x4;		// IS OK. Note these are only used in the vertex shader
+in vec4 vBoneWeights_x4;	// IS OK. Note these are only used in the vertex shader  
+
+// For skinned mesh
+const int MAXNUMBEROFBONES = 100;
+uniform mat4 bones[MAXNUMBEROFBONES];
+// Pass the acutal number you are using to control how often this loops
+uniform int numBonesUsed;			
+uniform bool bIsASkinnedMesh;	// True to do the skinned mesh
 
 
 out vec4 color;				// was: vec4
 out vec3 vertNormal;		// Also in "world" (no view or projection)
 out vec3 vecWorldPosition;	// 
 out vec4 uvX2out;			// Added: UV 1 and 2 to fragment
+out vec3 Tangent_out;		// For bump (or normal) mapping
+out vec3 Bitangent_out;	// For bump (or normal) mapping
+
+
+layout(std140) uniform NUB_perFrame
+{
+	vec3 eyePosition;	// Camera position
+} perFramNUB;
 
 void main()
 {
@@ -72,15 +93,10 @@ void main()
 	
     color = vCol;
 	uvX2out = uvX2;			// Sent to fragment shader
+
+	// Pass the tangent and bi-tangent out to the fragment shader
+	Tangent_out = vTangent;
+	Bitangent_out = vBitangent;
+
 }
-
-
-//	// Or could do this:
-//	mWorldInTranpose = inverse(transpose(MVP));
-//	
-//	// Calculate vertex and normal based on ONLY world 
-//	vecWorldPosition = mWorldInTranpose * vec4(position, 1.0f);
-//	
-//	// Not correct, but for now, just pass along
-//	vertNormal = mWorldInTranpose * vNorm;		// Was: MVP * vNorm;
 

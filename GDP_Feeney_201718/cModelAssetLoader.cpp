@@ -69,7 +69,8 @@ bool cModelAssetLoader::LoadPlyFileIntoMesh( std::string filename, cMesh &theMes
 
 	// Allocate the appropriate sized array (+a little bit)
 	//theMesh.pVertices = new cVertex_xyz_rgb_n[theMesh.numberOfVertices];
-	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	//theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 	theMesh.pTriangles = new cTriangle[theMesh.numberOfTriangles];
 
 //	// Read vertices
@@ -135,7 +136,8 @@ bool cModelAssetLoader::LoadPlyFileIntoMeshXYZOnly( std::string filename, cMesh 
 
 	// Allocate the appropriate sized array (+a little bit)
 	//theMesh.pVertices = new cVertex_xyz_rgb_n[theMesh.numberOfVertices];
-	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	//theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 	theMesh.pTriangles = new cTriangle[theMesh.numberOfTriangles];
 
 	// Read vertices
@@ -203,7 +205,8 @@ bool cModelAssetLoader::LoadPlyFileIntoMeshWithNormals( std::string filename, cM
 
 	// Allocate the appropriate sized array (+a little bit)
 	//theMesh.pVertices = new cVertex_xyz_rgb_n[theMesh.numberOfVertices];
-	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	//theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 	theMesh.pTriangles = new cTriangle[theMesh.numberOfTriangles];
 
 	// Read vertices
@@ -273,7 +276,8 @@ bool cModelAssetLoader::LoadPlyFileIntoMeshWith_Normals_and_UV( std::string file
 
 	// Allocate the appropriate sized array (+a little bit)
 	//theMesh.pVertices = new cVertex_xyz_rgb_n[theMesh.numberOfVertices];
-	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	//theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 	theMesh.pTriangles = new cTriangle[theMesh.numberOfTriangles];
 
 	// Read vertices

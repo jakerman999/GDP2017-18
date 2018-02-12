@@ -18,6 +18,7 @@ public:
 	GLuint ID;				// g_FBO	// = 0;
 	GLuint colourTexture_0_ID;		// = 0;
 	GLuint normalTexture_1_ID;
+	GLuint vertexWorldPos_2_ID;
 //	GLuint TBDTexture_2_ID;
 //	GLuint TBDTexture_3_ID;
 

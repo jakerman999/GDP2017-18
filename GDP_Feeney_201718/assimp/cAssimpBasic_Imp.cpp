@@ -38,7 +38,8 @@ bool cAssimpBasic_Imp::loadModelA(
 		theMesh.numberOfVertices = scene->mMeshes[0]->mNumVertices;
 
 		// Create the number of vertices that this mesh has.
-		theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+		//theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+		theMesh.pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 
 		theMesh.minXYZ.x = scene->mMeshes[0]->mVertices[0].x;
 		theMesh.minXYZ.y = scene->mMeshes[0]->mVertices[0].y;

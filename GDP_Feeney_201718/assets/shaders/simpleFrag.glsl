@@ -14,7 +14,14 @@ in vec4 uvX2out;			// Added: UV 1 and 2 to fragment
 // If there is only 1, then GL will assume it's the colour 
 //out vec4 fragColourOut;			// Assumes it GL_COLOR_ATTACHMENT0
 
-out vec4 fragColourOut[2];			// Assumes it GL_COLOR_ATTACHMENT0
+//out vec4 fragOut[0];			// Assumes it GL_COLOR_ATTACHMENT0
+struct sFBOout
+{
+	vec4 colour;			// GL_COLOR_ATTACHMENT0
+	vec4 normal;			// GL_COLOR_ATTACHMENT1
+	vec4 vertexWorldPos;	// GL_COLOR_ATTACHMENT2
+};
+out sFBOout fragOut;
 
 
 // The values our OBJECT material
@@ -23,20 +30,49 @@ uniform vec4 materialDiffuse;
 uniform float ambientToDiffuseRatio; 	// Maybe	// 0.2 or 0.3
 uniform vec4 materialSpecular;  // rgb = colour of HIGHLIGHT only
 								// w = shininess of the 
-uniform vec3 eyePosition;	// Camera position
+
+
+layout(std140) uniform NUB_perFrame
+{
+	vec3 eyePosition;	// Camera position
+} perFramNUB;
+
+/*****************************************************/
+struct sLightDesc {
+	vec4 position;
+	vec4 diffuse;
+	vec4 ambient;
+	vec4 specular;		// Colour (xyz), intensity (w)
+	vec4 attenuation;	// x = constant, y = linear, z = quadratic
+	vec4 direction;
+	vec4 typeParams;	// x = type
+						// 		0 = point
+						// 		1 = directional
+						// 		2 = spot
+						// y = distance cut-off
+	                    // z angle1, w = angle2		- only for spot
+};
+const int NUMBEROFLIGHTS = 100;
+layout (std140) uniform NUB_lighting
+{
+	sLightDesc myLight[NUMBEROFLIGHTS];
+} lightingNUB;
+
+//uniform vec3 eyePosition;	// Camera position
 
 uniform bool bIsDebugWireFrameObject;
 
 // Note: this CAN'T be an array (sorry). See 3D texture array
 uniform sampler2D texSamp2D00;		// Represents a 2D image
 uniform sampler2D texSamp2D01;		// Represents a 2D image
-uniform sampler2D texSamp2D02;		// Represents a 2D image
+uniform sampler2D texSamp2D02;		// Represents a 2D image		
 uniform sampler2D texSamp2D03;		// Represents a 2D image
 uniform sampler2D texSamp2D04;		// Represents a 2D image
 uniform sampler2D texSamp2D05;		// Represents a 2D image
 uniform sampler2D texSamp2D06;		// Represents a 2D image
 uniform sampler2D texSamp2D07;		// Represents a 2D image
 // ... and so on...
+
 
 uniform float texBlend00;		
 uniform float texBlend01;		
@@ -66,28 +102,14 @@ uniform float coefficientRefract; 		// coefficient of refraction
 
 
 uniform bool bIsSecondPass;			// True if the render is doing 2nd pass  
-uniform sampler2D tex2ndPassSamp2D;		// Offscreen texture for 2nd pass
+//uniform sampler2D tex2ndPassSamp2D;		// Offscreen texture for 2nd pass
+uniform sampler2D texFBOColour2D;
+uniform sampler2D texFBONormal2D;
+uniform sampler2D texFBOVertexWorldPos2D;
+
 uniform float screenWidth;
 uniform float screenHeight;
 
-/*****************************************************/
-struct sLightDesc {
-	vec4 position;
-	vec4 diffuse;
-	vec4 ambient;
-	vec4 specular;		// Colour (xyz), intensity (w)
-	vec4 attenuation;	// x = constant, y = linear, z = quadratic
-	vec4 direction;
-	vec4 typeParams;	// x = type
-						// 		0 = point
-						// 		1 = directional
-						// 		2 = spot
-						// y = distance cut-off
-	                    // z angle1, w = angle2		- only for spot
-};
-
-const int NUMBEROFLIGHTS = 10;
-uniform sLightDesc myLight[NUMBEROFLIGHTS];
 
 // This function has now been moved to the bottom of the file...
 // Calculate the contribution of a light at a vertex
@@ -103,28 +125,40 @@ vec3 calcLightColour( in vec3 vecNormal,
 void main()
 {	
 
-	fragColourOut[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	fragColourOut[1] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	//fragColourOut[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	//fragColourOut[1] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	fragOut.colour = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
+	fragOut.normal = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
+	fragOut.vertexWorldPos = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
 	if ( bIsDebugWireFrameObject )
 	{
-		fragColourOut[0].rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
-		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
-		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);
-		
-		fragColourOut[0] * 1.5f;	// Room too bright
+//		fragColourOut[0].rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+//		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+//		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);		
+//		fragColourOut[0] * 1.5f;	// Room too bright
+		fragOut.colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+		fragOut.colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+		fragOut.colour.rgb *= 1.5f;	// Room too bright
+
+
 		return;		// Immediate return
 	}
 	
 	if ( bIsSecondPass )
 	{
-		//uniform sampler2D tex2ndPassSamp2D
+//		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
+//		fragColourOut[0].rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
+//		fragColourOut[0].a = 1.0f;
+
+		//uniform sampler2D texFBOColour2D;
+		//uniform sampler2D texFBONormal2D;
+		//uniform sampler2D texFBOVertexWorldPos2D;
 
 		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
-		fragColourOut[0].rgb = texture( tex2ndPassSamp2D, textCoords).rgb;
-
-		fragColourOut[0].a = 1.0f;
+		fragOut.colour.rgb = texture( texFBOColour2D, textCoords).rgb;
+		fragOut.colour.a = 1.0f; 
 		return;
 	}
 
@@ -137,8 +171,9 @@ void main()
 		//	to determine the point on the inside of the box
 		vec4 skyRGBA = texture( texSampCube00, vertNormal.xyz );
 		
-		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
 //		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
+//		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
+		fragOut.colour = vec4(skyRGBA.rgb, 1.0f);
 		return;	
 	}
 	
@@ -151,7 +186,7 @@ void main()
 		// Have "eyePosition" (camera eye) in WORLD space
 		
 		// reFLECTion value 
-		vec3 vecReflectEyeToVertex = vecWorldPosition - eyePosition;
+		vec3 vecReflectEyeToVertex = vecWorldPosition - perFramNUB.eyePosition;
 		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
 		vec3 vecReflect = reflect( vecReflectEyeToVertex, vertNormal.xyz );
 		// Look up colour for reflection
@@ -160,7 +195,7 @@ void main()
 
 	
 		
-		vec3 vecReFRACT_EyeToVertex = eyePosition - vecWorldPosition;
+		vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - vecWorldPosition;
 		vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
 		vec3 vecRefract = refract( vecReFRACT_EyeToVertex, vertNormal.xyz, 
                                    coefficientRefract );
@@ -169,10 +204,10 @@ void main()
 		
 		
 		// Mix the two, based on how reflective the surface is
-		fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
-		                (rgbRefraction * refractBlendRatio);
-		
 	//	fragColourOut.r = 1.0f;
+	//	fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
+		fragOut.colour = (rgbReflection * reflectBlendRatio) + 
+		                 (rgbRefraction * refractBlendRatio);
 		
 		return;	
 	}	
@@ -225,7 +260,8 @@ void main()
 	{
 		// Old version, which used 'global' diffuse and specular
 		//gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
-		fragColourOut[0].rgb += calcLightColour( vertNormal, 					
+		//fragColourOut[0].rgb += calcLightColour( vertNormal, 					
+		fragOut.colour.rgb += calcLightColour( vertNormal, 					
 		                                      vecWorldPosition, 
 											  index, 
 		                                      matDiffuse, 
@@ -236,17 +272,22 @@ void main()
 	// We have materialAmbient, but ambient is often 
 	//	just a percentage ratio of the diffuse
 	vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
-	fragColourOut[0].rgb += ambientContribution.rgb;
+	//fragColourOut[0].rgb += ambientContribution.rgb;
+	fragOut.colour.rgb += ambientContribution.rgb;
 	
 	// Screen is so dim...
 	//fragColourOut *= 1.5f;	// 150% brighter
 	
 	// Copy object material diffuse to alpha
-	fragColourOut[0].a = materialDiffuse.a;
+	//fragColourOut[0].a = materialDiffuse.a;
+	fragOut.colour.a = materialDiffuse.a;
 
 	// Write to the "normal" layer of the G-Buffer
 	// (Colour_attachment_1)
-	fragColourOut[1].rgb = vertNormal.xyz;
+	//fragColourOut[1].rgb = vertNormal.xyz;
+	fragOut.normal.rgb = vertNormal.xyz;
+
+	fragOut.vertexWorldPos.xyz = vecWorldPosition.xyz;
 	
 	return;
 }
@@ -268,11 +309,11 @@ vec3 calcLightColour( in vec3 vecNormal,
 	
 
 	// Distance between light and vertex (in world)
-	vec3 vecToLight = myLight[lightID].position.xyz - vecWorldPosition;
+	vec3 vecToLight = lightingNUB.myLight[lightID].position.xyz - vecWorldPosition;
 	// How long is this vector?
 	float lightDistance = length(vecToLight);
 	// Short circuit distance
-	if ( myLight[lightID].typeParams.y <  lightDistance )
+	if ( lightingNUB.myLight[lightID].typeParams.y <  lightDistance )
 	{
 		return colour;
 	}
@@ -287,7 +328,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	float diffFactor = max(0.0f, dot( lightVector, vecNormal ));
 	
 	
-	outDiffuse.rgb = myLight[lightID].diffuse.rgb 		// Light contribution
+	outDiffuse.rgb = lightingNUB.myLight[lightID].diffuse.rgb 		// Light contribution
 	                 * matDiffuse.rgb				// Material contribution
 					 * diffFactor;						// Factor based on direction
 					 
@@ -304,15 +345,15 @@ vec3 calcLightColour( in vec3 vecNormal,
 	//                         y = linear, 
 	//                         z = quadratic
 	float attenuation = 1.0f / 
-	   ( myLight[lightID].attenuation.x // 0  
-	   + myLight[lightID].attenuation.y * lightDistance			// Linear
-	   + myLight[lightID].attenuation.z * lightDistance * lightDistance );	// Quad
+	   ( lightingNUB.myLight[lightID].attenuation.x // 0  
+	   + lightingNUB.myLight[lightID].attenuation.y * lightDistance			// Linear
+	   + lightingNUB.myLight[lightID].attenuation.z * lightDistance * lightDistance );	// Quad
 	outDiffuse.rgb *= attenuation;
 
 	
 	// Vector from vertex to eye 
 	// i.e. this makes the vector base effectively at zero.
-	vec3 viewVector = normalize( eyePosition - vecWorldPosition );
+	vec3 viewVector = normalize( perFramNUB.eyePosition - vecWorldPosition );
 	vec3 vecLightReflection = reflect( normalize(lightVector), vecNormal );
 	
 	float specularShininess = matSpecular.w;	// 64.0f
@@ -321,7 +362,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	outSpecular.rgb = pow( max(0.0f, dot(viewVector,vecLightReflection)), 
 	                  specularShininess)
 			          * specMatColour
-				      * myLight[lightID].specular.rgb;// // myLightSpecular;
+				      * lightingNUB.myLight[lightID].specular.rgb;// // myLightSpecular;
 				   
 	outSpecular *= attenuation;
 	
@@ -333,7 +374,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 
 	// Now we have the colour if this was a point light 
 	// See if it's a spot light...
-	if ( myLight[lightID].typeParams.x == 2.0f ) 			// x = type
+	if ( lightingNUB.myLight[lightID].typeParams.x == 2.0f ) 			// x = type
 	{	// Then it's a spot light! 
 		// 		0 = point
 		// 		1 = directional
@@ -341,17 +382,17 @@ vec3 calcLightColour( in vec3 vecNormal,
 	    // z angle1, w = angle2		- only for spot
 		
 		// Vector from the vertex to the light... 
-		vec3 vecVertexToLight = vecWorldPosition - myLight[lightID].position.xyz;
+		vec3 vecVertexToLight = vecWorldPosition - lightingNUB.myLight[lightID].position.xyz;
 		// Normalize to unit length vector
 		vec3 vecVtoLDirection = normalize(vecVertexToLight);
 		
-		float vertSpotAngle = max(0.0f, dot( vecVtoLDirection, myLight[lightID].direction.xyz ));
+		float vertSpotAngle = max(0.0f, dot( vecVtoLDirection, lightingNUB.myLight[lightID].direction.xyz ));
 		// Is this withing the angle1?
 		
 //		float angleInsideCutCos = cos(myLight[lightID].typeParams.z);		// z angle1
 //		float angleOutsideCutCos = cos(myLight[lightID].typeParams.w);		// z angle2
-		float angleInsideCutCos = cos(myLight[lightID].typeParams.z);		// z angle1
-		float angleOutsideCutCos = cos(myLight[lightID].typeParams.w);		// z angle2
+		float angleInsideCutCos = cos(lightingNUB.myLight[lightID].typeParams.z);		// z angle1
+		float angleOutsideCutCos = cos(lightingNUB.myLight[lightID].typeParams.w);		// z angle2
 		
 		if ( vertSpotAngle <= angleOutsideCutCos )
 		{	// NO, it's outside this angle1
@@ -361,11 +402,11 @@ vec3 calcLightColour( in vec3 vecNormal,
 		          (vertSpotAngle <= angleInsideCutCos) )
 		{	// inside the 'penumbra' region
 			// Use smoothstep to get the gradual drop off in brightness
-			float penRatio = smoothstep(angleOutsideCutCos, 
-			                            angleInsideCutCos, 
-										vertSpotAngle );          
+			float penumbraRatio = smoothstep(angleOutsideCutCos, 
+			                                 angleInsideCutCos, 
+										     vertSpotAngle );          
 			
-			colour *= penRatio;
+			colour *= penumbraRatio;
 		}
 //		else if ( vertSpotAngle <= angleInsideCutCos )
 //		{

@@ -17,7 +17,8 @@
 //    float r, g, b;		// Colour (vec3)
 //	float nx, ny, nz;	// Now with normals!
 //};
-#include "sVertex_xyz_rgba_n_uv2_bt.h"			
+//#include "sVertex_xyz_rgba_n_uv2_bt.h"			
+#include "sVertex_xyz_rgba_n_uv2_bt_4Bones.h"
 
 cVAOMeshManager::cVAOMeshManager()
 {
@@ -55,7 +56,8 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 
 	// Allocate the global vertex array
 	//cVertex* pVertices = new cVertex[theMesh.numberOfVertices];
-	sVertex_xyz_rgba_n_uv2_bt* pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	//sVertex_xyz_rgba_n_uv2_bt* pVertices = new sVertex_xyz_rgba_n_uv2_bt[theMesh.numberOfVertices];
+	sVertex_xyz_rgba_n_uv2_bt_4Bones * pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[theMesh.numberOfVertices];
 
 	for ( int index = 0; index < theMesh.numberOfVertices; index++ )
 	{
@@ -92,7 +94,8 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 
 	// Copy the local vertex array into the GPUs memory
 	//int sizeOfGlobalVertexArrayInBytes = sizeof(cVertex) * theMesh.numberOfVertices;
-	int sizeOfGlobalVertexArrayInBytes = sizeof(sVertex_xyz_rgba_n_uv2_bt) * theMesh.numberOfVertices;
+	//int sizeOfGlobalVertexArrayInBytes = sizeof(sVertex_xyz_rgba_n_uv2_bt) * theMesh.numberOfVertices;
+	int sizeOfGlobalVertexArrayInBytes = sizeof(sVertex_xyz_rgba_n_uv2_bt_4Bones) * theMesh.numberOfVertices;
     glBufferData(GL_ARRAY_BUFFER, 
 				 sizeOfGlobalVertexArrayInBytes,		// sizeof(vertices), 
 				 pVertices, 
@@ -144,66 +147,116 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
     GLuint vnorm_location = glGetAttribLocation(shaderID, "vNorm");		// program, "vCol");	// 13
 	// ADDED: December 4
 	GLuint vUVx2_location = glGetAttribLocation(shaderID, "uvX2");		// program, "vCol");	// 13
+	// ADDED: February 12 for the skinned mesh
+	GLuint vTangent_location = glGetAttribLocation(shaderID, "vTangent");				// in vec3 vTangent;
+	GLuint vBitangent_location = glGetAttribLocation(shaderID, "vBitangent");			// in vec3 vBitangent;
+	GLuint vBoneIDs_x4_location = glGetAttribLocation(shaderID, "vBoneIDs_x4");			// in vec4 vBoneIDs_x4;		
+	GLuint vBoneWeights_x4_location = glGetAttribLocation(shaderID, "vBoneWeights_x4");	// 	in vec4 vBoneWeights_x4;	
+
 
 //	vec3 vPos,		x = 0th location in this class
 //	vec3 vCol       r = 3rd location in this class
 
 	// Size of the vertex we are using in the array.
 	// This is called the "stride" of the vertices in the vertex buffer
-	const unsigned int VERTEX_SIZE_OR_STRIDE_IN_BYTES = sizeof(sVertex_xyz_rgba_n_uv2_bt);
+	const unsigned int VERTEX_SIZE_OR_STRIDE_IN_BYTES = sizeof(sVertex_xyz_rgba_n_uv2_bt_4Bones);
 
-    glEnableVertexAttribArray(vpos_location);
-	//const int offsetOf_x_into_cVertex = 0;	// X is 0th location in cVertex
-	//const unsigned int OFFSET_TO_X_IN_CVERTEX = offsetof( cVertex, x );
-	const unsigned int OFFSET_TO_X_IN_CVERTEX = offsetof( sVertex_xyz_rgba_n_uv2_bt, x );
-    glVertexAttribPointer(vpos_location, 
-						  3,				// now vec3, not vec2   
-						  GL_FLOAT, 
-						  GL_FALSE,
-                          VERTEX_SIZE_OR_STRIDE_IN_BYTES,		//sizeof(float) * 9,	// cVertex is 6 floats in size
-												// or you could do: sizeof( cVertex ), 
-					//	  (void*) (sizeof(float) * offsetOf_x_into_cVertex) );		
-					//	  (void*) offsetof( cVertex, x ) );
-						  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_X_IN_CVERTEX)) );	// 64-bit
+	{//STARTOF: "in vec3 vPos;" or "float x, y, z;"
+		glEnableVertexAttribArray(vpos_location);
+		const unsigned int OFFSET_TO_X_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, x );
+		glVertexAttribPointer(vpos_location, 
+							  3,				// now vec3, not vec2   
+							  GL_FLOAT, 
+							  GL_FALSE,
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,		//sizeof(float) * 9,	// cVertex is 6 floats in size
+													// or you could do: sizeof( cVertex ), 
+						//	  (void*) (sizeof(float) * offsetOf_x_into_cVertex) );		
+						//	  (void*) offsetof( cVertex, x ) );
+							  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_X_IN_CVERTEX)) );	// 64-bit
+	}//ENDOF: "in vec3 vPos;" or "float x, y, z;"
 
+	{//STARTOF: "in vec4 vCol;" or "float r, g, b, a;"
+		glEnableVertexAttribArray(vcol_location);
+		const unsigned int OFFSET_TO_R_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, r );
+		glVertexAttribPointer(vcol_location, 
+							  4,				// Was 3, but now has alpha
+							  GL_FLOAT, 
+							  GL_FALSE,
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,		// sizeof(float) * 9,		// (  sizeof(cVertex)  );
+							  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_R_IN_CVERTEX)) );	// 64-bit
+	}// ENDOF: "in vec4 vCol;" or "float r, g, b, a;"
 
-    glEnableVertexAttribArray(vcol_location);
-	//const int offsetOf_r_into_cVertex = 3;	// "r" is 3rd float into cVertex
-	//const unsigned int OFFSET_TO_R_IN_CVERTEX = offsetof( cVertex, r );
-	const unsigned int OFFSET_TO_R_IN_CVERTEX = offsetof( sVertex_xyz_rgba_n_uv2_bt, r );
-    glVertexAttribPointer(vcol_location, 
-						  4,				// Was 3, but now has alpha
-						  GL_FLOAT, 
-						  GL_FALSE,
-                          VERTEX_SIZE_OR_STRIDE_IN_BYTES,		// sizeof(float) * 9,		// (  sizeof(cVertex)  );
-				      //  (void*) (sizeof(float) * offsetOf_r_into_cVertex));
-					  //  (void*) offsetof( cVertex, r ) );
-						  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_R_IN_CVERTEX)) );	// 64-bit
+	{//STARTOF: "in vec3 vNorm;" or "float nx, ny, nz;"
+		glEnableVertexAttribArray(vnorm_location);
+		const unsigned int OFFSET_TO_NX_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, nx );
+		glVertexAttribPointer(vnorm_location, 
+							  3, 
+							  GL_FLOAT, 
+							  GL_FALSE,
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,		
+							  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_NX_IN_CVERTEX)) );	// 64-bit
+	}//ENDOF: "in vec3 vNorm;" or "float nx, ny, nz;"
 
-	// Now we also have normals on the vertex
-    glEnableVertexAttribArray(vnorm_location);
-	//const unsigned int OFFSET_TO_NX_IN_CVERTEX = offsetof( cVertex, r );
-	const unsigned int OFFSET_TO_NX_IN_CVERTEX = offsetof( sVertex_xyz_rgba_n_uv2_bt, nx );
-    glVertexAttribPointer(vnorm_location, 
-						  3, 
-						  GL_FLOAT, 
-						  GL_FALSE,
-                          VERTEX_SIZE_OR_STRIDE_IN_BYTES,		// sizeof(float) * 9,		// (  sizeof(cVertex)  );
-				      //  (void*) (sizeof(float) * offsetOf_r_into_cVertex));
-				      //  (void*) offsetof( cVertex, nx ) );
-						  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_NX_IN_CVERTEX)) );	// 64-bit
+	{//STARTOF: "in vec4 uvX2;" or "float u1, v1, u2, v2;"
+		glEnableVertexAttribArray(vUVx2_location);
+		const unsigned int OFFSET_TO_UVs_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, u1 );
+		glVertexAttribPointer(vUVx2_location,
+							  4,				// because "vec4"
+							  GL_FLOAT,			// vec is a float 
+							  GL_FALSE,			// normalize or not
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,		
+							  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_UVs_IN_CVERTEX)) );	// 64-bit
+	}//ENDOF: "in vec4 uvX2;" or "float u1, v1, u2, v2;"
+																											// *******************************************************************
+	{//STARTOF: "in vec3 vTangent;" or "float tx, ty, tz;"
+		glEnableVertexAttribArray(vTangent_location);
+		const unsigned int OFFSET_TO_vTangent_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, tx);
+		glVertexAttribPointer(vTangent_location,
+							  3,				// because "vec3"
+							  GL_FLOAT,			// vec is a float 
+							  GL_FALSE,			// normalize or not
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,			
+							  reinterpret_cast<void*>(static_cast<uintptr_t>( OFFSET_TO_vTangent_IN_CVERTEX )) );	// 64-bit
+	}//ENDOF: "in vec3 vTangent;" or "float tx, ty, tz;"
 
-	// ***************************************************************
-	// Now we also have UVs on the vertex
-    glEnableVertexAttribArray(vUVx2_location);
-	const unsigned int OFFSET_TO_UVs_IN_CVERTEX = offsetof( sVertex_xyz_rgba_n_uv2_bt, u1 );
-    glVertexAttribPointer(vUVx2_location,
-						  4,				// because "vec4"
-						  GL_FLOAT,			// vec is a float 
-						  GL_FALSE,			// normalize or not
-                          VERTEX_SIZE_OR_STRIDE_IN_BYTES,		// sizeof(float) * 9,		// (  sizeof(cVertex)  );
-						  reinterpret_cast<void*>(static_cast<uintptr_t>(OFFSET_TO_UVs_IN_CVERTEX)) );	// 64-bit
-	// *******************************************************************
+	{//STARTOF: "in vec3 vBitangent;" or "float bx, by, bz;"
+		//GLuint vBitangent_location = glGetAttribLocation(shaderID, "vBitangent");			// in vec3 vBitangent;
+		glEnableVertexAttribArray(vBitangent_location);
+		const unsigned int OFFSET_TO_vBitangent_IN_CVERTEX = offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, bx);
+		glVertexAttribPointer(vBitangent_location,
+							  3,				// because "vec3"
+							  GL_FLOAT,			// vec is a float 
+							  GL_FALSE,			// normalize or not
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,			
+							  reinterpret_cast<void*>(static_cast<uintptr_t>( OFFSET_TO_vBitangent_IN_CVERTEX )) );	// 64-bit
+	}//ENDOF: "in vec3 vBitangent;" or "float bx, by, bz;"
+
+	{//STARTOF: "in vec4 vBoneIDs_x4;" or "float boneID[NUMBEROFBONES];"
+		//GLuint vBoneIDs_x4_location = glGetAttribLocation(shaderID, "vBoneIDs_x4");			// in vec4 vBoneIDs_x4;		
+		glEnableVertexAttribArray(vBoneIDs_x4_location);
+		const unsigned int OFFSET_TO_vBoneIDs_x4_IN_CVERTEX
+								= (unsigned int)offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, boneID[0]);
+		glVertexAttribPointer(vBoneIDs_x4_location,
+							  4,				// because "vec4"
+							  GL_FLOAT,			// vec is a float 
+							  GL_FALSE,			// normalize or not
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,			
+							  reinterpret_cast<void*>(static_cast<uintptr_t>( OFFSET_TO_vBoneIDs_x4_IN_CVERTEX )) );	// 64-bit
+	}//ENDOF: "in vec4 vBoneIDs_x4;" or "float boneID[NUMBEROFBONES];"
+
+	{//STARTOF: "in vec4 vBoneWeights_x4;" or "float boneWeights[NUMBEROFBONES];"
+		//GLuint vBoneWeights_x4_location = glGetAttribLocation(shaderID, "vBoneWeights_x4");	// 	in vec4 vBoneWeights_x4;	
+		glEnableVertexAttribArray(vBoneWeights_x4_location);
+		const unsigned int OFFSET_TO_vBoneWeights_x4_IN_CVERTEX
+								= ( unsigned int )offsetof(sVertex_xyz_rgba_n_uv2_bt_4Bones, boneWeights[0]);
+		glVertexAttribPointer(vBoneWeights_x4_location,
+							  4,				// because "vec4"
+							  GL_FLOAT,			// vec is a float 
+							  GL_FALSE,			// normalize or not
+							  VERTEX_SIZE_OR_STRIDE_IN_BYTES,			
+							  reinterpret_cast<void*>(static_cast<uintptr_t>( OFFSET_TO_vBoneWeights_x4_IN_CVERTEX )) );	// 64-bit
+	}//ENDOF: "in vec4 vBoneWeights_x4;" or "float boneWeights[NUMBEROFBONES];"
+
 
 
 	// Copy the information into the VAOInfo structure
@@ -234,6 +287,11 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vnorm_location);
 	glDisableVertexAttribArray(vUVx2_location);
+	// ADDED: February 12 for the skinned mesh
+	glDisableVertexAttribArray(vTangent_location);				// in vec3 vTangent;
+	glDisableVertexAttribArray(vBitangent_location);			// in vec3 vBitangent;
+	glDisableVertexAttribArray(vBoneIDs_x4_location);			// in vec4 vBoneIDs_x4;		
+	glDisableVertexAttribArray(vBoneWeights_x4_location);		// 	in vec4 vBoneWeights_x4;	
 
 	// Save this mesh? 
 	if (bKeepMesh)

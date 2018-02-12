@@ -91,7 +91,8 @@ void cMesh::FlattenIndexedModel(void)
 //	cVertex_xyz_rgb vertOrig[MAX_VERTEX_ARRAY_SIZE]; // Stack
 
 //	cVertex_xyz_rgb_n* pVertOrig = new cVertex_xyz_rgb_n[this->numberOfVertices]; // Heap
-	sVertex_xyz_rgba_n_uv2_bt* pVertOrig = new sVertex_xyz_rgba_n_uv2_bt[this->numberOfVertices]; // Heap
+//	sVertex_xyz_rgba_n_uv2_bt* pVertOrig = new sVertex_xyz_rgba_n_uv2_bt[this->numberOfVertices]; // Heap
+	sVertex_xyz_rgba_n_uv2_bt_4Bones* pVertOrig = new sVertex_xyz_rgba_n_uv2_bt_4Bones[this->numberOfVertices]; // Heap
 
 	for ( int index = 0; index < origNumVertices; index++ )
 	{
@@ -110,7 +111,8 @@ void cMesh::FlattenIndexedModel(void)
 	int numberOfVertsNeeded = this->numberOfTriangles * 3;
 	numberOfVertsNeeded += 30;	// Add a few, just in case...
 	//this->pVertices = new cVertex_xyz_rgb_n[numberOfVertsNeeded];
-	this->pVertices = new sVertex_xyz_rgba_n_uv2_bt[numberOfVertsNeeded];
+	//this->pVertices = new sVertex_xyz_rgba_n_uv2_bt[numberOfVertsNeeded];
+	this->pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[numberOfVertsNeeded];
 
 	int triIndex = 0;
 	int vertIndex = 0;
@@ -125,9 +127,12 @@ void cMesh::FlattenIndexedModel(void)
 		//cVertex_xyz_rgb_n V0 = pVertOrig[triVert0_index];
 		//cVertex_xyz_rgb_n V1 = pVertOrig[triVert1_index];
 		//cVertex_xyz_rgb_n V2 = pVertOrig[triVert2_index];
-		sVertex_xyz_rgba_n_uv2_bt V0 = pVertOrig[triVert0_index];
-		sVertex_xyz_rgba_n_uv2_bt V1 = pVertOrig[triVert1_index];
-		sVertex_xyz_rgba_n_uv2_bt V2 = pVertOrig[triVert2_index];
+		//sVertex_xyz_rgba_n_uv2_bt V0 = pVertOrig[triVert0_index];
+		//sVertex_xyz_rgba_n_uv2_bt V1 = pVertOrig[triVert1_index];
+		//sVertex_xyz_rgba_n_uv2_bt V2 = pVertOrig[triVert2_index];
+		sVertex_xyz_rgba_n_uv2_bt_4Bones  V0 = pVertOrig[triVert0_index];
+		sVertex_xyz_rgba_n_uv2_bt_4Bones  V1 = pVertOrig[triVert1_index];
+		sVertex_xyz_rgba_n_uv2_bt_4Bones  V2 = pVertOrig[triVert2_index];
 
 		this->pVertices[vertIndex + 0] = V0;
 		this->pVertices[vertIndex + 1] = V1;

@@ -246,6 +246,49 @@ int main(void)
 		std::cout << error << std::endl;
 	}
 
+
+	// Named unifrom block
+	// Now many uniform blocks are there? 
+	GLint numberOfUniformBlocks = -1;
+	glGetProgramiv(currentProgID, GL_ACTIVE_UNIFORM_BLOCKS, &numberOfUniformBlocks);
+
+	// https://www.opengl.org/wiki/GLAPI/glGetActiveUniformBlock
+
+	// Set aside some buffers for the names of the blocks
+	const int BUFFERSIZE = 1000;
+
+	int name_length_written = 0;
+
+	char NUBName_0[BUFFERSIZE] = {0};
+	char NUBName_1[BUFFERSIZE] = {0};
+
+	glGetActiveUniformBlockName(currentProgID,
+								0,
+								BUFFERSIZE,
+								&name_length_written,
+								NUBName_0);
+
+	glGetActiveUniformBlockName(currentProgID,
+								1,
+								BUFFERSIZE,
+								&name_length_written,
+								NUBName_1);
+
+//	NUB_lighting
+//	NUB_perFrame
+
+	GLuint NUB_Buffer_0_ID = 0;
+	GLuint NUB_Buffer_1_ID = 0;
+
+	glGenBuffers(1, &NUB_Buffer_0_ID);
+	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID );
+
+	glGenBuffers(1, &NUB_Buffer_1_ID);
+	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_1_ID);
+
+
+
+
 	// *******************************************************
 	// Test the assimp loader before the "old" loader
 	cAssimpBasic myAssimpLoader;
@@ -471,18 +514,27 @@ int main(void)
 
 		glUniform1i(bIsSecondPassLocID, GL_TRUE);
 		
-		GLint offscreenTextureUnitID = 10;
-		GLint tex2ndPassSamp2DLocID = glGetUniformLocation(sexyShaderID, "tex2ndPassSamp2D");
+		GLint texFBOColour2DTextureUnitID = 10;
+		GLint texFBOColour2DLocID = glGetUniformLocation(sexyShaderID, "texFBOColour2D");
+		GLint texFBONormal2DTextureUnitID = 11;
+		GLint texFBONormal2DLocID = glGetUniformLocation(sexyShaderID, "texFBONormal2D");
+		GLint texFBOWorldPosition2DTextureUnitID = 12;
+		GLint texFBOWorldPosition2DLocID = glGetUniformLocation(sexyShaderID, "texFBOVertexWorldPos2D");
 
 		// Pick a texture unit... 
-		glActiveTexture(GL_TEXTURE0 + offscreenTextureUnitID);
-		// Assign 'this' texture to it
-//		glBindTexture(GL_TEXTURE_2D, g_myFBO.colourTexture_0_ID);
-//		glBindTexture(GL_TEXTURE_2D, g_myFBO.normalTexture_1_ID);
-		glBindTexture(GL_TEXTURE_2D, g_myFBO.depthTexture_ID);
+		glActiveTexture(GL_TEXTURE0 + texFBOColour2DTextureUnitID);
+		glBindTexture(GL_TEXTURE_2D, g_myFBO.colourTexture_0_ID);
+		glUniform1i(texFBOColour2DLocID, texFBOColour2DTextureUnitID);
+
+		glActiveTexture(GL_TEXTURE0 + texFBONormal2DTextureUnitID);
+		glBindTexture(GL_TEXTURE_2D, g_myFBO.normalTexture_1_ID);
+		glUniform1i(texFBONormal2DTextureUnitID, texFBONormal2DTextureUnitID);
+		
+		glActiveTexture(GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID);
+		glBindTexture(GL_TEXTURE_2D, g_myFBO.vertexWorldPos_2_ID);
+		glUniform1i(texFBOWorldPosition2DTextureUnitID, texFBOWorldPosition2DTextureUnitID);
 		
 		// Set the sampler in the shader to the same texture unit (20)
-		glUniform1i(tex2ndPassSamp2DLocID, offscreenTextureUnitID);
 
 		glfwGetFramebufferSize(pGLFWWindow, &width, &height);
 

@@ -19,7 +19,7 @@ cLight::cLight()
 	this->attenuation.y = 1.0f;	// Linear
 	this->attenuation.z = 0.0f;	// Quadratic
 
-	this->direction = glm::vec3(0.0f);
+	this->direction = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// x = type, y = distance cut-off, z angle1, w = angle2
 	this->typeParams = glm::vec4(0.0f);

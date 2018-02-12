@@ -2,7 +2,8 @@
 #define _cMesh_HG_
 
 //#include "cVertex_xyz_rgb_n.h"
-#include "sVertex_xyz_rgba_n_uv2_bt.h"
+//#include "sVertex_xyz_rgba_n_uv2_bt.h"
+#include "sVertex_xyz_rgba_n_uv2_bt_4Bones.h"
 #include "cTriangle.h" 
 
 //#define MAX_VERTEX_ARRAY_SIZE 2048
@@ -24,7 +25,8 @@ public:
 	// Array of vertices 
 //	cVertex_xyz_rgb vertices[MAX_VERTEX_ARRAY_SIZE]; // Stack
 //	cVertex_xyz_rgb_n* pVertices;						// Heap
-	sVertex_xyz_rgba_n_uv2_bt* pVertices;				// Heap
+//	sVertex_xyz_rgba_n_uv2_bt* pVertices;				// Heap
+	sVertex_xyz_rgba_n_uv2_bt_4Bones* pVertices;
 	int numberOfVertices;
 
 	// Array of triangles (indices)
