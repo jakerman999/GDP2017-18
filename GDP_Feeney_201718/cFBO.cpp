@@ -1,5 +1,30 @@
 #include "cFBO.h"
 
+// Calls shutdown(), then init()
+bool cFBO::reset(int width, int height, std::string &error)
+{
+	if ( ! this->shutdown() )
+	{
+		error = "Could not shutdown";
+		return false;
+	}
+
+	return this->init( width, height, error );
+}
+
+bool cFBO::shutdown(void)
+{
+	glDeleteTextures( 1, &(this->colourTexture_0_ID) );
+	glDeleteTextures( 1, &(this->normalTexture_1_ID) );
+	glDeleteTextures( 1, &(this->vertexWorldPos_2_ID) );
+	glDeleteTextures( 1, &(this->depthTexture_ID) );
+
+	glDeleteFramebuffers( 1, &(this->ID) );
+
+	return true;
+}
+
+
 bool cFBO::init( int width, int height, std::string &error )
 {
 	this->width = width;

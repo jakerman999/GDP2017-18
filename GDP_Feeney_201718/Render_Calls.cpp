@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
+#include <iostream>
+
 
 // HACK
 #include "cFBO.h"
@@ -20,6 +22,27 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO );
 
 // This a simple cached texture binding system
 void setTextureBindings(GLint shaderID, sMeshDrawInfo &theMesh);
+
+// See: http://www.glfw.org/docs/latest/window_guide.html#window_size
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+	if ( ( ::g_myFBO.width != width ) || ( ::g_myFBO.height != height ) )
+	{
+		// Window size has changed, so resize the offscreen frame buffer object
+		std::string error;
+		if ( ! ::g_myFBO.reset( width, height, error ) )
+		{
+			std::cout << "In window_size_callback(), the FBO.reset() call returned an error:" << std::endl;
+			std::cout << "\t" << error << std::endl;
+		}
+		else
+		{
+			std::cout << "Offscreen FBO now: " << width << " x " << height << std::endl;
+		}
+	}
+
+	return;
+}
 
 
 void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime )

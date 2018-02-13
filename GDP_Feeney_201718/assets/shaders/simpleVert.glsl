@@ -34,12 +34,12 @@ uniform int numBonesUsed;
 uniform bool bIsASkinnedMesh;	// True to do the skinned mesh
 
 
-out vec4 color;				// was: vec4
-out vec3 vertNormal;		// Also in "world" (no view or projection)
-out vec3 vecWorldPosition;	// 
-out vec4 uvX2out;			// Added: UV 1 and 2 to fragment
-out vec3 Tangent_out;		// For bump (or normal) mapping
-out vec3 Bitangent_out;	// For bump (or normal) mapping
+out vec4 fColor;				// was: vec4
+out vec3 fVertNormal;		// Also in "world" (no view or projection)
+out vec3 fVecWorldPosition;	// 
+out vec4 fUV_X2;			// Added: UV 1 and 2 to fragment
+out vec3 fTangent;		// For bump (or normal) mapping
+out vec3 fBitangent;	// For bump (or normal) mapping
 
 
 layout(std140) uniform NUB_perFrame
@@ -77,7 +77,7 @@ void main()
 	gl_Position = MVP * vec4(vertPosition, 1.0f);
 	
 	// Calculate vertex and normal based on ONLY world 
-	vecWorldPosition = vec3( matModel * vec4(vertPosition, 1.0f) ).xyz;
+	fVecWorldPosition = vec3( matModel * vec4(vertPosition, 1.0f) ).xyz;
 	
 	// Inv Tran - strips translation and scale from model transform
 	// Alternative is you pass a "rotation only" model mat4
@@ -85,18 +85,18 @@ void main()
 	
 	// Was: MVP * vNorm;
 	// This normal is in "world space" but only has rotation
-	vertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;	
+	fVertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;	
 
 //	mat4 mWorldInverseTranspose = inverse(transpose(matModel));
 //	vertNormal = vec3( mWorldInverseTranspose * vec4(vNorm, 1.0f) ).xyz;		
 	
 	
-    color = vCol;
-	uvX2out = uvX2;			// Sent to fragment shader
+    fColor = vCol;
+	fUV_X2 = uvX2;			// Sent to fragment shader
 
 	// Pass the tangent and bi-tangent out to the fragment shader
-	Tangent_out = vTangent;
-	Bitangent_out = vBitangent;
+	fTangent = vTangent;
+	fBitangent = vBitangent;
 
 }
 

@@ -28,6 +28,9 @@ public:
 
 	// Inits the FBP
 	bool init(int width, int height, std::string &error);
+	bool shutdown(void);
+	// Calls shutdown(), then init()
+	bool reset(int width, int height, std::string &error);
 	
 	void clearBuffers(bool bClearColour = true, bool bClearDepth = true);
 

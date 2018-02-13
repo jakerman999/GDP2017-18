@@ -75,11 +75,17 @@ cPhysicsWorld*	g_pPhysicsWorld = NULL;	// (theMain.cpp)
 
 #include "cFrameBuffer.h"
 
+bool g_IsWindowFullScreen = false;
+GLFWwindow* g_pGLFWWindow = NULL;
+
 
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
 }
+
+
+
 
 
 // Moved to GLFW_keyboardCallback.cpp
@@ -88,8 +94,8 @@ static void error_callback(int error, const char* description)
 int main(void)
 {
 
-	GLFWwindow* pGLFWWindow;
-    glfwSetErrorCallback(error_callback);
+	//GLFWwindow* pGLFWWindow;		// Moved to allow switch from windowed to full-screen
+	glfwSetErrorCallback(error_callback);
 
 
 
@@ -153,19 +159,25 @@ int main(void)
 
 	// C++ string
 	// C no strings. Sorry. char    char name[7] = "Michael\0";
-    pGLFWWindow = glfwCreateWindow( width, height, 
-							        title.c_str(), 
-							        NULL, NULL);
-    if ( ! pGLFWWindow )
+    ::g_pGLFWWindow = glfwCreateWindow( width, height, 
+							            title.c_str(), 
+							            NULL, NULL);
+    if ( ! ::g_pGLFWWindow )
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetKeyCallback(pGLFWWindow, key_callback);
-    glfwMakeContextCurrent(pGLFWWindow);
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    glfwSetKeyCallback( ::g_pGLFWWindow, key_callback );
+	// For the FBO to resize when the window changes
+	glfwSetWindowSizeCallback( ::g_pGLFWWindow, window_size_callback );
+
+    glfwMakeContextCurrent( ::g_pGLFWWindow );
+    gladLoadGLLoader( (GLADloadproc) glfwGetProcAddress );
     glfwSwapInterval(1);
+
+
+
 
 	std::cout << glGetString(GL_VENDOR) << " " 
 		<< glGetString(GL_RENDERER) << ", " 
@@ -346,8 +358,8 @@ int main(void)
 	// Texture 
 	::g_pTextureManager = new CTextureManager();
 
-	std::cout << ::g_pTextureManager->getOpenGL_GL_MAX_TEXTURE_IMAGE_UNITS() << std::endl;
-	std::cout << ::g_pTextureManager->getOpenGL_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS() << std::endl;
+	std::cout << "GL_MAX_TEXTURE_IMAGE_UNITS: " << ::g_pTextureManager->getOpenGL_GL_MAX_TEXTURE_IMAGE_UNITS() << std::endl;
+	std::cout << "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: " << ::g_pTextureManager->getOpenGL_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS() << std::endl;
 
 	::g_pTextureManager->setBasePath("assets/textures");
 	if ( ! ::g_pTextureManager->Create2DTextureFromBMPFile("Utah_Teapot_xyz_n_uv_Checkerboard.bmp", true) )
@@ -458,13 +470,14 @@ int main(void)
 	}
 
 
+	setWindowFullScreenOrWindowed( ::g_pGLFWWindow, ::g_IsWindowFullScreen );
 
 
 	// Gets the "current" time "tick" or "step"
 	double lastTimeStep = glfwGetTime();
 
 	// Main game or application loop
-	while ( ! glfwWindowShouldClose(pGLFWWindow) )
+	while ( ! glfwWindowShouldClose(::g_pGLFWWindow) )
     {
 		// Essentially the "frame time"
 		// Now many seconds that have elapsed since we last checked
@@ -502,7 +515,7 @@ int main(void)
 		// Clear colour AND depth buffer
 		g_myFBO.clearBuffers();
 
-		RenderScene( ::g_vecGameObjects, pGLFWWindow, deltaTime );
+		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 
 
 		// Render it again, but point the the FBO texture... 
@@ -536,17 +549,17 @@ int main(void)
 		
 		// Set the sampler in the shader to the same texture unit (20)
 
-		glfwGetFramebufferSize(pGLFWWindow, &width, &height);
+		glfwGetFramebufferSize(::g_pGLFWWindow, &width, &height);
 
 		GLint screenWidthLocID = glGetUniformLocation(sexyShaderID, "screenWidth");
 		GLint screenHeightLocID = glGetUniformLocation(sexyShaderID, "screenHeight");
-		glUniform1f(screenWidthLocID, width);
-		glUniform1f(screenHeightLocID, height);
+		glUniform1f(screenWidthLocID, (float)width);
+		glUniform1f(screenHeightLocID, (float)height);
 
 		std::vector< cGameObject* >  vecCopy2ndPass;
 		// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 		vecCopy2ndPass.push_back( ::g_vecGameObjects[0] );
-		RenderScene(vecCopy2ndPass, pGLFWWindow, deltaTime );
+		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
 	
 
 		std::stringstream ssTitle;
@@ -562,18 +575,18 @@ int main(void)
 		//	<< EulerAngle.y << ", "
 		//	<< EulerAngle.z;
 
-		glfwSetWindowTitle( pGLFWWindow, ssTitle.str().c_str() );
+		glfwSetWindowTitle( ::g_pGLFWWindow, ssTitle.str().c_str() );
 
 		// "Presents" what we've drawn
 		// Done once per scene 
-        glfwSwapBuffers(pGLFWWindow);
+        glfwSwapBuffers(::g_pGLFWWindow);
         glfwPollEvents();
 
 
     }// while ( ! glfwWindowShouldClose(window) )
 
 
-    glfwDestroyWindow(pGLFWWindow);
+    glfwDestroyWindow(::g_pGLFWWindow);
     glfwTerminate();
 
 	// 
@@ -612,31 +625,57 @@ void DrawDebugLightingSpheres(void)
 	return;
 }
 
-//// Used by the light drawing thingy
-//// Will draw a wireframe sphere at this location with this colour
-//void DrawDebugSphere(glm::vec3 location, glm::vec4 colour, 
-//					 float scale)
-//{
-//	// TODO: the magic
-//	glm::vec3 oldPosition = ::g_pTheDebugSphere->position;
-//	glm::vec4 oldDiffuse = ::g_pTheDebugSphere->diffuseColour;
-//	bool bOldIsWireFrame = ::g_pTheDebugSphere->bIsWireFrame;
-//
-//	::g_pTheDebugSphere->position = location;
-//	::g_pTheDebugSphere->diffuseColour = colour;
-//	::g_pTheDebugSphere->bIsWireFrame = true;
-//	::g_pTheDebugSphere->scale = scale;
-//
-//	DrawObject( ::g_pTheDebugSphere );
-//
-//	::g_pTheDebugSphere->position = oldPosition;
-//	::g_pTheDebugSphere->diffuseColour = oldDiffuse;
-//	::g_pTheDebugSphere->bIsWireFrame = bOldIsWireFrame;
-//
-//	return;
-//}
 
 
+void setWindowFullScreenOrWindowed( GLFWwindow* pTheWindow, bool IsFullScreen )
+{
+	// Set full-screen or windowed
+	if ( ::g_IsWindowFullScreen )
+	{	
+		// Find the size of the primary monitor
+		GLFWmonitor* pPrimaryScreen = glfwGetPrimaryMonitor();
+		const GLFWvidmode* pPrimMonVidMode = glfwGetVideoMode( pPrimaryScreen );
+		// Set this window to full screen, matching the size of the monitor:
+		glfwSetWindowMonitor( pTheWindow, pPrimaryScreen, 
+							  0, 0,				// left, top corner 
+							  pPrimMonVidMode->width, pPrimMonVidMode->height, 
+							  GLFW_DONT_CARE );	// refresh rate
+
+		std::cout << "Window now fullscreen at ( " 
+			<< pPrimMonVidMode->width << " x " 
+			<< pPrimMonVidMode->height << " )" << std::endl;
+	}
+	else
+	{
+		// Make the screen windowed. (i.e. It's CURRENTLY full-screen)
+		// NOTE: We aren't saving the "old" windowed size - you might want to do that...
+		// HACK: Instead, we are taking the old size and mutiplying it by 75% 
+		// (the thinking is: the full-screen switch always assumes we want the maximum
+		//	resolution - see code above - but when we make that maximum size windowed,
+		//  it's going to be 'too big' for the screen)
+		GLFWmonitor* pPrimaryScreen = glfwGetPrimaryMonitor();
+		const GLFWvidmode* pPrimMonVidMode = glfwGetVideoMode( pPrimaryScreen );
+
+		// Put the top, left corner 10% of the size of the full-screen
+		int topCornerTop = (int)( (float)pPrimMonVidMode->height * 0.1f );
+		int topCornerLeft = (int)( (float)pPrimMonVidMode->width * 0.1f );
+		// Make the width and height 75% of the full-screen resolution
+		int height = (int)( (float)pPrimMonVidMode->height * 0.75f );
+		int width = (int)( (float)pPrimMonVidMode->width * 0.75f );
+
+		glfwSetWindowMonitor( pTheWindow, NULL,		// This NULL makes the screen windowed
+							  topCornerLeft, topCornerTop,				// left, top corner 
+							  width, height, 
+							  GLFW_DONT_CARE );	// refresh rate
+
+		std::cout << "Window now windowed at ( " 
+			<< width << " x " << height << " )" 
+			<< " and offset to ( "
+			<< topCornerLeft << ", " << topCornerTop << " )"
+			<< std::endl;
+	}
+	return;
+}
 
 
 

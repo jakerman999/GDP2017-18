@@ -15,6 +15,19 @@ bool areAnyModifierKeysDown(int mods);
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 
+	// Fullscreen to windowed mode on the PRIMARY monitor (whatever that is)
+	if ( isAltKeyDown(mods, true) && key == GLFW_KEY_ENTER )
+	{
+		if ( action == GLFW_PRESS )
+		{
+			::g_IsWindowFullScreen = !::g_IsWindowFullScreen;
+
+			setWindowFullScreenOrWindowed( ::g_pGLFWWindow, ::g_IsWindowFullScreen );
+
+		}//if ( action == GLFW_PRESS )
+	}//if ( isAltKeyDown(...
+
+
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
 	const float CAMERASPEED = 10.0f;

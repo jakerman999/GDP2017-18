@@ -1,6 +1,9 @@
 #ifndef _cFrameBuffer_HG_
 #define _cFrameBuffer_HG_
 
+// This **ISN'T** used, currently. 
+// See the cFBO class for the frame buffer that's being used
+
 struct sScreenDesc
 {
 	sScreenDesc() : width(0), height(0) {};

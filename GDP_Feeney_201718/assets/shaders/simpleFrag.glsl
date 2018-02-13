@@ -1,12 +1,18 @@
 // Fragment shader
 #version 400
 
-in vec4 color;					// was vec3
-in vec3 vertNormal;
-in vec3 vecWorldPosition;		
-in vec4 uvX2out;			// Added: UV 1 and 2 to fragment
-							// UV #1 is .xy 
-							// UV #2 is .zw
+
+in vec4 fColor;					
+in vec3 fVertNormal;			// Also in "world" (no view or projection)
+in vec3 fVecWorldPosition;		// 
+in vec4 fUV_X2;					// Added: UV 1 and 2 to fragment
+								// UV #1 is .xy 
+								// UV #2 is .zw
+in vec3 fTangent;		// For bump (or normal) mapping
+in vec3 fBitangent;		// For bump (or normal) mapping
+
+
+
 //uniform vec4 diffuseColour;		// New variable
 
 // gl_FragColor is deprecated after version 120
@@ -169,7 +175,7 @@ void main()
 		//	returning a colour (at that point in the texture)
 		// Note we are using the normals of our skybox object
 		//	to determine the point on the inside of the box
-		vec4 skyRGBA = texture( texSampCube00, vertNormal.xyz );
+		vec4 skyRGBA = texture( texSampCube00, fVertNormal.xyz );
 		
 //		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 //		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
@@ -186,18 +192,18 @@ void main()
 		// Have "eyePosition" (camera eye) in WORLD space
 		
 		// reFLECTion value 
-		vec3 vecReflectEyeToVertex = vecWorldPosition - perFramNUB.eyePosition;
+		vec3 vecReflectEyeToVertex = fVecWorldPosition - perFramNUB.eyePosition;
 		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
-		vec3 vecReflect = reflect( vecReflectEyeToVertex, vertNormal.xyz );
+		vec3 vecReflect = reflect( vecReflectEyeToVertex, fVertNormal.xyz );
 		// Look up colour for reflection
 //		vec4 rgbReflection = texture( texSampCube00, vecReflect );
-		vec4 rgbReflection = texture( texSampCube00, vertNormal.xyz );
+		vec4 rgbReflection = texture( texSampCube00, fVertNormal.xyz );
 
 	
 		
-		vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - vecWorldPosition;
+		vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - fVecWorldPosition;
 		vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
-		vec3 vecRefract = refract( vecReFRACT_EyeToVertex, vertNormal.xyz, 
+		vec3 vecRefract = refract( vecReFRACT_EyeToVertex, fVertNormal.xyz, 
                                    coefficientRefract );
 		// Look up colour for reflection
 		vec4 rgbRefraction = texture( texSampCube00, vecRefract );
@@ -216,7 +222,7 @@ void main()
 	
 	// ****************************************************************/
 	//uniform sampler2D myAmazingTexture00;
-	vec2 theUVCoords = uvX2out.xy;		// use UV #1 of vertex
+	vec2 theUVCoords = fUV_X2.xy;		// use UV #1 of vertex
 		
 	vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
 	vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
@@ -261,11 +267,11 @@ void main()
 		// Old version, which used 'global' diffuse and specular
 		//gl_FragColor.rgb += calcLightColour( vertNormal, vecWorldPosition, index );
 		//fragColourOut[0].rgb += calcLightColour( vertNormal, 					
-		fragOut.colour.rgb += calcLightColour( vertNormal, 					
-		                                      vecWorldPosition, 
-											  index, 
-		                                      matDiffuse, 
-											  materialSpecular );
+		fragOut.colour.rgb += calcLightColour( fVertNormal, 					
+		                                       fVecWorldPosition, 
+		                                       index, 
+		                                       matDiffuse, 
+		                                       materialSpecular );
 	}
 
 	// Add the ambient here (AFTER the lighting)
@@ -285,9 +291,9 @@ void main()
 	// Write to the "normal" layer of the G-Buffer
 	// (Colour_attachment_1)
 	//fragColourOut[1].rgb = vertNormal.xyz;
-	fragOut.normal.rgb = vertNormal.xyz;
+	fragOut.normal.rgb = fVertNormal.xyz;
 
-	fragOut.vertexWorldPos.xyz = vecWorldPosition.xyz;
+	fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
 	
 	return;
 }

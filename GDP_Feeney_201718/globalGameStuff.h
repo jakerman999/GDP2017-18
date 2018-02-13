@@ -66,5 +66,9 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 
 extern cGameObject* g_pSkyBoxObject;	// (theMain.cpp)
 
+extern	GLFWwindow* g_pGLFWWindow;	// In TheMain.cpp
+extern bool g_IsWindowFullScreen;	// false at start
+void setWindowFullScreenOrWindowed( GLFWwindow* pTheWindow, bool IsFullScreen );	// In TheMain.cpp
+
 
 #endif
