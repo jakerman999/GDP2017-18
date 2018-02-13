@@ -139,8 +139,8 @@ vec3 calcLightColour( in vec3 vecNormal,
 /*****************************************************/
 
 
-const float CALCULATE_LIGHTING = 0.5f;
-const float DONT_CALCULATE_LIGHTING = 0.0f;
+const float CALCULATE_LIGHTING = 1.0f;
+const float DONT_CALCULATE_LIGHTING = 0.25f;
 
 
 void main()
@@ -169,19 +169,13 @@ void main()
 		vec4 theNormalAtThisPixel = texture( texFBONormal2D, textCoords).rgba;
 		vec3 theVertLocWorldAtThisPixel = texture( texFBOVertexWorldPos2D, textCoords).rgb;
 
-//		if ( theNormalAtThisPixel.a == CALCULATE_LIGHTING )
-//		{
-//			// Return the colour as it is on the colour FBO
-//			fragOut.colour.rgb = vec3(1.0f, 1.0f, 1.0f);	// theColourAtThisPixel.rgb;
-//			fragOut.colour.a = 1.0f;
-//			return;
-//		}
-//		if ( theNormalAtThisPixel.a < 0.0f )	// fragOut.normal.a = -1.0
-//		{
-//			fragOut.colour.rgb = vec3(0.0f, 1.0f, 0.0f);	// theColourAtThisPixel.rgb;
-//			fragOut.colour.a = 1.0f;
-//			return;
-//		}
+		if ( theNormalAtThisPixel.a != CALCULATE_LIGHTING )
+		{
+			// Return the colour as it is on the colour FBO
+			fragOut.colour.rgb = theColourAtThisPixel.rgb;
+			fragOut.colour.a = 1.0f;
+			return;
+		}
 
 		// ELSE: do the lighting...
 
@@ -202,9 +196,6 @@ void main()
 
 		fragOut.colour.a = 1.0f;
 
-		fragOut.colour.rgb *= 0.001f;
-		fragOut.colour.rgb += theNormalAtThisPixel.aaa;
-
 		return;
 	}
 
@@ -218,8 +209,9 @@ void main()
 //		fragColourOut[0] * 1.5f;	// Room too bright
 		fragOut.colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
 		fragOut.colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
-		fragOut.colour.rgb *= 1.5f;	// Room too bright
+//		fragOut.colour.rgb *= 1.5f;	// Room too bright
 
+		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
 		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
 
 		return;		// Immediate return
@@ -238,6 +230,7 @@ void main()
 //		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
 		fragOut.colour = vec4(skyRGBA.rgb, 1.0f);
 
+		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
 		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
 
 		return;	
@@ -275,6 +268,7 @@ void main()
 		fragOut.colour = (rgbReflection * reflectBlendRatio) + 
 		                 (rgbRefraction * refractBlendRatio);
 		
+		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
 		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
 		return;	
 	}	

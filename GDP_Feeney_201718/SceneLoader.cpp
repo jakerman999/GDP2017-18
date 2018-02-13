@@ -28,6 +28,9 @@ void LoadModelsIntoScene(void)
 		meshInfo.scale = 1.0f;
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
 		meshInfo.name = "Ship_Pack_WIP_mod - command_xyz_n_uv.obj";
+		//meshInfo.debugDiffuseColour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		//meshInfo.bUseDebugColour = true;
+		//meshInfo.bDrawAsWireFrame = true;
 		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f));
 		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f));
 		pTempGO->vecMeshes.push_back(meshInfo);

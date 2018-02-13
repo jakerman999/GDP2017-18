@@ -40,7 +40,7 @@ bool cFBO::init( int width, int height, std::string &error )
 	glBindTexture(GL_TEXTURE_2D, this->colourTexture_0_ID);
 
 //	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8,		// 8 bits per colour
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 8 bits per colour
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F,		// 8 bits per colour
 				   this->width,				// g_FBO_SizeInPixes
 				   this->height);			// g_FBO_SizeInPixes
 
@@ -64,7 +64,7 @@ bool cFBO::init( int width, int height, std::string &error )
 	glGenTextures(1, &( this->vertexWorldPos_2_ID ));		//g_FBO_colourTexture
 	glBindTexture(GL_TEXTURE_2D, this->vertexWorldPos_2_ID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 32 bits per "colour"
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F,		// 32 bits per "colour"
 				   this->width,				// g_FBO_SizeInPixes
 				   this->height);			// g_FBO_SizeInPixes
 
