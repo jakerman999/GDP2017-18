@@ -193,7 +193,8 @@ int main(void)
 	cShaderManager::cShader fragShader;
 
 	vertShader.fileName = "simpleVert.glsl";	
-	fragShader.fileName = "simpleFrag.glsl"; 
+	//fragShader.fileName = "simpleFrag.glsl"; 
+	fragShader.fileName = "simpleFragDeferred.glsl"; 
 
 	::g_pShaderManager->setBasePath( "assets//shaders//" );
 
@@ -527,6 +528,9 @@ int main(void)
 
 		glUniform1i(bIsSecondPassLocID, GL_TRUE);
 		
+		//uniform sampler2D texFBONormal2D;
+		//uniform sampler2D texFBOVertexWorldPos2D;
+
 		GLint texFBOColour2DTextureUnitID = 10;
 		GLint texFBOColour2DLocID = glGetUniformLocation(sexyShaderID, "texFBOColour2D");
 		GLint texFBONormal2DTextureUnitID = 11;
@@ -541,11 +545,11 @@ int main(void)
 
 		glActiveTexture(GL_TEXTURE0 + texFBONormal2DTextureUnitID);
 		glBindTexture(GL_TEXTURE_2D, g_myFBO.normalTexture_1_ID);
-		glUniform1i(texFBONormal2DTextureUnitID, texFBONormal2DTextureUnitID);
+		glUniform1i(texFBONormal2DLocID, texFBONormal2DTextureUnitID);
 		
 		glActiveTexture(GL_TEXTURE0 + texFBOWorldPosition2DTextureUnitID);
 		glBindTexture(GL_TEXTURE_2D, g_myFBO.vertexWorldPos_2_ID);
-		glUniform1i(texFBOWorldPosition2DTextureUnitID, texFBOWorldPosition2DTextureUnitID);
+		glUniform1i(texFBOWorldPosition2DLocID, texFBOWorldPosition2DTextureUnitID);
 		
 		// Set the sampler in the shader to the same texture unit (20)
 

@@ -52,7 +52,7 @@ bool cFBO::init( int width, int height, std::string &error )
 	glGenTextures(1, &( this->normalTexture_1_ID ));		//g_FBO_colourTexture
 	glBindTexture(GL_TEXTURE_2D, this->normalTexture_1_ID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F,		// 32 bits per "colour"
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F,		// 32 bits per "colour"
 				   this->width,				// g_FBO_SizeInPixes
 				   this->height);			// g_FBO_SizeInPixes
 
