@@ -22,13 +22,22 @@
 
 cVAOMeshManager::cVAOMeshManager()
 {
+	InitializeCriticalSection( &(this->m_CS_mapNumberToName) );
+	InitializeCriticalSection( &(this->m_CS_mapNameToVAO) );
+	InitializeCriticalSection( &( this->m_CS_mapNameToMesh ) );
+
+	this->m_mapNumberToName_IsLocked = false;
+	this->m_mapNameToVAO_Is_Locked = false;
+	this->m_mapNameToMesh_Is_Locked = false;
 
 	return;
 }
 
 cVAOMeshManager::~cVAOMeshManager()
 {
-
+	DeleteCriticalSection( &( this->m_CS_mapNumberToName ));
+	DeleteCriticalSection( &( this->m_CS_mapNameToVAO ));
+	DeleteCriticalSection( &( this->m_CS_mapNameToMesh ));
 	return;
 }
 
@@ -271,7 +280,11 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 	theVAOInfo.scaleForUnitBBox = theMesh.scaleForUnitBBox;
 
 	// Store the VAO info by mesh name
+	this->Lock_mapNameToVAO();
+	//EnterCriticalSection( & this->m_CS_mapNameToVAO );
 	this->m_mapNameToVAO[ theMesh.name ] = theVAOInfo;
+	//LeaveCriticalSection( & this->m_CS_mapNameToVAO );
+	this->UnLock_mapNameToVAO();
 
 	//std::string myArray[10];
 	//myArray[3] = "Michael"
@@ -297,7 +310,9 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 	if (bKeepMesh)
 	{	// Make a COPY for later...
 		//std::map< std::string, cMesh > m_mapNameToMesh;
+		this->Lock_mapNameToMesh();
 		this->m_mapNameToMesh[theMesh.name] = theMesh;
+		this->UnLock_mapNameToMesh();
 	}//if (bKeepMesh)
 
 	return true;
@@ -306,16 +321,19 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 bool cVAOMeshManager::lookupMeshFromName(std::string name, cMesh &theMesh)
 {	
 	// Search for mesh by name using iterator based find
+	this->Lock_mapNameToMesh();
 	std::map< std::string, cMesh >::iterator itMesh =
 								this->m_mapNameToMesh.find(name);
 
 	// Find it? 
 	if (itMesh == this->m_mapNameToMesh.end())
 	{	// Nope. 
+		this->UnLock_mapNameToMesh();
 		return false;
 	}
 	// Found the mesh (DIDN'T return .end())
 	theMesh = itMesh->second;		// "return" the mesh by reference 
+	this->UnLock_mapNameToMesh();
 	return true;
 }
 
@@ -327,17 +345,82 @@ bool cVAOMeshManager::lookupVAOFromName( std::string name, sVAOInfo &theVAOInfo 
 
 	 //	std::map< std::string, sVAOInfo > m_mapNameToVAO;
 	// "Interator" is a class that can access inside a container
+	this->Lock_mapNameToVAO();
 	std::map< std::string, sVAOInfo >::iterator itVAO = this->m_mapNameToVAO.find( name );
 
 	// Did I find something?
 	if ( itVAO == this->m_mapNameToVAO.end() )
 	{	// ON NO! we DIDN'T!
+		this->UnLock_mapNameToVAO();
 		return false;
 	}
 	// DID find what we were looking for, so 
 	//	ISN'T pointing to the "end()" built-in iterator
 	theVAOInfo = itVAO->second;		// Because the "second" thing is the sVAO
+	this->UnLock_mapNameToVAO();
 
 	return true;
 }
 
+bool cVAOMeshManager::IsLocked_mapNumberToName(void)
+{
+	return this->m_mapNumberToName_IsLocked;
+}
+
+bool cVAOMeshManager::IsLocked_mapNameToVAO(void)
+{
+	return this->m_mapNameToVAO_Is_Locked;
+}
+
+bool cVAOMeshManager::IsLocked_mapNameToMesh(void)
+{
+	return this->m_mapNameToMesh_Is_Locked;
+}
+
+// STARTOF: mapNumberToName
+void cVAOMeshManager::Lock_mapNumberToName(void)
+{
+	//EnterCriticalSection( &(this->m_CS_mapNumberToName) );
+	this->m_mapNumberToName_IsLocked = true;
+	return;
+}
+
+void cVAOMeshManager::UnLock_mapNumberToName(void)
+{
+	this->m_mapNumberToName_IsLocked = false;
+	//LeaveCriticalSection( &(this->m_CS_mapNumberToName) );
+	return;
+}
+// ENDOF: mapNumberToName
+
+// STARTOF: mapNameToVAO
+void cVAOMeshManager::Lock_mapNameToVAO(void)
+{
+	//EnterCriticalSection(&( this->m_CS_mapNameToVAO ));
+	this->m_mapNameToVAO_Is_Locked = true;
+	return;
+}
+
+void cVAOMeshManager::UnLock_mapNameToVAO(void)
+{
+	this->m_mapNameToVAO_Is_Locked = false;
+	//LeaveCriticalSection(&( this->m_CS_mapNameToVAO ));
+	return;
+}
+// ENDOF: mapNameToVAO
+
+// STARTOF: mapNameToMesh
+void cVAOMeshManager::Lock_mapNameToMesh(void)
+{
+	//EnterCriticalSection( &(this->m_CS_mapNameToMesh) );
+	this->m_mapNameToMesh_Is_Locked = true;
+	return;
+}
+
+void cVAOMeshManager::UnLock_mapNameToMesh(void)
+{
+	this->m_mapNameToMesh_Is_Locked = false;
+	//LeaveCriticalSection(&( this->m_CS_mapNameToMesh ));
+	return;
+}
+// ENDOF: mapNameToMesh

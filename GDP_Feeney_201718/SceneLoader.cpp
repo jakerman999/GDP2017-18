@@ -17,6 +17,31 @@ void LoadModelsIntoScene(void)
 {
 //	std::vector< cGameObject* >  g_vecGameObjects;
 
+	//{	// ReallyBigShip
+	//	cGameObject* pTempGO = new cGameObject();
+	//	pTempGO->friendlyName = "ReallyBigShip";
+	//	cPhysicalProperties physState;
+	//	physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
+	//	physState.mass = physState.inverseMass = 0.0f;	// Infinite
+	//	//physState.position.z = -10.0f;
+	//	//physState.position.y = 30.0f;
+	//	pTempGO->SetPhysState(physState);
+
+	//	sMeshDrawInfo meshInfo;
+	//	meshInfo.scale = 1.0f;
+	//	meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+	//	meshInfo.name = "ReallyBigShip";
+	//	meshInfo.debugDiffuseColour = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	//	meshInfo.bUseDebugColour = true;
+	//	meshInfo.bDrawAsWireFrame = true;
+	//	meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f));
+	//	meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f));
+	//	pTempGO->vecMeshes.push_back(meshInfo);
+
+	//	::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	//}	
+
+
 	{
 		cGameObject* pTempGO = new cGameObject();
 		cPhysicalProperties physState;

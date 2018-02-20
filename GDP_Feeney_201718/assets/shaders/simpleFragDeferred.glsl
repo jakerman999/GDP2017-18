@@ -76,6 +76,8 @@ const int NUMBEROFLIGHTS = 100;
 
 uniform sLightDesc myLight[NUMBEROFLIGHTS];
 
+uniform int theLightId;
+
 //uniform vec3 eyePosition;	// Camera position
 
 uniform bool bIsDebugWireFrameObject;
@@ -189,6 +191,13 @@ void main()
 												   theColourAtThisPixel, 
 												   materialSpecular );
 		}
+
+		//fragOut.colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
+		//										   theVertLocWorldAtThisPixel, 
+		//										   theLightId, 
+		//										   theColourAtThisPixel, 
+		//										   materialSpecular );
+
 
 		//fragOut.colour.r += theNormalAtThisPixel.a;
 

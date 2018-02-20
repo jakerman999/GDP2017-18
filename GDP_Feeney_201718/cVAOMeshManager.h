@@ -11,6 +11,9 @@ class cMesh;		// Forward declare
 
 #include <map>		// "dictonary" or PHP array
 
+#define WIN32_LEAN_AND_MEAN  
+#include <Windows.h>		// For the critical sections
+
 #include "sVAOInfo.h"
 
 //struct sVAOInfo
@@ -58,18 +61,37 @@ public:
 
 	// Return mesh by name
 	bool lookupMeshFromName( std::string name, cMesh &theMesh);
+	void Lock_mapNumberToName(void);
+	void Lock_mapNameToVAO(void);
+	void Lock_mapNameToMesh(void);
 
-	std::map<int, std::string> mapNumberToName;
+	void UnLock_mapNumberToName(void);
+	void UnLock_mapNameToVAO(void);
+	void UnLock_mapNameToMesh(void);
+
+	bool IsLocked_mapNumberToName(void);
+	bool IsLocked_mapNameToVAO(void);
+	bool IsLocked_mapNameToMesh(void);
+
 private:
+
+	std::map<int, std::string> m_mapNumberToName;
+	bool m_mapNumberToName_IsLocked;
+	CRITICAL_SECTION m_CS_mapNumberToName;
+
 	// Loop up from name to sVAOInfo
 	// 1st is what I'm indexing by (i.e. type)
 	// 2nd is what I'm actually storing (the type)
 	std::map< std::string, sVAOInfo > m_mapNameToVAO;
+	bool m_mapNameToVAO_Is_Locked;
+	CRITICAL_SECTION m_CS_mapNameToVAO;
+
+
 	// The dynamic VAOs
-
-
 	// Meshes that I want to keep around (like the terrain?)
 	std::map< std::string, cMesh > m_mapNameToMesh;
+	bool m_mapNameToMesh_Is_Locked;
+	CRITICAL_SECTION m_CS_mapNameToMesh;
 
 //	sVAOInfo theVAOS[10];
 };

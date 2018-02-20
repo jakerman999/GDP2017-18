@@ -38,6 +38,20 @@ cGameObject* findObjectByUniqueID(unsigned int ID, std::vector<cGameObject*> &ve
 	return NULL;
 }
 
+//class cLoaderThing
+//{
+//	class cMeshLoadData
+//	{	cMeshLoadData : bIsLoadedFromFile(false), bIsLoadedIntoVAO(false) {};
+//		cMesh theMesh;
+//		bool bIsLoadedFromFile;		// false
+//		bool bIsLoadedIntoVAO;		// false
+//	};
+//
+//	cMeshLoadData theMeshesBeingLoaded[100]; 
+//
+//	bool Load3DModelsIntoMeshManager(  string fileName, cMeshLoadData* meshLoad );
+//	void CheckStatusOfLoad(void):
+//};
 
 bool Load3DModelsIntoMeshManager( int shaderID, 
 								  cVAOMeshManager* pVAOManager, 
@@ -47,6 +61,25 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	std::stringstream ssError;
 	bool bAllGood = true;
 
+	{
+		cMesh testMesh;
+		testMesh.name = "ReallyBigShip";
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "basestar_REALLY_BIG.ply", testMesh ) )
+		{ 
+			//std::cout << "Didn't load model" << std::endl;
+			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID, true ) )
+		{
+			//std::cout << "Could not load mesh into VAO" << std::endl;
+			ssError << "Could not load mesh >" << testMesh.name << "< into VAO" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+	}	
 	{
 		cMesh testMesh;
 		testMesh.name = "SmoothSphereRadius1";

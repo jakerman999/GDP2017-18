@@ -187,6 +187,11 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 		}
 	}
 
+	if ( pTheGO->friendlyName == "ReallyBigShip" )
+	{
+		std::cout << "it's the really big ship!" << std::endl;
+	}
+
 	// Go through all meshes, drawing them
 	unsigned int numMeshes = (unsigned int)pTheGO->vecMeshes.size();
 	for ( unsigned int meshIndex = 0; meshIndex != numMeshes; meshIndex++ )

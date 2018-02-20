@@ -507,11 +507,9 @@ int main(void)
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");
 
-		// Direct everything to the FBO
+		 Direct everything to the FBO
 		GLint bIsSecondPassLocID = glGetUniformLocation(sexyShaderID, "bIsSecondPass");
-
 		glUniform1i( bIsSecondPassLocID, GL_FALSE );
-
 		glBindFramebuffer(GL_FRAMEBUFFER, g_myFBO.ID );
 		// Clear colour AND depth buffer
 		g_myFBO.clearBuffers();
@@ -565,6 +563,7 @@ int main(void)
 		vecCopy2ndPass.push_back( ::g_vecGameObjects[0] );
 		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
 	
+//		RenderScene(::g_vecTransparentObjectsOnly, ::g_pGLFWWindow, deltaTime);
 
 		std::stringstream ssTitle;
 //		ssTitle << "Camera (xyz): " 
