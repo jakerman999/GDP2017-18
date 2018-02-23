@@ -41,7 +41,7 @@ void LoadModelsIntoScene(void)
 		meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
 
-		//meshInfo.bDrawAsWireFrame = true;
+		meshInfo.bDrawAsWireFrame = true;
 
 		// Get the mesh name (the one we copied into the VAO) 
 		//	from the skinned mesh loader

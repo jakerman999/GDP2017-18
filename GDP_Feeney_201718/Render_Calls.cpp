@@ -791,6 +791,11 @@ namespace QnDTexureSamplerUtility
 float g_frameTime = 0.0f;
 float g_frameTimeIncrement = -0.01f;
 
+// Good enough for Rock-n-Roll example
+//std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character(FBX2013).FBX";
+//std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX";
+std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+
 	//****************************************************************************************
 //    ___  _    _                      _  __  __           _     
 //   / __|| |__(_) _ _   _ _   ___  __| ||  \/  | ___  ___| |_   
@@ -829,6 +834,7 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 	// vecOffsets is the relative offsets of the bones from each other
 	pTheGO->pSimpleSkinnedMesh->BoneTransform( 
 		                            ::g_frameTime,
+									g_AnimationToPlay,		//**NEW**
 									vecFinalTransformation,		// Final bone transforms for mesh
 									vecObjectBoneTransformation,  // final location of bones
 									vecOffsets );                 // local offset for each bone

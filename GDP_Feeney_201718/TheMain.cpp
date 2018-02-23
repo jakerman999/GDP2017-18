@@ -307,9 +307,6 @@ int main(void)
 
 
 
-
-
-
 	// Get the uniform locations for this shader
 //	mvp_location = glGetUniformLocation(currentProgID, "MVP");		// program, "MVP");
 

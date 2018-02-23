@@ -102,6 +102,15 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		std::cout << "Error: problem loading the skinned mesh" << std::endl;
 	}
+	// Now load another animation file... 
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Fall(FBX2013).fbx" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Backward(FBX2013).fbx" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Forward(FBX2013).FBX" );
+	::g_pSkinnedMesh01->LoadMeshAnimation("assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX" );
+	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX" );
 
 	::g_pSkinnedMesh01->friendlyName = "RPG-Character";
 

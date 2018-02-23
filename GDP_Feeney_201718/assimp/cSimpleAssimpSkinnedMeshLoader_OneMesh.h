@@ -86,7 +86,12 @@ public:
 	//	here. So this meshDrawInfo is the mesh bind pose, really.
 //	bool CreateMeshDrawInfoFromCurrentModel( sMeshDrawInfo &meshDrawInfo );
 
+//	void BoneTransform(float TimeInSeconds, 
+//					   std::vector<glm::mat4> &FinalTransformation, 
+//					   std::vector<glm::mat4> &Globals, 
+//					   std::vector<glm::mat4> &Offsets);
 	void BoneTransform(float TimeInSeconds, 
+					   std::string animationName,		// Now we can pick the animation
 					   std::vector<glm::mat4> &FinalTransformation, 
 					   std::vector<glm::mat4> &Globals, 
 					   std::vector<glm::mat4> &Offsets);
@@ -115,7 +120,14 @@ public:
 
 	const aiNodeAnim* FindNodeAnimationChannel(const aiAnimation* pAnimation, aiString nodeOrBoneName);
 	
-	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4 &parentTransformMatrix);
+	//void ReadNodeHeirarchy(float AnimationTime, 
+	//					   const aiNode* pNode, 
+	//					   const glm::mat4 &parentTransformMatrix);
+
+	void ReadNodeHeirarchy(float AnimationTime, 
+						   std::string animationName,		// Now with more "choose animation"
+						   const aiNode* pNode, 
+						   const glm::mat4 &parentTransformMatrix);
 
 	void LoadBones(const aiMesh* Mesh, std::vector<sVertexBoneData> &Bones);
 	

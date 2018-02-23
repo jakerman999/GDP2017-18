@@ -114,11 +114,11 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string &filename)	//
 	return true;
 }
 
-	const aiScene* pScene;		// "pretty" mesh we update and draw
-	Assimp::Importer mImporter;
+	//const aiScene* pScene;		// "pretty" mesh we update and draw
+	//Assimp::Importer mImporter;
 
-	std::map< std::string /*animationfile*/,
-		      const aiScene* > mapAnimationNameTo_pScene;		// Animations
+	//std::map< std::string /*animationfile*/,
+	//	      const aiScene* > mapAnimationNameTo_pScene;		// Animations
 
 
 bool cSimpleAssimpSkinnedMesh::Initialize(void)
@@ -149,7 +149,12 @@ void cSimpleAssimpSkinnedMesh::sVertexBoneData::AddBoneData(unsigned int BoneID,
 
 // In the original code, these vectors are being passed out into the "character" object.
 // It's unclear what the Globals matrices are actually for...
+//void cSimpleAssimpSkinnedMesh::BoneTransform( float TimeInSeconds, 
+//                                              std::vector<glm::mat4> &FinalTransformation, 
+//								              std::vector<glm::mat4> &Globals, 
+//								              std::vector<glm::mat4> &Offsets)
 void cSimpleAssimpSkinnedMesh::BoneTransform( float TimeInSeconds, 
+											  std::string animationName,		// Now we can pick the animation
                                               std::vector<glm::mat4> &FinalTransformation, 
 								              std::vector<glm::mat4> &Globals, 
 								              std::vector<glm::mat4> &Offsets)
@@ -164,7 +169,7 @@ void cSimpleAssimpSkinnedMesh::BoneTransform( float TimeInSeconds,
 	
 	// use the "animation" file to look up these nodes
 	// (need the matOffset information from the animation file)
-	this->ReadNodeHeirarchy(AnimationTime, this->pScene->mRootNode, Identity);
+	this->ReadNodeHeirarchy(AnimationTime, animationName, this->pScene->mRootNode, Identity);
 
 	FinalTransformation.resize(this->mNumBones);
 	Globals.resize(this->mNumBones);
@@ -266,13 +271,28 @@ unsigned int cSimpleAssimpSkinnedMesh::FindScaling(float AnimationTime, const ai
 	return 0;
 }
 
-void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, 
+void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime, 
+												 std::string animationName, 
+												 const aiNode* pNode,
 												 const glm::mat4 &ParentTransformMatrix)
 {
 	aiString NodeName(pNode->mName.data);
 
-
+// Original version picked the "main scene" animation...
 	const aiAnimation* pAnimation = this->pScene->mAnimations[0];
+
+	// Search for the animation we want... 
+	std::map< std::string, const aiScene* >::iterator itAnimation
+					= mapAnimationNameTo_pScene.find(animationName);
+
+	// Did we find it? 
+	if ( itAnimation != mapAnimationNameTo_pScene.end() )
+	{	
+		// Yes, there is an animation called that...
+		// ...replace the animation with the one we found
+		pAnimation = reinterpret_cast<const aiAnimation*>( itAnimation->second->mAnimations[0] );
+	}
+
 
 	//aiMatrix4x4 NodeTransformation;
 
@@ -331,7 +351,8 @@ void cSimpleAssimpSkinnedMesh::ReadNodeHeirarchy(float AnimationTime, const aiNo
 
 	for ( unsigned int ChildIndex = 0; ChildIndex != pNode->mNumChildren; ChildIndex++ )
 	{
-		this->ReadNodeHeirarchy(AnimationTime, pNode->mChildren[ChildIndex], ObjectBoneTransformation);
+		this->ReadNodeHeirarchy( AnimationTime, animationName,
+								 pNode->mChildren[ChildIndex], ObjectBoneTransformation);
 	}
 
 }

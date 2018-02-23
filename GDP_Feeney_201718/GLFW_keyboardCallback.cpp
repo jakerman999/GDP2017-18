@@ -9,6 +9,8 @@ bool isAltKeyDown( int mods, bool bByItself = true );
 bool areAllModifierKeysUp(int mods);
 bool areAnyModifierKeysDown(int mods);
 
+extern std::string g_AnimationToPlay;
+
 /*static*/ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -157,7 +159,19 @@ bool areAnyModifierKeysDown(int mods);
 		case GLFW_KEY_M:
 			break;
 
-
+		case GLFW_KEY_J:	// Left
+			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX";
+			break;
+		case GLFW_KEY_L:	// Right
+			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX";
+			break;
+		case GLFW_KEY_I:	// Back;
+			break;
+		case GLFW_KEY_K:	// Forward:
+			break;
+		case GLFW_KEY_P:	// Jump
+			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+			break;
 
 
 		}//switch
