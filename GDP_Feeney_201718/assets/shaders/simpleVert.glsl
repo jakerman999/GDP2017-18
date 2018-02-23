@@ -50,7 +50,7 @@ layout(std140) uniform NUB_perFrame
 void main()
 {
     //gl_Position = MVP * vec4(vPos, 0.0, 1.0);	
-	vec3 vertPosition = vPos;
+	vec4 vertPosition = vec4(vPos, 1.0f);
 	
 	mat4 matModel = mModel;
 	
@@ -72,31 +72,72 @@ void main()
 		vertPosition.y += heightChangeXYZ.r * 1000.0f;
 	}
 	
-	// Calculate the model view projection matrix here
-	mat4 MVP = mProjection * mView * matModel;
-	gl_Position = MVP * vec4(vertPosition, 1.0f);
-	
-	// Calculate vertex and normal based on ONLY world 
-	fVecWorldPosition = vec3( matModel * vec4(vertPosition, 1.0f) ).xyz;
-	
-	// Inv Tran - strips translation and scale from model transform
-	// Alternative is you pass a "rotation only" model mat4
-//	mat4 mWorldInTranspose = inverse(transpose(matModel));		/*Now passed in*/
-	
-	// Was: MVP * vNorm;
-	// This normal is in "world space" but only has rotation
-	fVertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;	
 
-//	mat4 mWorldInverseTranspose = inverse(transpose(matModel));
-//	vertNormal = vec3( mWorldInverseTranspose * vec4(vNorm, 1.0f) ).xyz;		
+	// NOT a skinned mesh
+	if ( ! bIsASkinnedMesh )
+	{
+		// Calculate the model view projection matrix here
+		mat4 MVP = mProjection * mView * matModel;
+		//gl_Position = MVP * vec4(vertPosition, 1.0f);
+		gl_Position = MVP * vertPosition;
+	
+		// Calculate vertex and normal based on ONLY world 
+		//fVecWorldPosition = vec3( matModel * vec4(vertPosition, 1.0f) ).xyz;
+		fVecWorldPosition = vec3( matModel * vertPosition ).xyz;
+	
+		// Inv Tran - strips translation and scale from model transform
+		// Alternative is you pass a "rotation only" model mat4
+		//	mat4 mWorldInTranspose = inverse(transpose(matModel));		/*Now passed in*/
+	
+		// Was: MVP * vNorm;
+		// This normal is in "world space" but only has rotation
+		fVertNormal = vec3( mWorldInvTranspose * vec4(vNorm, 1.0f) ).xyz;	
+
+		//	mat4 mWorldInverseTranspose = inverse(transpose(matModel));
+		//	vertNormal = vec3( mWorldInverseTranspose * vec4(vNorm, 1.0f) ).xyz;	
+			
+		// Pass the tangent and bi-tangent out to the fragment shader
+		fTangent = vTangent;
+		fBitangent = vBitangent;
+
+	}//if ( ! bIsASkinnedMesh )
+
+	if ( bIsASkinnedMesh )
+	{
+		// If a single bone... 
+		// mat4 BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
+		
+		mat4 BoneTransform = mat4(1.0f);
+		BoneTransform += bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
+		BoneTransform += bones[ int(vBoneIDs_x4[1]) ] * vBoneWeights_x4[1];
+		BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
+		BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
+				
+	//	matrixWorld = BoneTransform * matrixWorld;
+	
+		vertPosition = BoneTransform * vertPosition;
+		
+		mat4 matMVP = mProjection * mView * mModel;		// m = p * v * m;
+		
+		// Final screen space position	
+		gl_Position = matMVP * vertPosition;	
+		
+		// Additional transformations so lighthing (normal) will work
+		//mat4 matMV = matrixView * matrixWorld;	// model-view matrix
+		//fVecWorldView = vec3(matMV * vertPosition).xyz;
+		
+		mat4 matNormal = inverse( transpose(mModel) );
+		fVertNormal = mat3(matNormal) * normalize(vNorm.xyz);
+		fTangent = 	mat3(matNormal) * normalize(vTangent.xyz);
+		fBitangent = 	mat3(matNormal) * normalize(vBitangent.xyz);
+		
+		fVecWorldPosition = (mModel * vertPosition).xyz;
+
+	}//if ( bIsASkinnedMesh )
 	
 	
     fColor = vCol;
 	fUV_X2 = uvX2;			// Sent to fragment shader
-
-	// Pass the tangent and bi-tangent out to the fragment shader
-	fTangent = vTangent;
-	fBitangent = vBitangent;
 
 }
 

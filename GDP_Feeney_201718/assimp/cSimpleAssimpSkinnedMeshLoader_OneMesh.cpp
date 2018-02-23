@@ -27,16 +27,16 @@ cSimpleAssimpSkinnedMesh::cSimpleAssimpSkinnedMesh(void)
 	this->pScene = 0;
 	this->mNumBones = 0;
 
-	this->m_VBO_ID = 0;				// Vertex buffer object 
+	//this->m_VBO_ID = 0;				// Vertex buffer object 
 	this->m_numberOfVertices = 0;
-	this->m_indexBuf_ID = 0;		// Index buffer referring to VBO
+	//this->m_indexBuf_ID = 0;		// Index buffer referring to VBO
 	this->m_numberOfIndices = 0;
 	this->m_numberOfTriangles = 0;
-	this->m_bVBO_created = false;
+	//this->m_bVBO_created = false;
 
-	this->m_VAO_ID = 0;				// Vertex Array Object
-	this->m_bVAO_created = false;
-	this->m_shaderIDMatchingVAO = 0;
+	//this->m_VAO_ID = 0;				// Vertex Array Object
+	//this->m_bVAO_created = false;
+	//this->m_shaderIDMatchingVAO = 0;
 
 
 	return;
@@ -76,10 +76,19 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string &filename)
 	////aiMesh* pM3 = this->mpScene->mMeshes[3];
 	if ( this->pScene )
 	{
+		this->fileName = filename;
+		// Assume the friendlyName is the same as the file, for now
+		this->friendlyName = filename;
+
 		this->mGlobalInverseTransformation = AIMatrixToGLMMatrix( pScene->mRootNode->mTransformation );
 		this->mGlobalInverseTransformation = glm::inverse(this->mGlobalInverseTransformation);
-		return this->Initialize();
-	}
+		
+		// Calcualte all the bone things
+		if ( ! this->Initialize() )
+		{	// There was an issue doing this calculation
+			return false;
+		}
+	}//if ( this->pScene )
 
 	return true;
 }
@@ -479,6 +488,114 @@ float cSimpleAssimpSkinnedMesh::GetDuration(void)
 
 	return duration; 
 }
+
+
+
+// Returns NULL (0) if there is no mesh at that index
+cMesh* cSimpleAssimpSkinnedMesh::CreateMeshObjectFromCurrentModel( unsigned int meshIndex /*=0*/)
+{
+	if ( this->pScene->mNumMeshes < meshIndex )
+	{	// Doesn't have this mesh
+		return NULL;
+	}
+
+	// Assume there is a valid mesh there
+	cMesh* pTheMesh = new cMesh();
+
+	aiMesh* pAIMesh = this->pScene->mMeshes[meshIndex];
+
+	pTheMesh->numberOfVertices = pAIMesh->mNumVertices;
+
+	pTheMesh->pVertices = new sVertex_xyz_rgba_n_uv2_bt_4Bones[ pTheMesh->numberOfVertices ];
+
+	for ( int vertIndex = 0; vertIndex != pTheMesh->numberOfVertices; vertIndex++ )
+	{
+		sVertex_xyz_rgba_n_uv2_bt_4Bones* pCurVert = &( pTheMesh->pVertices[vertIndex] );
+
+		aiVector3D* pAIVert =&(pAIMesh->mVertices[vertIndex]);
+
+		pCurVert->x = pAIVert->x;
+		pCurVert->y = pAIVert->y;
+		pCurVert->z = pAIVert->z;
+
+		// Colours
+		if ( pAIMesh->GetNumColorChannels() > 0 )
+		{
+			pCurVert->r = this->pScene->mMeshes[0]->mColors[vertIndex]->r;
+			pCurVert->g = this->pScene->mMeshes[0]->mColors[vertIndex]->g;
+			pCurVert->b = this->pScene->mMeshes[0]->mColors[vertIndex]->b;
+			pCurVert->a = this->pScene->mMeshes[0]->mColors[vertIndex]->a;
+		}
+		else
+		{
+			pCurVert->r = pCurVert->g = pCurVert->b = pCurVert->a = 1.0f;
+		}
+
+		// Normals
+		if ( pAIMesh->HasNormals() )
+		{
+			pCurVert->nx = pAIMesh->mNormals[vertIndex].x;
+			pCurVert->ny = pAIMesh->mNormals[vertIndex].y;
+			pCurVert->nx = pAIMesh->mNormals[vertIndex].z;
+		}
+
+		// UVs
+		if ( pAIMesh->GetNumUVChannels() > 0 )
+		{	// Assume 1st channel is the 2D UV coordinates
+			pCurVert->u1 = pAIMesh->mTextureCoords[0][vertIndex].x;
+			pCurVert->v2 = pAIMesh->mTextureCoords[0][vertIndex].y;
+		}
+
+		// Tangents and Bitangents (bi-normals)
+		if ( pAIMesh->HasTangentsAndBitangents() )
+		{
+			pCurVert->tx = pAIMesh->mTangents[vertIndex].x;
+			pCurVert->ty = pAIMesh->mTangents[vertIndex].y;
+			pCurVert->tz = pAIMesh->mTangents[vertIndex].z;
+
+			pCurVert->bx = pAIMesh->mBitangents[vertIndex].x;
+			pCurVert->by = pAIMesh->mBitangents[vertIndex].y;
+			pCurVert->bz = pAIMesh->mBitangents[vertIndex].z;
+		}
+
+		// Bone IDs are being passed OK
+		pCurVert->boneID[0] = this->vecVertexBoneData[vertIndex].ids[0];
+		pCurVert->boneID[1] = this->vecVertexBoneData[vertIndex].ids[1];
+		pCurVert->boneID[2] = this->vecVertexBoneData[vertIndex].ids[2];
+		pCurVert->boneID[3] = this->vecVertexBoneData[vertIndex].ids[3];
+
+		// Weights are being passed OK
+		pCurVert->boneWeights[0] = this->vecVertexBoneData[vertIndex].weights[0];
+		pCurVert->boneWeights[1] = this->vecVertexBoneData[vertIndex].weights[1];
+		pCurVert->boneWeights[2] = this->vecVertexBoneData[vertIndex].weights[2];
+		pCurVert->boneWeights[3] = this->vecVertexBoneData[vertIndex].weights[3];
+
+
+	}//for ( int vertIndex
+
+	// Triangles
+	pTheMesh->numberOfTriangles = pAIMesh->mNumFaces;
+
+	pTheMesh->pTriangles = new cTriangle[pTheMesh->numberOfTriangles];
+
+	for ( unsigned int triIndex = 0; triIndex != pTheMesh->numberOfTriangles; triIndex++ )
+	{
+		aiFace* pAIFace = &(pAIMesh->mFaces[triIndex]);
+
+		pTheMesh->pTriangles[triIndex].vertex_ID_0 = pAIFace->mIndices[0];
+		pTheMesh->pTriangles[triIndex].vertex_ID_1 = pAIFace->mIndices[1];
+		pTheMesh->pTriangles[triIndex].vertex_ID_2 = pAIFace->mIndices[2];
+
+	}//for ( unsigned int triIndex...
+
+	pTheMesh->name = this->friendlyName;
+
+	pTheMesh->CalculateExtents();
+
+	return pTheMesh;
+}
+
+
 
 //// Creates a VBO, loads the current mesh, then creates a VAO for the current VBO+shader
 ////bool cAssimpMesh::CreateVBOandVOAfromCurrentMesh(int shaderID, unsigned int &VBO_ID, unsigned int &VAO_ID )

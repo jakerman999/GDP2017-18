@@ -111,9 +111,6 @@
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="cModelAssetLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Persist\cPersist.cpp">
       <Filter>Persist</Filter>
     </ClCompile>
@@ -246,6 +243,9 @@
     <ClCompile Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp">
       <Filter>Models\AssimpFBX</Filter>
     </ClCompile>
+    <ClCompile Include="cModelAssetLoader.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
@@ -271,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="Texture\CTextureFromBMP.h">
       <Filter>Source Files\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="cModelAssetLoader.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Persist\cPersist.h">
       <Filter>Persist</Filter>
@@ -418,6 +415,9 @@
     </ClInclude>
     <ClInclude Include="sVertex_xyz_rgba_n_uv2_bt_4Bones.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cModelAssetLoader.h">
+      <Filter>Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

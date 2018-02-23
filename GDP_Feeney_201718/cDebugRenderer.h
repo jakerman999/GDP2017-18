@@ -32,6 +32,7 @@ public:
 	bool resizeBufferForLines(unsigned int newNumberOfLines);
 	bool resizeBufferForPoints(unsigned int newNumberOfPoints);
 
+
 	// Renders scene
 	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
 private:

@@ -15,6 +15,9 @@
 //#include "vert_XYZ_RGBA_N_STU_TanBi_4Bones.h"
 #include "../sVertex_xyz_rgba_n_uv2_bt_4Bones.h"
 
+// Used by the game object and the rendering
+#include "../cMesh.h"
+
 
 class cSimpleAssimpSkinnedMesh 
 {
@@ -39,17 +42,17 @@ private:
 
 public:
 	// Mesh and VAO and VBO infor
-	unsigned int m_VBO_ID;				// Vertex buffer object 
+	//unsigned int m_VBO_ID;				// Vertex buffer object 
 	unsigned int m_numberOfVertices;
-	unsigned int m_indexBuf_ID;			// Index buffer referring to VBO
+	//unsigned int m_indexBuf_ID;			// Index buffer referring to VBO
 	unsigned int m_numberOfIndices;
 	unsigned int m_numberOfTriangles;
-	bool m_bVBO_created;
-	// Remember: a VAO is a VBO+shaderProgram combination (i.e. you need 1 VAO ++PER++ VBO+shaderID)
-	// (this is only an issue if you are using mulitple shaders; if you are using a single "uber" shader, you're fine)
-	unsigned int m_VAO_ID;				// Vertex Array Object
-	unsigned int m_shaderIDMatchingVAO;	// The shader prod ID matching this VBO
-	bool m_bVAO_created;
+	//bool m_bVBO_created;
+	//// Remember: a VAO is a VBO+shaderProgram combination (i.e. you need 1 VAO ++PER++ VBO+shaderID)
+	//// (this is only an issue if you are using mulitple shaders; if you are using a single "uber" shader, you're fine)
+	//unsigned int m_VAO_ID;				// Vertex Array Object
+	//unsigned int m_shaderIDMatchingVAO;	// The shader prod ID matching this VBO
+	//bool m_bVAO_created;
 //	// Actual vertex data
 //	vert_XYZ_RGBA_N_STU_TanBi_4Bones* m_pVertexData;
 
@@ -59,6 +62,9 @@ public:
 
 	bool LoadMeshFromFile(const std::string &filename);		// mesh we draw
 	bool LoadMeshAnimation(const std::string &filename);	// Only want animations
+
+	std::string fileName;
+	std::string friendlyName;
 
 	const aiScene* pScene;		// "pretty" mesh we update and draw
 	Assimp::Importer mImporter;
@@ -71,7 +77,9 @@ public:
 	// Creates a VBO, loads the current mesh, then creates a VAO for the current VBO+shader
 //	bool CreateVBOfromCurrentMesh(void);
 //	bool CreateVBOandVOAfromCurrentMesh( int shaderProgID, std::string &error );
-	bool CreateMeshObjectFromCurrentModel(void);
+
+	// Returns NULL (0) if there is no mesh at that index
+	cMesh* CreateMeshObjectFromCurrentModel( unsigned int meshIndex = 0 );
 
 	void BoneTransform(float TimeInSeconds, 
 					   std::vector<glm::mat4> &FinalTransformation, 

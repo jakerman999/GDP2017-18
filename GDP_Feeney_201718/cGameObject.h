@@ -16,6 +16,8 @@
 
 #include "sMeshDrawInfo.h"
 
+class cSimpleAssimpSkinnedMesh;	// Forward declare
+
 class cGameObject : public iPhysicalObject
 {
 public:
@@ -73,6 +75,9 @@ public:
 	//void pushRenderingState(void);
 	//// Ignores call if nothing on stack
 	//void popRenderingState(void);
+
+	// If NULL, then object ISN'T a skinned mesh
+	cSimpleAssimpSkinnedMesh* pSimpleSkinnedMesh;
 	
 private:
 	unsigned int m_UniqueID;

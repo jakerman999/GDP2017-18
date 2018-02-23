@@ -25,7 +25,6 @@
 #include "cShaderManager.h" 
 #include "cGameObject.h"
 #include "cVAOMeshManager.h"
-#include "cModelAssetLoader.h"
 
 
 //#include "Physics/Physics.h"	// Physics collision detection functions
@@ -40,7 +39,6 @@
 
 #include "cFBO.h" 
 
-#include "assimp/cAssimpBasic.h"
 
 cFBO g_myFBO;
 
@@ -64,6 +62,9 @@ cLightManager*		g_pLightManager = 0;
 
 CTextureManager*		g_pTextureManager = 0;
 
+cModelAssetLoader*		g_pModelAssetLoader = NULL;
+
+
 cDebugRenderer*			g_pDebugRenderer = 0;
 
 
@@ -71,6 +72,8 @@ cDebugRenderer*			g_pDebugRenderer = 0;
 cAABBBroadPhase* g_terrainAABBBroadPhase = 0;
 
 cPhysicsWorld*	g_pPhysicsWorld = NULL;	// (theMain.cpp)
+
+
 
 
 #include "cFrameBuffer.h"
@@ -259,6 +262,8 @@ int main(void)
 		std::cout << error << std::endl;
 	}
 
+	LoadModelsIntoScene();
+
 
 	// Named unifrom block
 	// Now many uniform blocks are there? 
@@ -302,36 +307,6 @@ int main(void)
 
 
 
-	// *******************************************************
-	// Test the assimp loader before the "old" loader
-	cAssimpBasic myAssimpLoader;
-	cMesh bunnyTestMesh;
-	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/RPG-Character(FBX2013).FBX",
-	//						           bunnyTestMesh, error ) )
-	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX",
-	//						           bunnyTestMesh, error ) )
-	//if ( ! myAssimpLoader.loadModelA( "assets/modelsFBX/ArmyPilot(FBX2013).fbx",
-	//						           bunnyTestMesh, error ) )
-	//if ( ! myAssimpLoader.loadModelA( "assets/models/bun_zipper_res2_xyz_n.ply",
-	//						           bunnyTestMesh, error ) )
-	//if ( ! myAssimpLoader.loadModelA( "assets/models/Ship_Pack_WIP_mod-command_xyz_n_uv.ply",
-	//						           bunnyTestMesh, error ) )
-	if (!myAssimpLoader.loadModelA("assets/models/Ship_Pack_WIP_mod-command_xyz_n_uv.obj",
-		bunnyTestMesh, error))
-	{
-		std::cout << "All is lost! Forever lost!! Assimp didn't load the bunny: "
-			<< error << std::endl;
-	}
-
-
-	bunnyTestMesh.name = "Ship_Pack_WIP_mod - command_xyz_n_uv.obj";
-	if (!::g_pVAOManager->loadMeshIntoVAO(bunnyTestMesh, sexyShaderID, false))
-	{
-		std::cout << "Assimp loaded mesh didn't load into VAO" << std::endl;
-	}
-	// *******************************************************
-
-	LoadModelsIntoScene();
 
 
 
@@ -507,7 +482,7 @@ int main(void)
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");
 
-		 Direct everything to the FBO
+		// Direct everything to the FBO
 		GLint bIsSecondPassLocID = glGetUniformLocation(sexyShaderID, "bIsSecondPass");
 		glUniform1i( bIsSecondPassLocID, GL_FALSE );
 		glBindFramebuffer(GL_FRAMEBUFFER, g_myFBO.ID );

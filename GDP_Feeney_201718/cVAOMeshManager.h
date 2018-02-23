@@ -11,7 +11,10 @@ class cMesh;		// Forward declare
 
 #include <map>		// "dictonary" or PHP array
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN  
+#endif 
+
 #include <Windows.h>		// For the critical sections
 
 #include "sVAOInfo.h"
