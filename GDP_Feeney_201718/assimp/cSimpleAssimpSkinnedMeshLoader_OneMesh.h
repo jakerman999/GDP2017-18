@@ -16,7 +16,9 @@
 #include "../sVertex_xyz_rgba_n_uv2_bt_4Bones.h"
 
 // Used by the game object and the rendering
-#include "../cMesh.h"
+#include "../cMesh.h"			// For loading into the VAO manager
+
+//#include "../sMeshDrawInfo.h"	// For the draw call
 
 
 class cSimpleAssimpSkinnedMesh 
@@ -72,14 +74,17 @@ public:
 	std::map< std::string /*animationfile*/,
 		      const aiScene* > mapAnimationNameTo_pScene;		// Animations
 
-
-
 	// Creates a VBO, loads the current mesh, then creates a VAO for the current VBO+shader
 //	bool CreateVBOfromCurrentMesh(void);
 //	bool CreateVBOandVOAfromCurrentMesh( int shaderProgID, std::string &error );
 
 	// Returns NULL (0) if there is no mesh at that index
 	cMesh* CreateMeshObjectFromCurrentModel( unsigned int meshIndex = 0 );
+
+	// The sMeshDrawInfo is used during the render call to lookup
+	//	VAO infomation. Also, the gross orientation of the model is from 
+	//	here. So this meshDrawInfo is the mesh bind pose, really.
+//	bool CreateMeshDrawInfoFromCurrentModel( sMeshDrawInfo &meshDrawInfo );
 
 	void BoneTransform(float TimeInSeconds, 
 					   std::vector<glm::mat4> &FinalTransformation, 

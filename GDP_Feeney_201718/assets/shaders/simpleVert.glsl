@@ -105,10 +105,13 @@ void main()
 	if ( bIsASkinnedMesh )
 	{
 		// If a single bone... 
-		// mat4 BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
-		
-		mat4 BoneTransform = mat4(1.0f);
-		BoneTransform += bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
+//		mat4 BoneTransform = mat4(1.0f);
+//		BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];		
+//		BoneTransform += bones[ int(vBoneIDs_x4[1]) ] * vBoneWeights_x4[1];
+//		BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
+//		BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
+
+		mat4 BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
 		BoneTransform += bones[ int(vBoneIDs_x4[1]) ] * vBoneWeights_x4[1];
 		BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
 		BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
@@ -122,11 +125,15 @@ void main()
 		// Final screen space position	
 		gl_Position = matMVP * vertPosition;	
 		
+//		gl_Position = mProjection * mView * mModel * BoneTransform * vertPosition;	
+		
 		// Additional transformations so lighthing (normal) will work
 		//mat4 matMV = matrixView * matrixWorld;	// model-view matrix
-		//fVecWorldView = vec3(matMV * vertPosition).xyz;
+		//fVecWorldView = vec3(matMV * vertPosition).xyz;	
 		
-		mat4 matNormal = inverse( transpose(mModel) );
+		// Inverse transform to keep ONLY rotation...
+		mat4 matNormal = inverse( transpose(BoneTransform * mModel) );
+		//
 		fVertNormal = mat3(matNormal) * normalize(vNorm.xyz);
 		fTangent = 	mat3(matNormal) * normalize(vTangent.xyz);
 		fBitangent = 	mat3(matNormal) * normalize(vBitangent.xyz);

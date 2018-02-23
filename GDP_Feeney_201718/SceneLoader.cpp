@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include "globalGameStuff.h"
 
+// For the cSimpleAssimpSkinnedMeshLoader class
+#include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
+
 extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
 
@@ -23,21 +26,30 @@ void LoadModelsIntoScene(void)
 
 		pTempGO->friendlyName = "RPG Skinned Mesh";
 
-		cPhysicalProperties physState;
-		physState.position = glm::vec3(-4.0f, 4.0f, 0.0f);
-		physState.velocity = glm::vec3(2.0f, 1.0f, 0.0f);
-		physState.setOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f));
-		physState.rigidBodyShape = cPhysicalProperties::SPHERE;
-		physState.rigidBodyMeasurements.sphere_capsule_radius = 1.0f;
-		pTempGO->SetPhysState(physState);
-		sMeshDrawInfo meshInfo;
-		meshInfo.scale = 1.0f;
-		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-		meshInfo.name = "SphereRadius1";
-		pTempGO->vecMeshes.push_back(meshInfo);
-
 		// Set the skinned mesh model to the skinned mesh we loaded
 		pTempGO->pSimpleSkinnedMesh = ::g_pSkinnedMesh01;
+
+		cPhysicalProperties physState;
+		//physState.position = glm::vec3(-4.0f, 4.0f, 0.0f);
+		//physState.velocity = glm::vec3(2.0f, 1.0f, 0.0f);
+		physState.position.y = 0.0f;
+		physState.position.z = 0.0f;
+		pTempGO->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+
+		meshInfo.scale = 0.25f;
+		meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+
+		//meshInfo.bDrawAsWireFrame = true;
+
+		// Get the mesh name (the one we copied into the VAO) 
+		//	from the skinned mesh loader
+		meshInfo.name = ::g_pSkinnedMesh01->friendlyName;
+		//meshInfo.name = "SphereRadius1";
+
+		pTempGO->vecMeshes.push_back(meshInfo);
+
 
 		//
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
@@ -49,6 +61,7 @@ void LoadModelsIntoScene(void)
 		cPhysicalProperties physState;
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
+		physState.position.z = -350.0f;
 		pTempGO->SetPhysState(physState);
 
 		sMeshDrawInfo meshInfo;
@@ -71,7 +84,7 @@ void LoadModelsIntoScene(void)
 		cPhysicalProperties physState;
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
-		physState.position.x = 4.0f;
+		physState.position.x = 75.0f;
 		physState.position.y = 25.0f;
 //		physState.position.y = -100.0f;
 		physState.setRotationalSpeedEuler( glm::vec3(0.0f, 0.5f, 0.0f) );

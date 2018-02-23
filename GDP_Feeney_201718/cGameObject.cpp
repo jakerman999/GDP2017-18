@@ -15,6 +15,9 @@ cGameObject::cGameObject()
 
 	this->bIsVisible = false;
 
+	// Set to NULL (or 0, or nullptr)
+	this->pSimpleSkinnedMesh = NULL;		// 0
+
 	return;
 }
 

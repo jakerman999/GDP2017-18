@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+// cSimpleAssimpSkinnedMesh class
+#include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 
 // HACK
 #include "cFBO.h"
@@ -26,7 +28,9 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO );
 //   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
 //   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
 //                                                               
-void CalculateSkinnedMeshBonesAndLoad( cGameObject* pTheGO );
+void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pTheGO,
+                                       unsigned int UniformLoc_numBonesUsed,
+									   unsigned int UniformLoc_bonesArray );
 
 
 
@@ -208,6 +212,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 	{
 		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO );
 	}
+
 
 	return;
 }
@@ -521,11 +526,22 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	//   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
 	//   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
 	//                                                               
+	GLint UniLoc_IsSkinnedMesh = glGetUniformLocation( curShaderProgID, "bIsASkinnedMesh");
+
 	if ( pTheGO->pSimpleSkinnedMesh )
 	{
 		// Calculate the pose and load the skinned mesh stuff into the shader, too
-		CalculateSkinnedMeshBonesAndLoad( pTheGO );
+		GLint UniLoc_NumBonesUsed = glGetUniformLocation( curShaderProgID, "numBonesUsed");
+		GLint UniLoc_BoneIDArray = glGetUniformLocation( curShaderProgID, "bones");
+		CalculateSkinnedMeshBonesAndLoad( theMesh, pTheGO, UniLoc_NumBonesUsed, UniLoc_BoneIDArray );
+
+		glUniform1f( UniLoc_IsSkinnedMesh, GL_TRUE );
 	}
+	else 
+	{
+		glUniform1f( UniLoc_IsSkinnedMesh, GL_FALSE );
+	}
+
 	// ***************************************************
 
 
@@ -772,7 +788,8 @@ namespace QnDTexureSamplerUtility
 
 };//namespace QnDTexureSamplerUtility
 
-
+float g_frameTime = 0.0f;
+float g_frameTimeIncrement = -0.01f;
 
 	//****************************************************************************************
 //    ___  _    _                      _  __  __           _     
@@ -780,81 +797,68 @@ namespace QnDTexureSamplerUtility
 //   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
 //   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
 //                                                               
-void CalculateSkinnedMeshBonesAndLoad( cGameObject* pTheGO )
+void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pTheGO,
+									   unsigned int UniformLoc_numBonesUsed, 
+									   unsigned int UniformLoc_bonesArray )
 {
 
-// Code from "Simple Skinned Mesh" example
-// To be altered.
+	// Code from "Simple Skinned Mesh" example
+	// To be altered.
 
-//	if ( ! ::g_pSimpleSM->m_bVAO_created )
-//	{
-//		std::string error;
-//		if ( ! ::g_pSimpleSM->CreateVBOandVOAfromCurrentMesh( curShaderID, error ) )
-//		{
-//			std::cout << "Error: Couldn't create VAO for skinned mesh..." << std::endl;
-//			std::cout << "\t" << error << std::endl;
-//			// 
-//			return;		// NO VAO, so can't draw anything
-//		}
-//	}
-//
-//	sVAODrawInfo SM_VAO;
-//	SM_VAO.VAO_ID = ::g_pSimpleSM->m_VAO_ID;
-//	SM_VAO.numberOfIndices = ::g_pSimpleSM->m_numberOfIndices;
-//	SM_VAO.unitScale = 1.0f;
-//
-//	vecVAOsToDraw.push_back( SM_VAO );
-//
-////		GLint ISM2 = glGetUniformLocation( curShaderID, "bIsASkinnedMesh2" );
-////		glUniform1i( ISM2, TRUE );
-//
-//	//::g_frameTime += ::g_frameTimeIncrement;
-//	////if ( ::g_frameTime > ::g_frameMax )
-//	//if ( ::g_frameTime > ::g_pSimpleSM->GetDuration() )
-//	//{
-//	//	::g_frameTime = 0.0f;
-//	//}
-//	::g_frameTime -= ( ::g_frameTimeIncrement);
-//	//if ( ::g_frameTime > ::g_frameMax )
-//	if ( ::g_frameTime <= 0.0f )
-//	{
-//		::g_frameTime = ::g_pSimpleSM->GetDuration();
-//	}
-//	std::cout << ::g_frameTime << std::endl;
-//
-//	// Set up the animation pose:
-//	std::vector< glm::mat4x4 > vecFinalTransformation;
-//	std::vector< glm::mat4x4 > vecObjectBoneTransformation;
-//	std::vector< glm::mat4x4 > vecOffsets;
-//	// Final transformation is the bone transformation + boneOffsetPerVertex
-//	// ObjectBoneTransformation (or "Global") is the final location of the bones
-//	// vecOffsets is the relative offsets of the bones from each other
-//	::g_pSimpleSM->BoneTransform( ::g_frameTime, 
-//									vecFinalTransformation,		// Final bone transforms for mesh
-//									vecObjectBoneTransformation,  // final location of bones
-//									vecOffsets );                 // local offset for each bone
-//
-//	unsigned int numberOfBonesUsed = static_cast< unsigned int >( vecFinalTransformation.size() );
-//	glUniform1i( UniformLoc_numBonesUsed, numberOfBonesUsed );
-//
-//	glm::mat4x4* pBoneMatrixArray = &(vecFinalTransformation[0]);
-//	// UniformLoc_bonesArray is the getUniformLoc of "bones[0]" from
-//	//	uniform mat4 bones[MAXNUMBEROFBONES] 
-//	// in the shader
-//	glUniformMatrix4fv( UniformLoc_bonesArray, numberOfBonesUsed, GL_FALSE, 
-//	                    (const GLfloat*) glm::value_ptr( *pBoneMatrixArray ) );
-//
-//
+	::g_frameTime += ( ::g_frameTimeIncrement );
+	
+	// Is frame time LT zero? 
+	if ( ::g_frameTime <= 0.0f )
+	{
+		::g_frameTime = pTheGO->pSimpleSkinnedMesh->GetDuration();
+	}
+	// Is frame time GT the animation frame time?
+	if ( ::g_frameTime > pTheGO->pSimpleSkinnedMesh->GetDuration() )
+	{
+		::g_frameTime = 0.0f; 
+	}
+
+	std::cout << ::g_frameTime << std::endl;
+
+	// Set up the animation pose:
+	std::vector< glm::mat4x4 > vecFinalTransformation;
+	std::vector< glm::mat4x4 > vecObjectBoneTransformation;
+	std::vector< glm::mat4x4 > vecOffsets;
+	// Final transformation is the bone transformation + boneOffsetPerVertex
+	// ObjectBoneTransformation (or "Global") is the final location of the bones
+	// vecOffsets is the relative offsets of the bones from each other
+	pTheGO->pSimpleSkinnedMesh->BoneTransform( 
+		                            ::g_frameTime,
+									vecFinalTransformation,		// Final bone transforms for mesh
+									vecObjectBoneTransformation,  // final location of bones
+									vecOffsets );                 // local offset for each bone
+
+	unsigned int numberOfBonesUsed = static_cast< unsigned int >( vecFinalTransformation.size() );
+	glUniform1i( UniformLoc_numBonesUsed, numberOfBonesUsed );
+
+	glm::mat4x4* pBoneMatrixArray = &(vecFinalTransformation[0]);
+	// UniformLoc_bonesArray is the getUniformLoc of "bones[0]" from
+	//	uniform mat4 bones[MAXNUMBEROFBONES] 
+	// in the shader
+	glUniformMatrix4fv( UniformLoc_bonesArray, numberOfBonesUsed, GL_FALSE, 
+	                    (const GLfloat*) glm::value_ptr( *pBoneMatrixArray ) );
+
+
 //	//glUniform1i( UniformLoc_bIsASkinnedMesh, FALSE );
 //	// Draw all the bones
 //	for ( unsigned int boneIndex = 0; boneIndex != numberOfBonesUsed; boneIndex++ )
 //	{
 //		glm::mat4 boneLocal = vecObjectBoneTransformation[boneIndex];
 //
-//		float scale = 0.04f;
+//		cPhysicalProperties phyProps;
+//		pTheGO->GetPhysState( phyProps );
+//
+//		float scale = pTheGO->vecMeshes;
 //		boneLocal = glm::scale( boneLocal, glm::vec3(scale, scale, scale) );
 //
-//		glm::vec4 GameObjectlocation = glm::vec4( pCurGO->position, 1.0f );
+//		cPhysicalProperties phyProps;
+//		pTheGO->GetPhysState( phyProps );
+//		glm::vec4 GameObjectlocation = glm::vec4( phyProps.position, 1.0f );
 //
 //		glm::vec4 boneBallLocation = boneLocal * GameObjectlocation;
 //		//glm::vec4 boneBallLocation = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f );
@@ -868,8 +872,6 @@ void CalculateSkinnedMeshBonesAndLoad( cGameObject* pTheGO )
 //			DrawDebugBall( glm::vec3(boneBallLocation), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.5f );
 //		}
 //	}
-//
-//	glUniform1i( UniformLoc_bIsASkinnedMesh, TRUE );
 
 
 	//****************************************************************************************

@@ -490,7 +490,6 @@ float cSimpleAssimpSkinnedMesh::GetDuration(void)
 }
 
 
-
 // Returns NULL (0) if there is no mesh at that index
 cMesh* cSimpleAssimpSkinnedMesh::CreateMeshObjectFromCurrentModel( unsigned int meshIndex /*=0*/)
 {
