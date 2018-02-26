@@ -93,6 +93,24 @@ bool cSimpleAssimpSkinnedMesh::LoadMeshFromFile(const std::string &filename)
 	return true;
 }
 
+
+													// Looks in the animation map and returns the total time
+float cSimpleAssimpSkinnedMesh::FindAnimationTotalTime(std::string animationName)
+{
+	std::map< std::string /*animationfile*/,
+		const aiScene* >::iterator itAnimation = this->mapAnimationNameTo_pScene.find(animationName);
+	
+	// Found it? 
+	if ( itAnimation == this->mapAnimationNameTo_pScene.end() )
+	{	// Nope.
+		return 0.0f;
+	}
+
+	// This is scaling the animation from 0 to 1
+	return itAnimation->second->mAnimations[0]->mDuration;
+}
+
+
 bool cSimpleAssimpSkinnedMesh::LoadMeshAnimation(const std::string &filename)	// Only want animations
 {
 //	std::map< std::string /*animationfile*/,
@@ -446,6 +464,7 @@ void cSimpleAssimpSkinnedMesh::CalcGLMInterpolatedRotation(float AnimationTime, 
 	glm::quat EndGLM = glm::quat(EndRotationQ.w, EndRotationQ.x, EndRotationQ.y, EndRotationQ.z);
 
 	out = glm::slerp(StartGLM, EndGLM, Factor);
+
 	out = glm::normalize(out);
 
 	return;
@@ -472,6 +491,7 @@ void cSimpleAssimpSkinnedMesh::CalcGLMInterpolatedPosition(float AnimationTime, 
 	const aiVector3D& EndPosition = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
 	glm::vec3 start = glm::vec3(StartPosition.x, StartPosition.y, StartPosition.z);
 	glm::vec3 end = glm::vec3(EndPosition.x, EndPosition.y, EndPosition.z);
+
 	out = (end - start) * Factor + start;
 
 	return;

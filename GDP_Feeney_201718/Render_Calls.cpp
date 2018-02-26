@@ -9,6 +9,8 @@
 // cSimpleAssimpSkinnedMesh class
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 
+#include "cAnimationState.h"
+
 // HACK
 #include "cFBO.h"
 extern cFBO g_myFBO;
@@ -788,13 +790,13 @@ namespace QnDTexureSamplerUtility
 
 };//namespace QnDTexureSamplerUtility
 
-float g_frameTime = 0.0f;
-float g_frameTimeIncrement = -0.01f;
+// float g_frameTime = 0.0f;
+// g_frameTimeIncrement = +0.0025f;
 
 // Good enough for Rock-n-Roll example
 //std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character(FBX2013).FBX";
 //std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX";
-std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+//std::string g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
 
 	//****************************************************************************************
 //    ___  _    _                      _  __  __           _     
@@ -807,23 +809,59 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 									   unsigned int UniformLoc_bonesArray )
 {
 
-	// Code from "Simple Skinned Mesh" example
-	// To be altered.
+	std::string animationToPlay = "";
+	float curFrameTime = 0.0;
 
-	::g_frameTime += ( ::g_frameTimeIncrement );
-	
-	// Is frame time LT zero? 
-	if ( ::g_frameTime <= 0.0f )
-	{
-		::g_frameTime = pTheGO->pSimpleSkinnedMesh->GetDuration();
-	}
-	// Is frame time GT the animation frame time?
-	if ( ::g_frameTime > pTheGO->pSimpleSkinnedMesh->GetDuration() )
-	{
-		::g_frameTime = 0.0f; 
-	}
 
-	std::cout << ::g_frameTime << std::endl;
+	// See what animation should be playing... 
+	cAnimationState* pAniState = pTheGO->pAniState;
+
+	// Are there any animations in the queue of animations
+	if ( ! pAniState->vecAnimationQueue.empty() )
+	{
+		// Play the "1st" animation in the queue 
+		animationToPlay = pAniState->vecAnimationQueue[0].name;
+		curFrameTime = pAniState->vecAnimationQueue[0].currentTime;
+
+		// Increment the top animation in the queue
+		if ( pAniState->vecAnimationQueue[0].IncrementTime() )
+		{
+			// The animation reset to zero on increment...
+			// ...meaning that the 1st animation is done
+			// (WHAT!? Should you use a vector for this???)
+			pAniState->vecAnimationQueue.erase( pAniState->vecAnimationQueue.begin() );
+
+		}//vecAnimationQueue[0].IncrementTime()
+	}
+	else
+	{	// Use the default animation.
+		pAniState->defaultAnimation.IncrementTime();
+
+		animationToPlay = pAniState->defaultAnimation.name;
+		curFrameTime = pAniState->defaultAnimation.currentTime;
+
+	}//if ( pAniState->vecAnimationQueue.empty()
+
+
+
+
+//	::g_frameTime += ( ::g_frameTimeIncrement );
+//	
+//	// Is frame time LT zero? 
+//	if ( ::g_frameTime <= 0.0f )
+//	{
+//		::g_frameTime = pTheGO->pSimpleSkinnedMesh->GetDuration();
+//	}
+//	// Is frame time GT the animation frame time?
+//	if ( ::g_frameTime > pTheGO->pSimpleSkinnedMesh->GetDuration() )
+//	{
+//		::g_frameTime = 0.0f; 
+//	}
+//
+	if ( pTheGO->friendlyName == "Sophie" )
+	{
+		std::cout << pAniState->defaultAnimation.currentTime << std::endl;
+	}
 
 	// Set up the animation pose:
 	std::vector< glm::mat4x4 > vecFinalTransformation;
@@ -832,9 +870,11 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 	// Final transformation is the bone transformation + boneOffsetPerVertex
 	// ObjectBoneTransformation (or "Global") is the final location of the bones
 	// vecOffsets is the relative offsets of the bones from each other
+
+
 	pTheGO->pSimpleSkinnedMesh->BoneTransform( 
-		                            ::g_frameTime,
-									g_AnimationToPlay,		//**NEW**
+	                                curFrameTime,
+									animationToPlay,		//**NEW**
 									vecFinalTransformation,		// Final bone transforms for mesh
 									vecObjectBoneTransformation,  // final location of bones
 									vecOffsets );                 // local offset for each bone

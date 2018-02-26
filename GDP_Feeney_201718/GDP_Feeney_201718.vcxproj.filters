@@ -246,6 +246,9 @@
     <ClCompile Include="cModelAssetLoader.cpp">
       <Filter>Models</Filter>
     </ClCompile>
+    <ClCompile Include="cAnimationState.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
@@ -418,6 +421,9 @@
     </ClInclude>
     <ClInclude Include="cModelAssetLoader.h">
       <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="cAnimationState.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -17,6 +17,7 @@
 #include "sMeshDrawInfo.h"
 
 class cSimpleAssimpSkinnedMesh;	// Forward declare
+class cAnimationState;			// Forward declare 
 
 class cGameObject : public iPhysicalObject
 {
@@ -77,8 +78,9 @@ public:
 	//void popRenderingState(void);
 
 	// If NULL, then object ISN'T a skinned mesh
-	cSimpleAssimpSkinnedMesh* pSimpleSkinnedMesh;
-	
+	cSimpleAssimpSkinnedMesh*	pSimpleSkinnedMesh;	
+	cAnimationState*			pAniState;			
+
 private:
 	unsigned int m_UniqueID;
 	// Used when creating objects
@@ -105,5 +107,6 @@ private:
 	//std::queue< sRenderState > m_stackRenderState;
 
 };
+
 
 #endif

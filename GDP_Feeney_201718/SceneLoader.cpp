@@ -8,6 +8,8 @@
 // For the cSimpleAssimpSkinnedMeshLoader class
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 
+#include "cAnimationState.h"
+
 extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
 
@@ -23,38 +25,104 @@ void LoadModelsIntoScene(void)
 
 	{	// Skinned mesh  model
 		cGameObject* pTempGO = new cGameObject();
-
-		pTempGO->friendlyName = "RPG Skinned Mesh";
-
-		// Set the skinned mesh model to the skinned mesh we loaded
-		pTempGO->pSimpleSkinnedMesh = ::g_pSkinnedMesh01;
+		pTempGO->friendlyName = "Justin";
+		// This assigns the game object to the particular skinned mesh type 
+		pTempGO->pSimpleSkinnedMesh = ::g_pRPGSkinnedMesh;
+		// Add a default animation 
+		pTempGO->pAniState = new cAnimationState();
+		pTempGO->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX";
+		pTempGO->pAniState->defaultAnimation.frameStepTime = 0.005f;
+		// Get the total time of the entire animation
+		pTempGO->pAniState->defaultAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->GetDuration();
 
 		cPhysicalProperties physState;
-		//physState.position = glm::vec3(-4.0f, 4.0f, 0.0f);
-		//physState.velocity = glm::vec3(2.0f, 1.0f, 0.0f);
-		physState.position.y = 0.0f;
-		physState.position.z = 0.0f;
+		physState.position = glm::vec3(-50.0f, 0.0, 0.0f);
 		pTempGO->SetPhysState(physState);
 		sMeshDrawInfo meshInfo;
-
 		meshInfo.scale = 0.25f;
 		meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
 		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
-
 		meshInfo.bDrawAsWireFrame = true;
-
-		// Get the mesh name (the one we copied into the VAO) 
-		//	from the skinned mesh loader
-		meshInfo.name = ::g_pSkinnedMesh01->friendlyName;
-		//meshInfo.name = "SphereRadius1";
-
+		meshInfo.name = ::g_pRPGSkinnedMesh->friendlyName;
 		pTempGO->vecMeshes.push_back(meshInfo);
+		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	}	
+	{	// Skinned mesh  model
+		cGameObject* pTempGO = new cGameObject();
+		pTempGO->friendlyName = "Sophie";
+		// This assigns the game object to the particular skinned mesh type 
+		pTempGO->pSimpleSkinnedMesh = ::g_pRPGSkinnedMesh;
+		// Add a default animation 
+		pTempGO->pAniState = new cAnimationState();
+		pTempGO->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX";
+		pTempGO->pAniState->defaultAnimation.frameStepTime = 0.01f;
+		// Get the total time of the entire animation
+		pTempGO->pAniState->defaultAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->GetDuration();
 
+		{
+			cAnimationState::sStateDetails leftAnimation;
+			leftAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX";
+			//leftAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(leftAnimation.name);
+			leftAnimation.totalTime = 0.1f;
+			leftAnimation.frameStepTime = 0.001f;
 
-		//
+			cAnimationState::sStateDetails rightAnimation;
+			rightAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX";
+			//rightAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(rightAnimation.name);
+			rightAnimation.totalTime = 1.0f;
+			rightAnimation.frameStepTime = 0.001f;
+
+			cAnimationState::sStateDetails jumpAnimation;
+			jumpAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+			jumpAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(jumpAnimation.name);
+			jumpAnimation.totalTime = 1.0f;
+			jumpAnimation.frameStepTime = 0.001f;
+
+//			pTempGO->pAniState->vecAnimationQueue.push_back( leftAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( rightAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( jumpAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( rightAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( leftAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( jumpAnimation );
+//			pTempGO->pAniState->vecAnimationQueue.push_back( jumpAnimation );
+
+		}
+
+		cPhysicalProperties physState;
+		physState.position = glm::vec3(+50.0f, 0.0, 0.0f);
+		pTempGO->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 0.25f;
+		meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
+		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+		meshInfo.bDrawAsWireFrame = true;
+		meshInfo.name = ::g_pRPGSkinnedMesh->friendlyName;
+		pTempGO->vecMeshes.push_back(meshInfo);
 		::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
 	}	
 
+	//for ( float x = -100.0f; x < 100.0f; x += 10.0f )
+	//{
+	//	for ( float z = -100.0f; z < 100.0f; z += 10.0f )
+
+	//	{	// Skinned mesh  model
+	//	cGameObject* pTempGO = new cGameObject();
+	//	pTempGO->friendlyName = "Sophie";
+	//	// This assigns the game object to the particular skinned mesh type 
+	//	pTempGO->pSimpleSkinnedMesh = ::g_pRPGSkinnedMesh;
+	//	cPhysicalProperties physState;
+	//	physState.position = glm::vec3(x, 0.0, z);
+	//	pTempGO->SetPhysState(physState);
+	//	sMeshDrawInfo meshInfo;
+	//	meshInfo.scale = 0.25f;
+	//	meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
+	//	meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 0.0f, 1.0f );
+	//	meshInfo.bDrawAsWireFrame = true;
+	//	meshInfo.name = ::g_pRPGSkinnedMesh->friendlyName;
+	//	pTempGO->vecMeshes.push_back(meshInfo);
+	//	::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	//	}	
+	//}
 
 	{
 		cGameObject* pTempGO = new cGameObject();

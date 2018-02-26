@@ -158,6 +158,7 @@
     <ClCompile Include="assimp\cAssimpBasic.cpp" />
     <ClCompile Include="assimp\cAssimpBasic_Imp.cpp" />
     <ClCompile Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.cpp" />
+    <ClCompile Include="cAnimationState.cpp" />
     <ClCompile Include="cBasicTextureManager_FreeImage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -237,6 +238,7 @@
     <ClInclude Include="cFrameBuffer.h" />
     <ClInclude Include="cGameObject.h" />
     <ClInclude Include="CHRTimer.h" />
+    <ClInclude Include="cAnimationState.h" />
     <ClInclude Include="cLightManager.h" />
     <ClInclude Include="cMesh.h" />
     <ClInclude Include="cModelAssetLoader.h" />

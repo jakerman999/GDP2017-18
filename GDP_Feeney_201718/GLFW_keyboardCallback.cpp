@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "cAnimationState.h"
+
 bool isShiftKeyDown( int mods, bool bByItself = true );
 bool isCtrlKeyDown( int mods, bool bByItself = true );
 bool isAltKeyDown( int mods, bool bByItself = true );
@@ -32,11 +34,14 @@ extern std::string g_AnimationToPlay;
 
 	cGameObject* pLeftTeapot = findObjectByFriendlyName(LEFTTEAPOTNAME, ::g_vecGameObjects);
 
+	cGameObject* pSophie = findObjectByFriendlyName( "Sophie", ::g_vecGameObjects );
+
+
 	const float CAMERASPEED = 10.0f;
 
 	const float CAM_ACCELL_THRUST = 100.0f;
 
-	if ( isShiftKeyDown(mods, true) && (action == GLFW_PRESS) )
+	if ( isShiftKeyDown(mods, true)  )
 	{
 		switch (key)
 		{
@@ -97,7 +102,26 @@ extern std::string g_AnimationToPlay;
 	}//if ( isShiftKeyDown(mods, true) )
 
 
-	if (areAllModifierKeysUp(mods))
+	cAnimationState::sStateDetails leftAnimation;
+	leftAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX";
+	//leftAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(leftAnimation.name);
+	leftAnimation.totalTime = 0.1f;
+	leftAnimation.frameStepTime = 0.001f;
+
+	cAnimationState::sStateDetails rightAnimation;
+	rightAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX";
+	//rightAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(rightAnimation.name);
+	rightAnimation.totalTime = 1.0f;
+	rightAnimation.frameStepTime = 0.001f;
+
+	cAnimationState::sStateDetails jumpAnimation;
+	jumpAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+	//jumpAnimation.totalTime = pTempGO->pSimpleSkinnedMesh->FindAnimationTotalTime(jumpAnimation.name);
+	jumpAnimation.totalTime = 1.0f;
+	jumpAnimation.frameStepTime = 0.001f;
+
+
+	if (areAllModifierKeysUp(mods)  )
 	{
 		//	const float CAMERASPEED = 100.0f;
 		switch (key)
@@ -156,21 +180,37 @@ extern std::string g_AnimationToPlay;
 
 		case GLFW_KEY_N:
 			break;
-		case GLFW_KEY_M:
-			break;
 
 		case GLFW_KEY_J:	// Left
-			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX";
+			if ( action == GLFW_PRESS )
+			{
+				//pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX";
+				pSophie->pAniState->vecAnimationQueue.push_back( leftAnimation );
+			}
 			break;
 		case GLFW_KEY_L:	// Right
-			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX";
+			if ( action == GLFW_PRESS )
+			{
+				//pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX";
+				pSophie->pAniState->vecAnimationQueue.push_back( rightAnimation );
+			}
 			break;
 		case GLFW_KEY_I:	// Back;
+//			pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Backward(FBX2013).fbx";
 			break;
 		case GLFW_KEY_K:	// Forward:
+//			pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Roll-Forward(FBX2013).FBX";
 			break;
-		case GLFW_KEY_P:	// Jump
-			::g_AnimationToPlay = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+		case GLFW_KEY_M:	// Walk
+//			pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX";
+			break;
+		case GLFW_KEY_SPACE:	// Jump
+			if ( action == GLFW_PRESS )
+			{
+				//pSophie->pAniState->defaultAnimation.name = "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX";
+				pSophie->pAniState->vecAnimationQueue.push_back( jumpAnimation );
+			}
+
 			break;
 
 

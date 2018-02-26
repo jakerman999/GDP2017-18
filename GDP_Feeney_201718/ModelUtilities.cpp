@@ -10,7 +10,7 @@
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 
 // Declared in globalStuff.h
-cSimpleAssimpSkinnedMesh* g_pSkinnedMesh01 = NULL;
+cSimpleAssimpSkinnedMesh* g_pRPGSkinnedMesh = NULL;
 
 // Returns 0 or NULL if not found
 cGameObject* findObjectByFriendlyName(std::string friendlyName, std::vector<cGameObject*> &vec_pGameObjects)
@@ -90,7 +90,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	//   \__ \| / /| || ' \ | ' \ / -_)/ _` || |\/| |/ -_)(_-<| ' \  
 	//   |___/|_\_\|_||_||_||_||_|\___|\__,_||_|  |_|\___|/__/|_||_| 
 	//                                                               
-	::g_pSkinnedMesh01 = new cSimpleAssimpSkinnedMesh();
+	::g_pRPGSkinnedMesh = new cSimpleAssimpSkinnedMesh();
 
 	//	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsFBX/RPG-Character(FBX2013).FBX" ) ) 
 //	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX" ) ) 
@@ -98,23 +98,23 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 //	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsFBX/RPG-Character_Unarmed-Idle(FBX2013).fbx" ) ) 
 //	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsMD5/hellknight/attack2.md5anim" ) ) 
 //	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsFBX/RPG-Character_Unarmed-Fall(FBX2013).fbx" ) ) 
-	if ( ! ::g_pSkinnedMesh01->LoadMeshFromFile( "assets/modelsFBX/RPG-Character(FBX2013).FBX" ) ) 
+	if ( ! ::g_pRPGSkinnedMesh->LoadMeshFromFile( "assets/modelsFBX/RPG-Character(FBX2013).FBX" ) )
 	{
 		std::cout << "Error: problem loading the skinned mesh" << std::endl;
 	}
 	// Now load another animation file... 
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Fall(FBX2013).fbx" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Backward(FBX2013).fbx" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Forward(FBX2013).FBX" );
-	::g_pSkinnedMesh01->LoadMeshAnimation("assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX" );
-	::g_pSkinnedMesh01->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Attack-Kick-L1(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Walk(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Fall(FBX2013).fbx" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Backward(FBX2013).fbx" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Forward(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation("assets/modelsFBX/RPG-Character_Unarmed-Roll-Left(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Roll-Right(FBX2013).FBX" );
+	::g_pRPGSkinnedMesh->LoadMeshAnimation( "assets/modelsFBX/RPG-Character_Unarmed-Jump(FBX2013).FBX" );
 
-	::g_pSkinnedMesh01->friendlyName = "RPG-Character";
+	::g_pRPGSkinnedMesh->friendlyName = "RPG-Character";
 
-	cMesh* pTheMesh = ::g_pSkinnedMesh01->CreateMeshObjectFromCurrentModel();
+	cMesh* pTheMesh = ::g_pRPGSkinnedMesh->CreateMeshObjectFromCurrentModel();
 
 	if ( pTheMesh )
 	{

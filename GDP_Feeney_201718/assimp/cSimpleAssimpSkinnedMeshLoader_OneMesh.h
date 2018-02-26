@@ -74,6 +74,9 @@ public:
 	std::map< std::string /*animationfile*/,
 		      const aiScene* > mapAnimationNameTo_pScene;		// Animations
 
+	// Looks in the animation map and returns the total time
+	float FindAnimationTotalTime( std::string animationName );
+
 	// Creates a VBO, loads the current mesh, then creates a VAO for the current VBO+shader
 //	bool CreateVBOfromCurrentMesh(void);
 //	bool CreateVBOandVOAfromCurrentMesh( int shaderProgID, std::string &error );
