@@ -860,7 +860,7 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 //
 	if ( pTheGO->friendlyName == "Sophie" )
 	{
-		std::cout << pAniState->defaultAnimation.currentTime << std::endl;
+//		std::cout << pAniState->defaultAnimation.currentTime << std::endl;
 	}
 
 	// Set up the animation pose:

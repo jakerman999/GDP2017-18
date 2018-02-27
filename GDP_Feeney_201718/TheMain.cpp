@@ -243,9 +243,9 @@ int main(void)
 //			glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
 //	}//for ...
 	::g_pDebugRenderer->addTriangle( glm::vec3( -50.0f, -25.0f, 0.0f ),
-									 glm::vec3( 0.0, 50.0f, 0.0f ),
+									 glm::vec3( 0.0, 50.0f, 100.0f ),
 									 glm::vec3( 50.0f, -25.0, 0.0f),
-									 glm::vec3( 1.0f, 1.0f, 0.0f ), 20.0f );
+									 glm::vec3( 1.0f, 1.0f, 0.0f ), 1000.0f );
 
 
 
