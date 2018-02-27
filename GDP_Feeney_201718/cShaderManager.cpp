@@ -403,6 +403,99 @@ bool cShaderManager::createProgramFromFile(
 	return true;
 }
 
+bool cShaderManager::createProgramFromFile( 
+	        std::string friendlyName,
+			cShader &vertexShad, 
+	        cShader &geomShad,				// **NEW!!**// 
+			cShader &fragShader )
+{
+	std::string errorText = "";
+
+
+	// Shader loading happening before vertex buffer array
+	vertexShad.ID = glCreateShader(GL_VERTEX_SHADER);
+	vertexShad.shaderType = cShader::VERTEX_SHADER;
+	//  char* vertex_shader_text = "wewherlkherlkh";
+	// Load some text from a file...
+	if ( ! this->m_loadSourceFromFile( vertexShad ) )
+	{
+		this->m_lastError = "Can't load vertex shader file";
+		return false;
+	}//if ( ! this->m_loadSourceFromFile(...
+
+	errorText = "";
+	if ( ! this->m_compileShaderFromSource( vertexShad, errorText ) )
+	{
+		this->m_lastError = errorText;
+		return false;
+	}//if ( this->m_compileShaderFromSource(...
+
+
+	//*******************************************************
+	geomShad.ID = glCreateShader(GL_GEOMETRY_SHADER);
+	geomShad.shaderType = cShader::GEOMETRY_SHADER;
+	if ( ! this->m_loadSourceFromFile(geomShad) )
+	{
+		this->m_lastError = "Can't load geometry shader from file";
+		return false;
+	}//if ( ! this->m_loadSourceFromFile(...
+
+	if ( ! this->m_compileShaderFromSource(geomShad, errorText ) )
+	{
+		this->m_lastError = errorText;
+		return false;
+	}//if ( this->m_compileShaderFromSource(...
+	//*******************************************************
+
+    fragShader.ID = glCreateShader(GL_FRAGMENT_SHADER);
+	fragShader.shaderType = cShader::FRAGMENT_SHADER;
+	if ( ! this->m_loadSourceFromFile( fragShader ) )
+	{
+		this->m_lastError = "Can't load fragment shader from file";
+		return false;
+	}//if ( ! this->m_loadSourceFromFile(...
+
+	if ( ! this->m_compileShaderFromSource( fragShader, errorText ) )
+	{
+		this->m_lastError = errorText;
+		return false;
+	}//if ( this->m_compileShaderFromSource(...
+
+
+	cShaderProgram curProgram;
+    curProgram.ID = glCreateProgram();
+
+    glAttachShader(curProgram.ID, vertexShad.ID);
+	// *******************************************************
+    glAttachShader(curProgram.ID, geomShad.ID);			// **NEW**
+	// *******************************************************
+    glAttachShader(curProgram.ID, fragShader.ID);
+    glLinkProgram(curProgram.ID);
+
+	// Was there a link error? 
+	errorText = "";
+	if ( this->m_wasThereALinkError( curProgram.ID, errorText ) )
+	{
+		std::stringstream ssError;
+		ssError << "Shader program link error: ";
+		ssError << errorText;
+		this->m_lastError = ssError.str();
+		return false;
+	}
+	curProgram.loadUniforms();
+
+	// At this point, shaders are compiled and linked into a program
+
+	curProgram.friendlyName = friendlyName;
+
+	// Add the shader to the map
+	this->m_ID_to_Shader[curProgram.ID] = curProgram;
+	// Save to other map, too
+	this->m_name_to_ID[curProgram.friendlyName] = curProgram.ID;
+
+	return true;
+}
+
 //	     ___  _              _            __  __                                      
 //	 __ / __|| |_   __ _  __| | ___  _ _ |  \/  | __ _  _ _   __ _  __ _  ___  _ _    
 //	/ _|\__ \| ' \ / _` |/ _` |/ -_)| '_|| |\/| |/ _` || ' \ / _` |/ _` |/ -_)| '_|   

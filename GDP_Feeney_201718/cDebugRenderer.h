@@ -32,6 +32,8 @@ public:
 	bool resizeBufferForLines(unsigned int newNumberOfLines);
 	bool resizeBufferForPoints(unsigned int newNumberOfPoints);
 
+	std::string getLastError( bool bClearError = true );
+
 
 	// Renders scene
 	void RenderDebugObjects(glm::mat4 matCameraView, glm::mat4 matProjection, double deltaTime);
@@ -132,6 +134,7 @@ private:
 
 	static const std::string DEFALUT_VERT_SHADER_SOURCE;
 	static const std::string DEFAULT_FRAG_SHADER_SOURCE;
+	static const std::string DEFAULT_GEOM_SHADER_SOURCE;
 
 	// This is the point that's inside the vertex buffer
 	struct sVertex_xyzw_rgba
@@ -194,6 +197,7 @@ private:
 	class cShaderProgramInfo;
 	cShaderProgramInfo* m_pShaderProg;
 
+	std::string m_lastError;
 };
 
 #endif

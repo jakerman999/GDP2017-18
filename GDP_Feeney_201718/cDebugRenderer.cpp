@@ -50,7 +50,6 @@ const std::string cDebugRenderer::DEFAULT_FRAG_SHADER_SOURCE = "\
 
 
 
-
 class cDebugRenderer::cShaderProgramInfo
 {
 public:
@@ -62,6 +61,7 @@ public:
 	{};
 	cShaderManager::cShader vertShader;
 	cShaderManager::cShader fragShader;
+	cShaderManager::cShader geomShader;
 	unsigned int shaderProgramID;
 	// Uniforms in the shader
 	int matProjectionUniformLoc;
@@ -74,14 +74,24 @@ bool cDebugRenderer::initialize(std::string &error)
 {
 	cShaderManager shaderManager;
 
-	this->m_pShaderProg->vertShader.parseStringIntoMultiLine(this->m_vertexShaderSource);
-	this->m_pShaderProg->fragShader.parseStringIntoMultiLine(this->m_fragmentShaderSource);
+//	this->m_pShaderProg->vertShader.parseStringIntoMultiLine(this->m_vertexShaderSource);
+//	this->m_pShaderProg->fragShader.parseStringIntoMultiLine(this->m_fragmentShaderSource);
+//
+//	if ( ! shaderManager.createProgramFromSource( "debugShader", 
+//												  this->m_pShaderProg->vertShader, 
+//												  this->m_pShaderProg->fragShader ) )
+	shaderManager.setBasePath( "assets/shaders/" );
+	this->m_pShaderProg->vertShader.fileName = "debugVert.glsl";
+	this->m_pShaderProg->geomShader.fileName = "debugGeom.glsl";
+	this->m_pShaderProg->fragShader.fileName = "debugFrag.glsl";
 
-	if ( ! shaderManager.createProgramFromSource( "debugShader", 
-												  this->m_pShaderProg->vertShader, 
-												  this->m_pShaderProg->fragShader ) )
+	if ( ! shaderManager.createProgramFromFile( "debugShader", 
+												this->m_pShaderProg->vertShader,
+												this->m_pShaderProg->geomShader,
+												this->m_pShaderProg->fragShader) )
 	{
 		error = "Could not create the debug shader program.\n" + shaderManager.getLastError();
+		this->m_lastError = error;
 		return false;
 	}
 	// The shader was compiled, so get the shader program number
@@ -510,6 +520,15 @@ void cDebugRenderer::addDebugSphere(glm::vec3 xyz, glm::vec3 colour, float scale
 	return;
 }
 
+std::string cDebugRenderer::getLastError(bool bClearError /*=true*/)
+{
+	std::string theLastError = this->m_lastError;
+	if ( bClearError )
+	{
+		this->m_lastError = "";
+	}
+	return theLastError;
+}
 
 
 

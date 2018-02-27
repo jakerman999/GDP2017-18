@@ -220,27 +220,32 @@ int main(void)
 	if ( ! ::g_pDebugRenderer->initialize(error) )
 	{
 		std::cout << "Warning: couldn't init the debug renderer." << std::endl;
+		std::cout << "\t" << ::g_pDebugRenderer->getLastError() << std::endl;
 	}
 
-	//const float WORLDMAX = 25.0f;
-	//::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
-	//								 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
-	//								 glm::vec3( 0.0f, WORLDMAX, 0.0f),
-	//								 glm::vec3( 1.0f, 1.0f, 1.0f ), 20.0f );
-	//for (int count = 0; count != 100; count++)
-	//{
-	//	::g_pDebugRenderer->addTriangle(
-	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
-	//		          getRandInRange(-WORLDMAX, WORLDMAX),
-	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
-	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX), 
-	//		          getRandInRange(-WORLDMAX, WORLDMAX),
-	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
-	//		glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
-	//		          getRandInRange(-WORLDMAX, WORLDMAX),
-	//		          getRandInRange(-WORLDMAX, WORLDMAX)),
-	//		glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
-	//}//for ...
+//	const float WORLDMAX = 25.0f;
+//	::g_pDebugRenderer->addTriangle( glm::vec3( -WORLDMAX, 0.0f, 0.0f ),
+//									 glm::vec3(WORLDMAX, 0.0f, 0.0f ),
+//									 glm::vec3( 0.0f, WORLDMAX, 0.0f),
+//									 glm::vec3( 1.0f, 1.0f, 1.0f ), 20.0f );
+//	for (int count = 0; count != 100; count++)
+//	{
+//		::g_pDebugRenderer->addTriangle(
+//			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+//			          getRandInRange(-WORLDMAX, WORLDMAX),
+//			          getRandInRange(-WORLDMAX, WORLDMAX)),
+//			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX), 
+//			          getRandInRange(-WORLDMAX, WORLDMAX),
+//			          getRandInRange(-WORLDMAX, WORLDMAX)),
+//			glm::vec3(getRandInRange(-WORLDMAX, WORLDMAX),
+//			          getRandInRange(-WORLDMAX, WORLDMAX),
+//			          getRandInRange(-WORLDMAX, WORLDMAX)),
+//			glm::vec3( 1.0f, 1.0f, 1.0f ), 15.0f );
+//	}//for ...
+	::g_pDebugRenderer->addTriangle( glm::vec3( -50.0f, -25.0f, 0.0f ),
+									 glm::vec3( 0.0, 50.0f, 0.0f ),
+									 glm::vec3( 50.0f, -25.0, 0.0f),
+									 glm::vec3( 1.0f, 1.0f, 0.0f ), 20.0f );
 
 
 

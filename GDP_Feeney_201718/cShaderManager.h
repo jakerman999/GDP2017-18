@@ -88,6 +88,12 @@ public:
 	bool createProgramFromFile( std::string friendlyName, 
 		                        cShader &vertexShad, 
 					            cShader &fragShader );
+// *********************
+	bool createProgramFromFile(std::string friendlyName,
+							   cShader &vertexShad,
+							   cShader &geomShad,			// NEW for 2018! Geometry shading!
+							   cShader &fragShader);
+// *********************
 	bool createProgramFromSource( std::string friendlyName, 
 								  cShader &vertexShad,
 								  cShader &fragShader );
