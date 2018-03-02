@@ -13,6 +13,8 @@
 extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
 
+extern cGameObject* g_ExampleTexturedQuad;
+
 
 //const float SURFACEOFGROUND = -10.0f;
 //const float RIGHTSIDEWALL = 15.0f;
@@ -21,7 +23,24 @@ extern cGameObject* g_pTheDebugSphere;
 void LoadModelsIntoScene(void)
 {
 
-	
+	{	// 2 sided quad
+		::g_ExampleTexturedQuad = new cGameObject();
+		::g_ExampleTexturedQuad->friendlyName = "quad";
+		cPhysicalProperties physState;
+		physState.position = glm::vec3(100.0f, 100.0, -250.0f);
+		physState.setOrientationEulerAngles(glm::vec3(90.0f, 0.0, 0.0f));
+		::g_ExampleTexturedQuad->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 75;
+		meshInfo.setMeshOrientationEulerAngles(glm::vec3(0.0f, 0.0f, 0.0f)); 
+//		meshInfo.debugDiffuseColour = glm::vec4( 0.0f, 1.0f, 0.0f, 1.0f );
+//		meshInfo.bDrawAsWireFrame = true;
+		meshInfo.name = "2SidedQuad";
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 1.0f));
+		::g_ExampleTexturedQuad->vecMeshes.push_back(meshInfo);
+		//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+	}		
 
 	{	// Skinned mesh  model
 		cGameObject* pTempGO = new cGameObject();

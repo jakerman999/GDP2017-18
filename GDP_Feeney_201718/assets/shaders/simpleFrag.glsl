@@ -165,6 +165,8 @@ void main()
 		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
 		fragOut.colour.rgb = texture( texFBOColour2D, textCoords).rgb;
 		fragOut.colour.a = 1.0f; 
+		
+
 		return;
 	}
 

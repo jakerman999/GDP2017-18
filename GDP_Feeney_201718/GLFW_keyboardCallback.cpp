@@ -13,6 +13,8 @@ bool areAnyModifierKeysDown(int mods);
 
 extern std::string g_AnimationToPlay;
 
+extern double g_CA_CountDown;// = 0.0f;
+
 /*static*/ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -176,6 +178,7 @@ extern std::string g_AnimationToPlay;
 		case GLFW_KEY_9:
 			break;
 		case GLFW_KEY_0:
+			::g_CA_CountDown = 0.5f;
 			break;
 
 		case GLFW_KEY_N:

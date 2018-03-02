@@ -13,7 +13,13 @@
 
 // HACK
 #include "cFBO.h"
-extern cFBO g_myFBO;
+// Here, the scene is rendered in 3 passes:
+// 1. Render geometry to G buffer
+// 2. Perform deferred pass, rendering to Deferred buffer
+// 3. Then post-pass ("2nd pass" to the scree)
+//    Copying from the Pass2_Deferred buffer to the final screen
+extern cFBO g_FBO_Pass1_G_Buffer;
+extern cFBO g_FBO_Pass2_Deferred;
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
@@ -42,20 +48,35 @@ void setTextureBindings(GLint shaderID, sMeshDrawInfo &theMesh);
 // See: http://www.glfw.org/docs/latest/window_guide.html#window_size
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
-	if ( ( ::g_myFBO.width != width ) || ( ::g_myFBO.height != height ) )
+	if ( ( ::g_FBO_Pass1_G_Buffer.width != width ) || ( ::g_FBO_Pass1_G_Buffer.height != height ) )
 	{
 		// Window size has changed, so resize the offscreen frame buffer object
 		std::string error;
-		if ( ! ::g_myFBO.reset( width, height, error ) )
+		if ( ! ::g_FBO_Pass1_G_Buffer.reset( width, height, error ) )
 		{
-			std::cout << "In window_size_callback(), the FBO.reset() call returned an error:" << std::endl;
+			std::cout << "In window_size_callback(), the g_FBO_Pass1_G_Buffer.reset() call returned an error:" << std::endl;
 			std::cout << "\t" << error << std::endl;
 		}
 		else
 		{
-			std::cout << "Offscreen FBO now: " << width << " x " << height << std::endl;
+			std::cout << "Offscreen g_FBO_Pass1_G_Buffer now: " << width << " x " << height << std::endl;
 		}
-	}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
+
+	if ( ( ::g_FBO_Pass2_Deferred.width != width ) || ( ::g_FBO_Pass2_Deferred.height != height ) )
+	{
+		// Window size has changed, so resize the offscreen frame buffer object
+		std::string error;
+		if ( ! ::g_FBO_Pass2_Deferred.reset( width, height, error ) )
+		{
+			std::cout << "In window_size_callback(), the g_FBO_Pass2_Deferred.reset() call returned an error:" << std::endl;
+			std::cout << "\t" << error << std::endl;
+		}
+		else
+		{
+			std::cout << "Offscreen g_FBO_Pass2_Deferred now: " << width << " x " << height << std::endl;
+		}
+	}//if ( ( ::g_FBO_Pass1_G_Buffer.width....
 
 	return;
 }
@@ -151,10 +172,12 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 	
 	
 		// Draw the scene
-		unsigned int sizeOfVector = (unsigned int)::g_vecGameObjects.size();	//*****//
+		//unsigned int sizeOfVector = (unsigned int)::g_vecGameObjects.size();	//*****//
+		unsigned int sizeOfVector = (unsigned int)vec_pGOs.size();	//*****//
 		for ( int index = 0; index != sizeOfVector; index++ )
 		{
-			cGameObject* pTheGO = ::g_vecGameObjects[index];
+			//cGameObject* pTheGO = ::g_vecGameObjects[index];
+			cGameObject* pTheGO = vec_pGOs[index];
 
 			// HACK!
 			if ( pTheGO->friendlyName == "bugs" )

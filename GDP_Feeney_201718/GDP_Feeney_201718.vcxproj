@@ -301,6 +301,10 @@
     <ClInclude Include="Utilities\CStringUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\debugFrag.glsl" />
+    <None Include="assets\shaders\debugGeom.glsl" />
+    <None Include="assets\shaders\debugGeom_PassThrough.glsl" />
+    <None Include="assets\shaders\debugVert.glsl" />
     <None Include="assets\shaders\simpleFrag.glsl" />
     <None Include="assets\shaders\simpleFragDeferred.glsl" />
     <None Include="assets\shaders\simpleVert.glsl" />

@@ -82,6 +82,10 @@ uniform int theLightId;
 
 uniform bool bIsDebugWireFrameObject;
 
+// For "Chromatic Aberration"
+uniform float CAoffset;// = 0.02f; 
+
+
 // Note: this CAN'T be an array (sorry). See 3D texture array
 uniform sampler2D texSamp2D00;		// Represents a 2D image
 uniform sampler2D texSamp2D01;		// Represents a 2D image
@@ -121,11 +125,15 @@ uniform float refractBlendRatio;		// How much refraction (0-1)
 uniform float coefficientRefract; 		// coefficient of refraction 
 
 
-uniform bool bIsSecondPass;			// True if the render is doing 2nd pass  
+//uniform bool bIsSecondPass;			// True if the render is doing 2nd pass  
+uniform int renderPassNumber;			// Now there are 3 passes, 0 to 2
+
 //uniform sampler2D tex2ndPassSamp2D;		// Offscreen texture for 2nd pass
 uniform sampler2D texFBOColour2D;
 uniform sampler2D texFBONormal2D;
 uniform sampler2D texFBOVertexWorldPos2D;
+
+uniform sampler2D fullRenderedImage2D;
 
 uniform float screenWidth;
 uniform float screenHeight;
@@ -144,6 +152,9 @@ vec3 calcLightColour( in vec3 vecNormal,
 const float CALCULATE_LIGHTING = 1.0f;
 const float DONT_CALCULATE_LIGHTING = 0.25f;
 
+const int PASS_0_G_BUFFER_PASS = 0;
+const int PASS_1_DEFERRED_RENDER_PASS = 1;
+const int PASS_2_FULL_SCREEN_EFFECT_PASS = 2;
 
 void main()
 {	
@@ -154,9 +165,156 @@ void main()
 	fragOut.normal = vec4( 0.0f, 0.0f, 0.0f, DONT_CALCULATE_LIGHTING );
 	fragOut.vertexWorldPos = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
 
+	// if ( bIsSecondPass )
 	
-	if ( bIsSecondPass )
+	switch (renderPassNumber)
 	{
+	case PASS_0_G_BUFFER_PASS:	 // =0
+	
+		// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
+		if ( bIsDebugWireFrameObject )
+		{
+	//		fragColourOut[0].rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+	//		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+	//		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);		
+	//		fragColourOut[0] * 1.5f;	// Room too bright
+			fragOut.colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+			fragOut.colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+	//		fragOut.colour.rgb *= 1.5f;	// Room too bright
+
+			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+
+			return;		// Immediate return
+		}
+
+
+		if ( isASkyBox )
+		{	// Sample from skybox texture and exit
+			// I pass texture coords to 'sample' 
+			//	returning a colour (at that point in the texture)
+			// Note we are using the normals of our skybox object
+			//	to determine the point on the inside of the box
+			vec4 skyRGBA = texture( texSampCube00, fVertNormal.xyz );
+			
+	//		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
+	//		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
+			fragOut.colour = vec4(skyRGBA.rgb, 1.0f);
+
+			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+
+			return;	
+		}
+		
+	// uniform bool isReflectRefract;
+	// uniform float reflectBlendRatio;		// How much reflection (0-1)
+	// uniform float refractBlendRatio;		// How much refraction (0-1)
+	// uniform float coefficientRefract; 	// coefficient of refraction 
+		if ( isReflectRefract )
+		{			
+			// Have "eyePosition" (camera eye) in WORLD space
+			
+			// reFLECTion value 
+			vec3 vecReflectEyeToVertex = fVecWorldPosition - perFramNUB.eyePosition;
+			vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
+			vec3 vecReflect = reflect( vecReflectEyeToVertex, fVertNormal.xyz );
+			// Look up colour for reflection
+	//		vec4 rgbReflection = texture( texSampCube00, vecReflect );
+			vec4 rgbReflection = texture( texSampCube00, fVertNormal.xyz );
+
+		
+			
+			vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - fVecWorldPosition;
+			vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
+			vec3 vecRefract = refract( vecReFRACT_EyeToVertex, fVertNormal.xyz, 
+									   coefficientRefract );
+			// Look up colour for reflection
+			vec4 rgbRefraction = texture( texSampCube00, vecRefract );
+			
+			
+			// Mix the two, based on how reflective the surface is
+		//	fragColourOut.r = 1.0f;
+		//	fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
+			fragOut.colour = (rgbReflection * reflectBlendRatio) + 
+							 (rgbRefraction * refractBlendRatio);
+			
+			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+			return;	
+		}	
+		
+		// ***********************************************************************
+		// This is the start of our "normal" "things that are lit" 1st pass
+		// (the "geometry" pass - writing the geometry and other info)
+
+		vec3 matDiffuse = vec3(0.0f, 0.0f, 0.0f);
+		
+		// ****************************************************************/
+		//uniform sampler2D myAmazingTexture00;
+		vec2 theUVCoords = fUV_X2.xy;		// use UV #1 of vertex
+			
+		vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
+		vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
+		vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
+		vec4 texCol03 = texture( texSamp2D03, theUVCoords.xy );
+		vec4 texCol04 = texture( texSamp2D04, theUVCoords.xy );
+		vec4 texCol05 = texture( texSamp2D05, theUVCoords.xy );
+		vec4 texCol06 = texture( texSamp2D06, theUVCoords.xy );
+		vec4 texCol07 = texture( texSamp2D07, theUVCoords.xy );
+		//... and so on (to how many textures you are using)
+	//	
+		// use the blend value to combine textures
+		matDiffuse.rgb += (texCol00.rgb * texBlend00) + 
+						  (texCol01.rgb * texBlend01) + 
+						  (texCol02.rgb * texBlend02) + 
+						  (texCol03.rgb * texBlend03) +
+						  (texCol04.rgb * texBlend04) +
+						  (texCol05.rgb * texBlend05) +
+						  (texCol06.rgb * texBlend06) +
+						  (texCol07.rgb * texBlend07);
+			
+		
+		// We will look at specular or gloss maps later, 
+		// 	but making the specular white is fine
+		vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
+
+
+		// Add the ambient here (AFTER the lighting)
+		// We have materialAmbient, but ambient is often 
+		//	just a percentage ratio of the diffuse
+		vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
+		//fragColourOut[0].rgb += ambientContribution.rgb;
+		fragOut.colour.rgb += ambientContribution.rgb;
+		
+		// Transparency value (for alpha blending)
+		fragOut.colour.a = materialDiffuse.a;
+
+		fragOut.normal.rgb = fVertNormal.xyz;
+
+		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
+
+		fragOut.normal.a = CALCULATE_LIGHTING;
+	//	fragOut.normal.a = -1.0f;
+
+		// NO lighting pass here (there WOULD be if this were "forward renderered")
+		// ****************************************************************/	
+	//	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
+	//	{
+	//		fragOut.colour.rgb += calcLightColour( fVertNormal, 					
+	//		                                       fVecWorldPosition, 
+	//		                                       index, 
+	//		                                       matDiffuse, 
+	//		                                       materialSpecular );
+	//	}
+
+
+	//	return;
+		
+		break;	// end of PASS_0_G_BUFFER_PASS (0):
+		
+	case PASS_1_DEFERRED_RENDER_PASS:		// (1)
+	
 		//vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
 		//fragOut.colour.rgb = texture( texFBOVertexWorldPos2D, textCoords).rgb;
 		//fragOut.colour.a = 1.0f; 
@@ -176,21 +334,19 @@ void main()
 			// Return the colour as it is on the colour FBO
 			fragOut.colour.rgb = theColourAtThisPixel.rgb;
 			fragOut.colour.a = 1.0f;
-			return;
 		}
-
-		// ELSE: do the lighting...
-
-		// ****************************************************************/	
-		// NOW, in the 2nd pass, we do the lighting!!! 
-		for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
+		else
 		{
-			fragOut.colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
-												   theVertLocWorldAtThisPixel, 
-												   index, 
-												   theColourAtThisPixel, 
-												   materialSpecular );
-		}
+			// ELSE: do the lighting...
+			for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
+			{
+				fragOut.colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
+													   theVertLocWorldAtThisPixel, 
+													   index, 
+													   theColourAtThisPixel, 
+													   materialSpecular );
+			}
+		}// if ( theNormalAtThisPixel.a != CALCULATE_LIGHTING )
 
 		//fragOut.colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
 		//										   theVertLocWorldAtThisPixel, 
@@ -202,153 +358,102 @@ void main()
 		//fragOut.colour.r += theNormalAtThisPixel.a;
 
 		fragOut.colour.rgb *= 1.5f;		// dim projector
-
 		fragOut.colour.a = 1.0f;
+		
+		// "2nd pass effects"
+		
+// **************************************************************************
+		// Make it  black and white (well, "greyscale"
+//		float Y = (0.2126 * fragOut.colour.r) + 
+//		          (0.7152 * fragOut.colour.g) + 
+//				  (0.0722 * fragOut.colour.b);
+//		fragOut.colour.rgb = vec3(Y,Y,Y);
+// **************************************************************************
 
-		return;
-	}
 
+// **************************************************************************
+//		//fragOut.colour.rgb *= 0.001f;	// Make it black
+//		
+//		float CAoffset = 0.02f; 
+//		
+//		float colR = texture( texFBOColour2D, 
+//		                      vec2(textCoords.x + 0, textCoords.y + CAoffset) ).r;
+//							  
+//		float colG = texture( texFBOColour2D, 
+//		                      vec2(textCoords.x + CAoffset, textCoords.y + CAoffset) ).g;
+//							  
+//		float colB = texture( texFBOColour2D, 
+//		                      vec2(textCoords.x - CAoffset, textCoords.y - CAoffset) ).b;
+//		
+//		vec3 theRGB = vec3( colR, colG, colB );	
+//		
+//		fragOut.colour.rgb += theRGB;
+// **************************************************************************
+
+// **************************************************************************
+		// Blurring the image
+		
+		float filterLimit = 0.0f;	
+		float filterStep = 0.001f;
+		int count = 0;
+		vec3 outColour = vec3(0.0f, 0.0f, 0.0f);
+		
+		float xMin = -( filterLimit * filterStep );
+		float xMax =  (filterLimit+1) * filterStep;
+		float yMin = -( filterLimit * filterStep );
+		float yMax = (filterLimit+1) * filterStep;
 	
-	// Is this a 'debug' wireframe object, i.e. no lighting, just use diffuse
-	if ( bIsDebugWireFrameObject )
-	{
-//		fragColourOut[0].rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
-//		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
-//		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);		
-//		fragColourOut[0] * 1.5f;	// Room too bright
-		fragOut.colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
-		fragOut.colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
-//		fragOut.colour.rgb *= 1.5f;	// Room too bright
-
-		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
-
-		return;		// Immediate return
-	}
-
-
-	if ( isASkyBox )
-	{	// Sample from skybox texture and exit
-		// I pass texture coords to 'sample' 
-		//	returning a colour (at that point in the texture)
-		// Note we are using the normals of our skybox object
-		//	to determine the point on the inside of the box
-		vec4 skyRGBA = texture( texSampCube00, fVertNormal.xyz );
+		//   *  *    *    *   *
+		//
+		//   *  *    *    *   *
+		//
+		//   *  *    X    *   *
+		// 
+		//   *  *    *    *   *
+		// 
+		//   *  *    *    *   *
 		
-//		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
-//		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
-		fragOut.colour = vec4(skyRGBA.rgb, 1.0f);
+		// Or you can do this, which looks identical 
+		//           * 
+		//           *  
+		//   *  *    X    *   *
+		//           * 
+		//           * 
+		
+		for ( float xOff = xMin; xOff < xMax; xOff += filterStep )
+		{
+			for ( float yOff = yMin; yOff < yMax; yOff += filterStep )
+			{
 
-		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+				vec2 sampOffset = vec2(xOff, yOff);
+							
+				outColour += texture( texFBOColour2D, textCoords + sampOffset ).rgb;
+				
+				count++;
+			}//for ( float yOff
+		}//for ( float xOff
 
-		return;	
-	}
+//		fragOut.colour.rgb *= 0.0001f;	// make "zero"
+//		fragOut.colour.rgb += ( outColour / float(count) );
+			
+		// **************************************************************************		
 	
-// uniform bool isReflectRefract;
-// uniform float reflectBlendRatio;		// How much reflection (0-1)
-// uniform float refractBlendRatio;		// How much refraction (0-1)
-// uniform float coefficientRefract; 	// coefficient of refraction 
-	if ( isReflectRefract )
-	{			
-		// Have "eyePosition" (camera eye) in WORLD space
-		
-		// reFLECTion value 
-		vec3 vecReflectEyeToVertex = fVecWorldPosition - perFramNUB.eyePosition;
-		vecReflectEyeToVertex = normalize(vecReflectEyeToVertex);
-		vec3 vecReflect = reflect( vecReflectEyeToVertex, fVertNormal.xyz );
-		// Look up colour for reflection
-//		vec4 rgbReflection = texture( texSampCube00, vecReflect );
-		vec4 rgbReflection = texture( texSampCube00, fVertNormal.xyz );
-
+		break;	// end of pass PASS_1_DEFERRED_RENDER_PASS (1)
 	
-		
-		vec3 vecReFRACT_EyeToVertex = perFramNUB.eyePosition - fVecWorldPosition;
-		vecReFRACT_EyeToVertex = normalize(vecReFRACT_EyeToVertex);				
-		vec3 vecRefract = refract( vecReFRACT_EyeToVertex, fVertNormal.xyz, 
-                                   coefficientRefract );
-		// Look up colour for reflection
-		vec4 rgbRefraction = texture( texSampCube00, vecRefract );
-		
-		
-		// Mix the two, based on how reflective the surface is
-	//	fragColourOut.r = 1.0f;
-	//	fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
-		fragOut.colour = (rgbReflection * reflectBlendRatio) + 
-		                 (rgbRefraction * refractBlendRatio);
-		
-		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-		fragOut.normal.a = DONT_CALCULATE_LIGHTING;
-		return;	
-	}	
+	case 2:
 	
-	// ***********************************************************************
-	// This is the start of our "normal" "things that are lit" 1st pass
-	// (the "geometry" pass - writing the geometry and other info)
-
-	vec3 matDiffuse = vec3(0.0f, 0.0f, 0.0f);
+		// In this example, there is a single quad, that
+		//	is being drawn with the full, rendered buffer from the previous pass
+		fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+		fragOut.colour.a = 1.0f;
 	
-	// ****************************************************************/
-	//uniform sampler2D myAmazingTexture00;
-	vec2 theUVCoords = fUV_X2.xy;		// use UV #1 of vertex
-		
-	vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
-	vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
-	vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
-	vec4 texCol03 = texture( texSamp2D03, theUVCoords.xy );
-	vec4 texCol04 = texture( texSamp2D04, theUVCoords.xy );
-	vec4 texCol05 = texture( texSamp2D05, theUVCoords.xy );
-	vec4 texCol06 = texture( texSamp2D06, theUVCoords.xy );
-	vec4 texCol07 = texture( texSamp2D07, theUVCoords.xy );
-	//... and so on (to how many textures you are using)
-//	
-	// use the blend value to combine textures
-	matDiffuse.rgb += (texCol00.rgb * texBlend00) + 
-	                  (texCol01.rgb * texBlend01) + 
-					  (texCol02.rgb * texBlend02) + 
-					  (texCol03.rgb * texBlend03) +
-					  (texCol04.rgb * texBlend04) +
-					  (texCol05.rgb * texBlend05) +
-					  (texCol06.rgb * texBlend06) +
-					  (texCol07.rgb * texBlend07);
-		
+		break;	// end of pass PASS_2_FULL_SCREEN_EFFECT_PASS:
 	
-	// We will look at specular or gloss maps later, 
-	// 	but making the specular white is fine
-	vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
-
-
-	// Add the ambient here (AFTER the lighting)
-	// We have materialAmbient, but ambient is often 
-	//	just a percentage ratio of the diffuse
-	vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
-	//fragColourOut[0].rgb += ambientContribution.rgb;
-	fragOut.colour.rgb += ambientContribution.rgb;
+	}// switch (passNumber)
 	
-	// Transparency value (for alpha blending)
-	fragOut.colour.a = materialDiffuse.a;
-
-	fragOut.normal.rgb = fVertNormal.xyz;
-
-	fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-
-	fragOut.normal.a = CALCULATE_LIGHTING;
-//	fragOut.normal.a = -1.0f;
-
-	// NO lighting pass here (there WOULD be if this were "forward renderered")
-	// ****************************************************************/	
-//	for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
-//	{
-//		fragOut.colour.rgb += calcLightColour( fVertNormal, 					
-//		                                       fVecWorldPosition, 
-//		                                       index, 
-//		                                       matDiffuse, 
-//		                                       materialSpecular );
-//	}
-
 
 	return;
-}
+}// main()
 
 // Inspired by Mike Bailey's Graphics Shader book
 // (when you see "half-vector", that's eye space)

@@ -107,7 +107,7 @@ float cSimpleAssimpSkinnedMesh::FindAnimationTotalTime(std::string animationName
 	}
 
 	// This is scaling the animation from 0 to 1
-	return itAnimation->second->mAnimations[0]->mDuration;
+	return (float)itAnimation->second->mAnimations[0]->mDuration;
 }
 
 
