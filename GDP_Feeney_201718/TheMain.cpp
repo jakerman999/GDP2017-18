@@ -544,11 +544,11 @@ int main(void)
 
 
 		// Render it again, but point the the FBO texture... 
-		glBindFramebuffer(GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
-		g_FBO_Pass2_Deferred.clearBuffers();
+//		glBindFramebuffer(GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
+//		g_FBO_Pass2_Deferred.clearBuffers();
 
-//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");
 
@@ -623,29 +623,29 @@ int main(void)
 
 		// Now the final pass (in this case, only rendering to a quad)
 		//RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	::g_pShaderManager->useShaderProgram("mySexyShader");
-
-	glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
-
-	// The "deferred pass" FBO has a colour texture with the entire rendered scene
-	// (including lighting, etc.)
-	GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
-
-	// Pick a texture unit... 
-	unsigned int pass2unit = 50;
-	glActiveTexture( GL_TEXTURE0 + pass2unit);
-	glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
-	glUniform1i(fullRenderedImage2D_LocID, pass2unit);
-
-
-	std::vector< cGameObject* >  vecCopySingleLonelyQuad;
-	// Push back a SINGLE quad or GIANT triangle that fills the entire screen
-	vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
-	RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
+///////glBindFramebuffer(GL_FRAMEBUFFER, 0);
+///////
+///////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+///////
+///////::g_pShaderManager->useShaderProgram("mySexyShader");
+///////
+///////glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
+///////
+///////// The "deferred pass" FBO has a colour texture with the entire rendered scene
+///////// (including lighting, etc.)
+///////GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
+///////
+///////// Pick a texture unit... 
+///////unsigned int pass2unit = 50;
+///////glActiveTexture( GL_TEXTURE0 + pass2unit);
+///////glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
+///////glUniform1i(fullRenderedImage2D_LocID, pass2unit);
+///////
+///////
+///////std::vector< cGameObject* >  vecCopySingleLonelyQuad;
+///////// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+///////vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
+///////RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
 
 
 
