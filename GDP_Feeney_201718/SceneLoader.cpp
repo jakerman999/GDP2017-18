@@ -146,6 +146,7 @@ void LoadModelsIntoScene(void)
 	{
 		cGameObject* pTempGO = new cGameObject();
 		cPhysicalProperties physState;
+		pTempGO->friendlyName = "NCC-1701";
 		physState.integrationUpdateType = cPhysicalProperties::EXCLUDED_FROM_INTEGRATION;
 		physState.mass = physState.inverseMass = 0.0f;	// Infinite
 		physState.position.z = -350.0f;

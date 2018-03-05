@@ -43,7 +43,7 @@ cPhysicalProperties cGameObject::GetPhysState( void )
 
 void cGameObject::GetPhysState( cPhysicalProperties &PhysState )
 {
-	this->m_PhysicalProps = PhysState;
+	PhysState = this->m_PhysicalProps;
 	return;
 }
 

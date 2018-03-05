@@ -27,7 +27,11 @@ public:
 		globalAlpha(1.0f),
 		bIsSkyBoxObject(false), 
 		bIsEnvirMapped(false), 
-		reflectBlendRatio(0.0f), refractBlendRatio(0.0f), coefficientRefract(1.0f) 
+		reflectBlendRatio(0.0f), refractBlendRatio(0.0f), coefficientRefract(1.0f),
+		// clear the SM bone mesh extent to zero
+		minXYZ_from_SM_Bones(glm::vec3(0.0f)), 
+		maxXYZ_from_SM_Bones(glm::vec3(0.0f))
+
 	{};
 	std::string name;
 	unsigned int drawID;
@@ -52,6 +56,13 @@ public:
 	// Textures only have name and blending info
 	std::vector<sTextureBindBlendInfo> vecMehs2DTextures;
 	std::vector<sTextureBindBlendInfo> vecMeshCubeMaps;
+
+	// Extent Values for skinned mesh
+	// These can be updated per frame, from the "update skinned mesh" call
+	glm::vec3 minXYZ_from_SM_Bones;
+	glm::vec3 maxXYZ_from_SM_Bones;
+	// Store all the bones for this model, buing updated per frame
+	std::vector< glm::mat4x4 > vecObjectBoneTransformation;
 
 private:
 	glm::quat m_meshQOrientation;

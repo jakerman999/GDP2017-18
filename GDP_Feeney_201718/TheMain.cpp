@@ -8,6 +8,7 @@
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 
 #include <stdlib.h>
@@ -38,6 +39,11 @@
 #include "cCamera.h"
 
 #include "cFBO.h" 
+
+//**********
+// BE a little careful of including this everywhere...
+#include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
+//**********
 
 // Here, the scene is rendered in 3 passes:
 // 1. Render geometry to G buffer
@@ -530,7 +536,96 @@ int main(void)
 		// Clear colour AND depth buffer
 		g_FBO_Pass1_G_Buffer.clearBuffers();
 
+		// When I call this, if it's a skinned mesh, the extents will be calculated, too
+		// (like for that pose on this frame)
 		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
+
+		// Find one of the skinned meshes
+		cGameObject* pSophieT = findObjectByFriendlyName( "Sophie", ::g_vecGameObjects );
+
+		// This box is "object relative" (i.e. around origin of the model, not in the world)
+		glm::vec3 minXYZ = pSophieT->vecMeshes[0].minXYZ_from_SM_Bones;
+		glm::vec3 maxXYZ = pSophieT->vecMeshes[0].maxXYZ_from_SM_Bones;
+
+//	// Transform this based on where the character is in the world...
+//	// BUT HOW, you? If only there was a matrix that described where the object was!!!
+//	{
+//		cPhysicalProperties sophPhysState;
+//		pSophieT->GetPhysState(sophPhysState);
+//
+//		glm::mat4 matSophieWorld = glm::mat4(1.0f);		// identity
+//		glm::mat4 trans = glm::mat4x4(1.0f);
+//		matSophieWorld = glm::translate(matSophieWorld, sophPhysState.position );
+//		glm::mat4 postRotQuat = glm::mat4(pSophieT->getFinalMeshQOrientation(sophPhysState.get));
+//		matSophieWorld = matSophieWorld * postRotQuat;
+//		glm::mat4 matScale = glm::mat4x4(1.0f);
+//		matScale = glm::scale(matScale,
+//							  glm::vec3(pSophieT->GetPhysState,
+//							  theMesh.scale,
+//							  theMesh.scale));
+//		matSophieWorld = matSophieWorld * matScale;
+//	}
+
+		//pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex]
+
+		g_pDebugRenderer->addTriangle( minXYZ, maxXYZ, minXYZ,
+									   glm::vec3(0.0,0.0,0.0) );
+		g_pDebugRenderer->addTriangle( maxXYZ, minXYZ,maxXYZ, 
+									   glm::vec3(0.0,0.0,0.0) );
+
+		// Draw a triangle at each bone... 
+		// Note we have to translate the location for each debug triangle.
+		// (but the "boneLocationXYZ" is the centre of the bone)
+//		for (unsigned int boneIndex = 0; 
+//			 boneIndex != pSophieT->vecMeshes[0].vecObjectBoneTransformation.size();
+//			 boneIndex++)
+//		{
+//			glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex];
+//	
+//			float scale = pSophieT->vecMeshes[0].scale;
+//			boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
+//	
+//	
+//			//glm::vec4 boneBallLocation = boneLocal * GameObjectLocalOriginLocation;
+//			glm::vec4 boneLocationXYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+//			boneLocationXYZ *= scale;
+//	
+//			// Draw a triangle at each bone...
+//			glm::vec3 v[3];
+//			v[0].x = boneLocationXYZ.x;
+//			v[0].y = boneLocationXYZ.y;
+//			v[0].z = boneLocationXYZ.z;
+//			v[1] = v[0] + glm::vec3(2.0f, 0.0f, 0.0f);
+//			v[2] = v[0] - glm::vec3(2.0f, 0.0f, 0.0f);
+//	
+//			g_pDebugRenderer->addTriangle( v[0], v[1], v[2], glm::vec3(1.0f, 1.0f, 1.0f) ); 
+//		}
+
+		int indexOfFingerBone = pSophieT->pSimpleSkinnedMesh->m_mapBoneNameToBoneIndex["B_L_Finger02"];// = 32
+
+		// Transform to get the location in world space... 
+
+		// This vector of bones has the final location of that bone (this frame)
+		glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[indexOfFingerBone];
+
+		float scale = pSophieT->vecMeshes[0].scale;
+		boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
+
+		glm::vec4 B_L_Finger02_XYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		B_L_Finger02_XYZ *= scale;
+		// And transform based on object world...
+
+		// matWorld (or matObject) of the object
+
+		glm::vec3 fingerXYZ = glm::vec3(B_L_Finger02_XYZ);
+
+		g_pDebugRenderer->addTriangle( fingerXYZ,
+									   fingerXYZ + glm::vec3(1.0,0,0),
+									   fingerXYZ - glm::vec3(1.0,0,0),
+									   glm::vec3(1.0f, 1.0f, 1.0f) );
+
+
+
 
 
 //    ___         __                         _   ___                _             ___               
@@ -607,6 +702,10 @@ int main(void)
 		// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 		// Here we will use the skybox (as it fills the entire screen)
 		vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
+
+//		cGameObject* pBunny = findObjectByFriendlyName("bugs", ::g_vecGameObjects);
+//		vecCopy2ndPass.push_back(pBunny);
+
 		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
 
 //    ___  _              _   ___  ___    ___               
@@ -623,29 +722,33 @@ int main(void)
 
 		// Now the final pass (in this case, only rendering to a quad)
 		//RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS
-///////glBindFramebuffer(GL_FRAMEBUFFER, 0);
+///////	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 ///////
-///////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+///////	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 ///////
-///////::g_pShaderManager->useShaderProgram("mySexyShader");
+///////	::g_pShaderManager->useShaderProgram("mySexyShader");
 ///////
-///////glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
+///////	glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
 ///////
-///////// The "deferred pass" FBO has a colour texture with the entire rendered scene
-///////// (including lighting, etc.)
-///////GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
+///////	/// The "deferred pass" FBO has a colour texture with the entire rendered scene
+///////	/// (including lighting, etc.)
+///////	GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
 ///////
-///////// Pick a texture unit... 
-///////unsigned int pass2unit = 50;
-///////glActiveTexture( GL_TEXTURE0 + pass2unit);
-///////glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
-///////glUniform1i(fullRenderedImage2D_LocID, pass2unit);
+///////	/// Pick a texture unit... 
+///////	unsigned int pass2unit = 50;
+///////	glActiveTexture( GL_TEXTURE0 + pass2unit);
+///////	glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
+///////	glUniform1i(fullRenderedImage2D_LocID, pass2unit);
 ///////
 ///////
-///////std::vector< cGameObject* >  vecCopySingleLonelyQuad;
-///////// Push back a SINGLE quad or GIANT triangle that fills the entire screen
-///////vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
-///////RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
+///////	std::vector< cGameObject* >  vecCopySingleLonelyQuad;
+///////	/// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+///////	vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
+///////
+///////	cGameObject* pTheShip = findObjectByFriendlyName( "NCC-1701", ::g_vecGameObjects );
+///////	vecCopySingleLonelyQuad.push_back( pTheShip );
+///////
+///////	RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
 
 
 
