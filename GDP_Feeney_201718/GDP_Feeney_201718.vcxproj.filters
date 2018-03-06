@@ -82,6 +82,9 @@
     <Filter Include="FrameBuffer">
       <UniqueIdentifier>{f53cefaa-2995-456e-83b8-dee70ebd56fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\DebugShaders">
+      <UniqueIdentifier>{a4ac88a9-9b10-46d3-8119-6baff51e36cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -436,17 +439,17 @@
     <None Include="assets\shaders\simpleFragDeferred.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="assets\shaders\debugGeom.glsl">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="assets\shaders\debugFrag.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\DebugShaders</Filter>
+    </None>
+    <None Include="assets\shaders\debugGeom.glsl">
+      <Filter>Shaders\DebugShaders</Filter>
     </None>
     <None Include="assets\shaders\debugGeom_PassThrough.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\DebugShaders</Filter>
     </None>
     <None Include="assets\shaders\debugVert.glsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\DebugShaders</Filter>
     </None>
   </ItemGroup>
 </Project>
