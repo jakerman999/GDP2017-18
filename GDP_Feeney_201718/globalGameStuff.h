@@ -75,6 +75,9 @@ void setWindowFullScreenOrWindowed( GLFWwindow* pTheWindow, bool IsFullScreen );
 // NOTE: This is only ONE instance of an loaded FBX file model
 extern cSimpleAssimpSkinnedMesh* g_pRPGSkinnedMesh;			// In ModelUtilites.cpp
 
+// For stencil buffer example...
+extern cGameObject* g_Room;						// in theMain.cpp
+extern cGameObject* g_RoomMaskForStencil;		// in theMain.cpp
 
 
 #endif

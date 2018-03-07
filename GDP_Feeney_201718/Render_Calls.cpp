@@ -168,8 +168,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 								// Source == already on framebuffer
 								// Dest == what you're about to draw
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	
+
 	
 		// Draw the scene
 		//unsigned int sizeOfVector = (unsigned int)::g_vecGameObjects.size();	//*****//
@@ -543,6 +542,24 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 	glUniform1f(coefficientRefract_UniLoc, theMesh.coefficientRefract );
 	// And more environment things
 
+	GLint bUseTextureAsDiffuse_UniLoc = glGetUniformLocation( curShaderProgID, "bUseTextureAsDiffuse" );
+
+	if ( theMesh.bUseDebugColour )
+	{
+		GLint materialDiffuse_UniLoc = glGetUniformLocation( curShaderProgID, "materialDiffuse" );
+		glUniform4f( materialDiffuse_UniLoc, 
+					 theMesh.debugDiffuseColour.x, 
+					 theMesh.debugDiffuseColour.y, 
+					 theMesh.debugDiffuseColour.z, 
+					 theMesh.debugDiffuseColour.w );
+		glUniform1f( bUseTextureAsDiffuse_UniLoc, GL_FALSE );
+	}
+	else
+	{
+		glUniform1f( bUseTextureAsDiffuse_UniLoc, GL_TRUE );
+	}
+
+					 
 
 
 	// ***************************************************

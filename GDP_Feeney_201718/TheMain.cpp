@@ -85,8 +85,11 @@ cAABBBroadPhase* g_terrainAABBBroadPhase = 0;
 cPhysicsWorld*	g_pPhysicsWorld = NULL;	// (theMain.cpp)
 
 // This is used in the "render a previous pass" object
-cGameObject* g_ExampleTexturedQuad;
+cGameObject* g_ExampleTexturedQuad = NULL;
 
+// For stencil buffer example...
+cGameObject* g_Room = NULL;
+cGameObject* g_RoomMaskForStencil = NULL;
 
 
 
@@ -341,16 +344,24 @@ int main(void)
 	::g_pLightManager = new cLightManager();
 
 	::g_pLightManager->CreateLights(10);	// There are 10 lights in the shader
-	::g_pLightManager->vecLights[0].position = glm::vec3(-4.8f, 570.0f, 212.0f);	
-	::g_pLightManager->vecLights[0].attenuation.y = 0.000456922280f;		//0.172113f;
+
+	::g_pLightManager->vecLights[0].setLightParamType(cLight::POINT);		
+	::g_pLightManager->vecLights[0].position = glm::vec3(500.0f, 500.0f, 1000.0f);
+	::g_pLightManager->vecLights[0].attenuation.y = 0.0002f;		
+
+
+	::g_pLightManager->vecLights[1].position = glm::vec3(0.0f, 570.0f, -212.0f);	
+	::g_pLightManager->vecLights[1].attenuation.y = 0.000456922280f;		//0.172113f;
+	::g_pLightManager->vecLights[1].setLightParamType(cLight::SPOT);		// <--- DOH! This would explain why I couldn't light up the scene!!
+	// Point spot straight down at the ground
+	::g_pLightManager->vecLights[1].direction = glm::vec3(0.0f, -1.0f, 0.0f );
+	::g_pLightManager->vecLights[1].setLightParamSpotPrenumAngleInner( glm::radians(15.0f) );
+	::g_pLightManager->vecLights[1].setLightParamSpotPrenumAngleOuter( glm::radians(45.0f) );
+	::g_pLightManager->vecLights[1].position = glm::vec3(0.0f, 50.0f, 0.0f);	
+
+
 	::g_pLightManager->LoadShaderUniformLocations(currentProgID);
 
-	::g_pLightManager->vecLights[0].setLightParamType(cLight::SPOT);
-	// Point spot straight down at the ground
-	::g_pLightManager->vecLights[0].direction = glm::vec3(0.0f, -1.0f, 0.0f );
-	::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleInner( glm::radians(15.0f) );
-	::g_pLightManager->vecLights[0].setLightParamSpotPrenumAngleOuter( glm::radians(45.0f) );
-	::g_pLightManager->vecLights[0].position = glm::vec3(0.0f, 50.0f, 0.0f);	
 
 
 	// Texture 
@@ -421,7 +432,7 @@ int main(void)
 	//::g_pTheCamera->Follow_SetIdealCameraLocation(glm::vec3(0.0f, 5.0f, 5.0f));
 
 	::g_pTheCamera->setCameraMode(cCamera::MODE_FLY_USING_LOOK_AT);
-	::g_pTheCamera->FlyCamLA->setEyePosition(glm::vec3(0.0f, 10.0f, 100.0f));
+	::g_pTheCamera->FlyCamLA->setEyePosition(glm::vec3(0.0f, 10.0f, 650.0f));
 	::g_pTheCamera->FlyCamLA->setTargetInWorld(glm::vec3(0.0f, 20.0f, 0.0f));
 	::g_pTheCamera->FlyCamLA->setUpVector(glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -536,18 +547,79 @@ int main(void)
 		// Clear colour AND depth buffer
 		g_FBO_Pass1_G_Buffer.clearBuffers();
 
-		// When I call this, if it's a skinned mesh, the extents will be calculated, too
-		// (like for that pose on this frame)
+
+		// 1. Drawing the "mask" object (that "stencil")
+
+		glEnable(GL_STENCIL_TEST);
+		// Note the addition to the stencil buffer clear
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+		// Clearing the stencil will all zeros
+		const GLint zero = 0;
+		glClearBufferiv(GL_STENCIL, 0, &zero);
+
+		// Always SUCCEED (the stencil test).
+		// Don't mask anything (0xFF means don't "mask")
+		// Write "ref" to buffer if succeeds.
+		// NOTE: 
+		// - Stencil is currently all zeros. 
+		// - Whatever we draw will be written to the stencil as a value of 1
+		// - The mask of 0xFF (1111 1111) means nothing will be masked (prevented)
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
+		// Stencil will ALWAYS pass, so keep what's on if stencil FAILS
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		// Render the doorway mask
+		std::vector< cGameObject* > vecOnlyTheRoomMask;
+		vecOnlyTheRoomMask.push_back( ::g_RoomMaskForStencil);
+		RenderScene(vecOnlyTheRoomMask, ::g_pGLFWWindow, deltaTime );
+
+		// 2. 
+		// Clear colour buffer ONLY
+		// Keep depth and stencil: 
+		//  - depth because we don't want to draw what's behind the mask
+		//  - stencil is untouched
+		//  - clear colour to "erase" the masking object.
+		glClear(GL_COLOR_BUFFER_BIT );
+
+		// Draw only the room
+		// Where it's 0, draw the room (where we DIDN'T draw the masking object)
+		// (Note the bit mask is 0xFF, meaning we aren't selecting a particular stencil)
+		glStencilFunc(GL_EQUAL, 0, 0xFF);
+		// BUT, we DON'T want to change what's already on the stencil buffer
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		// Draw ONLY the room
+		std::vector< cGameObject* > vecOnlyTheRoom;
+		vecOnlyTheRoom.push_back( ::g_Room );
+		RenderScene( vecOnlyTheRoom, ::g_pGLFWWindow, deltaTime );
+
+
+		// 3. Draw the rest of the scene.
+		// Clear the depth buffer, too (where the door mask was)
+//		glClear( GL_DEPTH_BUFFER_BIT );
+		// Where it's 1, draw the scene 
+		// - remember, wherever we drew the masking object, it's 1
+		// - the rest of the scene is sill zero 
+		glStencilFunc(GL_GEQUAL, 1, 0xFF);
+		// BUT, we DON'T want to change what's already on the stencil buffer
+		glStencilOp(GL_KEEP,		// Stencil fail
+					GL_KEEP,		// Depth fail
+					GL_KEEP);		// Stencil AND Depth PASS
+
 		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 
-		// Find one of the skinned meshes
-		cGameObject* pSophieT = findObjectByFriendlyName( "Sophie", ::g_vecGameObjects );
-
-		// This box is "object relative" (i.e. around origin of the model, not in the world)
-		glm::vec3 minXYZ = pSophieT->vecMeshes[0].minXYZ_from_SM_Bones;
-		glm::vec3 maxXYZ = pSophieT->vecMeshes[0].maxXYZ_from_SM_Bones;
-
-//	// Transform this based on where the character is in the world...
+//// *********************************************************************************
+//		// NOTE: The RenderScene eventually updates the skinned mesh info, 
+//		//			which is now stored into the skinned mesh information
+//		// When I call this, if it's a skinned mesh, the extents will be calculated, too
+//		// (like for that pose on this frame)
+//		// Find one of the skinned meshes
+//		cGameObject* pSophieT = findObjectByFriendlyName( "Sophie", ::g_vecGameObjects );
+//
+//		// This box is "object relative" (i.e. around origin of the model, not in the world)
+//		glm::vec3 minXYZ = pSophieT->vecMeshes[0].minXYZ_from_SM_Bones;
+//		glm::vec3 maxXYZ = pSophieT->vecMeshes[0].maxXYZ_from_SM_Bones;
+//
+////	// Transform this based on where the character is in the world...
 //	// BUT HOW, you? If only there was a matrix that described where the object was!!!
 //	{
 //		cPhysicalProperties sophPhysState;
@@ -565,64 +637,65 @@ int main(void)
 //							  theMesh.scale));
 //		matSophieWorld = matSophieWorld * matScale;
 //	}
-
-		//pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex]
-
-		g_pDebugRenderer->addTriangle( minXYZ, maxXYZ, minXYZ,
-									   glm::vec3(0.0,0.0,0.0) );
-		g_pDebugRenderer->addTriangle( maxXYZ, minXYZ,maxXYZ, 
-									   glm::vec3(0.0,0.0,0.0) );
-
-		// Draw a triangle at each bone... 
-		// Note we have to translate the location for each debug triangle.
-		// (but the "boneLocationXYZ" is the centre of the bone)
-//		for (unsigned int boneIndex = 0; 
-//			 boneIndex != pSophieT->vecMeshes[0].vecObjectBoneTransformation.size();
-//			 boneIndex++)
-//		{
-//			glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex];
-//	
-//			float scale = pSophieT->vecMeshes[0].scale;
-//			boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
-//	
-//	
-//			//glm::vec4 boneBallLocation = boneLocal * GameObjectLocalOriginLocation;
-//			glm::vec4 boneLocationXYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-//			boneLocationXYZ *= scale;
-//	
-//			// Draw a triangle at each bone...
-//			glm::vec3 v[3];
-//			v[0].x = boneLocationXYZ.x;
-//			v[0].y = boneLocationXYZ.y;
-//			v[0].z = boneLocationXYZ.z;
-//			v[1] = v[0] + glm::vec3(2.0f, 0.0f, 0.0f);
-//			v[2] = v[0] - glm::vec3(2.0f, 0.0f, 0.0f);
-//	
-//			g_pDebugRenderer->addTriangle( v[0], v[1], v[2], glm::vec3(1.0f, 1.0f, 1.0f) ); 
-//		}
-
-		int indexOfFingerBone = pSophieT->pSimpleSkinnedMesh->m_mapBoneNameToBoneIndex["B_L_Finger02"];// = 32
-
-		// Transform to get the location in world space... 
-
-		// This vector of bones has the final location of that bone (this frame)
-		glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[indexOfFingerBone];
-
-		float scale = pSophieT->vecMeshes[0].scale;
-		boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
-
-		glm::vec4 B_L_Finger02_XYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-		B_L_Finger02_XYZ *= scale;
-		// And transform based on object world...
-
-		// matWorld (or matObject) of the object
-
-		glm::vec3 fingerXYZ = glm::vec3(B_L_Finger02_XYZ);
-
-		g_pDebugRenderer->addTriangle( fingerXYZ,
-									   fingerXYZ + glm::vec3(1.0,0,0),
-									   fingerXYZ - glm::vec3(1.0,0,0),
-									   glm::vec3(1.0f, 1.0f, 1.0f) );
+//
+//		//pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex]
+//
+//		g_pDebugRenderer->addTriangle( minXYZ, maxXYZ, minXYZ,
+//									   glm::vec3(0.0,0.0,0.0) );
+//		g_pDebugRenderer->addTriangle( maxXYZ, minXYZ,maxXYZ, 
+//									   glm::vec3(0.0,0.0,0.0) );
+//
+//		// Draw a triangle at each bone... 
+//		// Note we have to translate the location for each debug triangle.
+//		// (but the "boneLocationXYZ" is the centre of the bone)
+////		for (unsigned int boneIndex = 0; 
+////			 boneIndex != pSophieT->vecMeshes[0].vecObjectBoneTransformation.size();
+////			 boneIndex++)
+////		{
+////			glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[boneIndex];
+////	
+////			float scale = pSophieT->vecMeshes[0].scale;
+////			boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
+////	
+////	
+////			//glm::vec4 boneBallLocation = boneLocal * GameObjectLocalOriginLocation;
+////			glm::vec4 boneLocationXYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+////			boneLocationXYZ *= scale;
+////	
+////			// Draw a triangle at each bone...
+////			glm::vec3 v[3];
+////			v[0].x = boneLocationXYZ.x;
+////			v[0].y = boneLocationXYZ.y;
+////			v[0].z = boneLocationXYZ.z;
+////			v[1] = v[0] + glm::vec3(2.0f, 0.0f, 0.0f);
+////			v[2] = v[0] - glm::vec3(2.0f, 0.0f, 0.0f);
+////	
+////			g_pDebugRenderer->addTriangle( v[0], v[1], v[2], glm::vec3(1.0f, 1.0f, 1.0f) ); 
+////		}
+//
+//		int indexOfFingerBone = pSophieT->pSimpleSkinnedMesh->m_mapBoneNameToBoneIndex["B_L_Finger02"];// = 32
+//
+//		// Transform to get the location in world space... 
+//
+//		// This vector of bones has the final location of that bone (this frame)
+//		glm::mat4 boneLocal = pSophieT->vecMeshes[0].vecObjectBoneTransformation[indexOfFingerBone];
+//
+//		float scale = pSophieT->vecMeshes[0].scale;
+//		boneLocal = glm::scale(boneLocal, glm::vec3(scale, scale, scale));
+//
+//		glm::vec4 B_L_Finger02_XYZ = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+//		B_L_Finger02_XYZ *= scale;
+//		// And transform based on object world...
+//
+//		// matWorld (or matObject) of the object
+//
+//		glm::vec3 fingerXYZ = glm::vec3(B_L_Finger02_XYZ);
+//
+//		g_pDebugRenderer->addTriangle( fingerXYZ,
+//									   fingerXYZ + glm::vec3(1.0,0,0),
+//									   fingerXYZ - glm::vec3(1.0,0,0),
+//									   glm::vec3(1.0f, 1.0f, 1.0f) );
+//// *********************************************************************************
 
 
 
@@ -707,6 +780,23 @@ int main(void)
 //		vecCopy2ndPass.push_back(pBunny);
 
 		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+
+		// Set the scissor buffer
+//// Example to render only INSIDE the scissor buffer (square) area
+//		glScissor(500, 500, 1080, 600);
+//		glEnable(GL_SCISSOR_TEST );
+//		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+//		glDisable(GL_SCISSOR_TEST );
+//// 
+//
+//// Example to render only OUTSIDE of the scissor area:
+//		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+//		glScissor(500, 500, 1080, 600);
+//		glEnable(GL_SCISSOR_TEST );
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glDisable(GL_SCISSOR_TEST );
+//// 
+
 
 //    ___  _              _   ___  ___    ___               
 //   | __|(_) _ _   __ _ | | |_  )|   \  | _ \ __ _  ___ ___

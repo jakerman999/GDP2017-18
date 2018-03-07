@@ -23,7 +23,46 @@ extern cGameObject* g_ExampleTexturedQuad;
 void LoadModelsIntoScene(void)
 {
 
-	{	// 2 sided quad
+	{// Room model (for stencil buffer example)
+		::g_Room = new cGameObject();
+		::g_Room->friendlyName = "Room";
+		cPhysicalProperties physState;
+		physState.position = glm::vec3(0.0f, 0.0, 0.0f);
+		physState.setOrientationEulerAngles(glm::vec3(0.0, 0.0, 0.0f));
+		::g_Room->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 50.0;
+//		meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+//		meshInfo.bDrawAsWireFrame = true;
+//		meshInfo.bUseDebugColour = true;
+//		meshInfo.debugDiffuseColour = glm::vec4( 0.0f, 1.0f, 1.0f, 1.0f );
+		meshInfo.name = "Room_2_Bigger_Triangulated.ply";
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 1.0f));
+		::g_Room->vecMeshes.push_back(meshInfo);
+	}
+	{// Stencil mask (matches frame for doorway in Room model)
+		::g_RoomMaskForStencil = new cGameObject();
+		::g_RoomMaskForStencil->friendlyName = "RoomDoorMask";
+		cPhysicalProperties physState;
+		physState.position = glm::vec3(0.0f, 0.0, 0.0f);
+		physState.setOrientationEulerAngles(glm::vec3(0.0f, 0.0, 0.0f));
+		::g_RoomMaskForStencil->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 50.0;
+		//meshInfo.bUseDebugColour = true;
+		//meshInfo.debugDiffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+		//meshInfo.bDrawAsWireFrame = true;
+		meshInfo.name = "Just_Inside_Door_Frame_for_Masking.ply";
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 1.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 0.0f));
+		::g_RoomMaskForStencil->vecMeshes.push_back(meshInfo);
+	}
+	
+			
+			
+			
+	{// 2 sided quad
 		::g_ExampleTexturedQuad = new cGameObject();
 		::g_ExampleTexturedQuad->friendlyName = "quad";
 		cPhysicalProperties physState;

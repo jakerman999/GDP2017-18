@@ -43,6 +43,50 @@ cGameObject* findObjectByUniqueID(unsigned int ID, std::vector<cGameObject*> &ve
 	return NULL;
 }
 
+// Called by Load3DModelsIntoMeshManager() function
+bool Load3DModelHelper( std::string fileName, 
+					   std::string meshFriendlyName,
+					   int shaderID, 
+					   cVAOMeshManager* pVAOManager,
+					   cModelAssetLoader* pModelAssetLoader,
+					   bool bModelHasUVs, 
+					   std::string &error )
+{
+	bool bAllGood = true;
+
+	cMesh tempMesh;
+	tempMesh.name = meshFriendlyName;
+
+	std::stringstream ssError;
+
+	if (bModelHasUVs)
+	{
+		if (!pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV(fileName, tempMesh))
+		{
+			ssError << "Didn't load model >" << tempMesh.name << "<" << std::endl;
+			bAllGood = false;
+		}
+	}
+	else
+	{
+		if ( !pModelAssetLoader->LoadPlyFileIntoMeshWithNormals(fileName, tempMesh) )
+		{
+			ssError << "Didn't load model >" << tempMesh.name << "<" << std::endl;
+			bAllGood = false;
+		}
+	}//if (bModelHasUVs)
+
+	if ( bAllGood )
+	{
+			if (!pVAOManager->loadMeshIntoVAO(tempMesh, shaderID, true))
+		{
+			ssError << "Could not load mesh >" << tempMesh.name << "< into VAO" << std::endl;
+			bAllGood = false;
+		}
+	}//if ( bAllGood )
+
+	return bAllGood;
+}
 
 
 bool Load3DModelsIntoMeshManager( int shaderID, 
@@ -155,26 +199,22 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	//		bAllGood = false;
 	//	}
 	//	// ***********************************************************************
-	//}	
+
+	
+	if ( !Load3DModelHelper( "Just_Inside_Door_Frame_for_Masking.ply", 
+							 "Just_Inside_Door_Frame_for_Masking.ply", 
+							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
 	{
-		cMesh quad2Sided;
-		quad2Sided.name = "2SidedQuad";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWith_Normals_and_UV( "1x1_2Tri_Quad_2_Sided_xyz_n_uv.ply", quad2Sided) )
-		{ 
-			//std::cout << "Didn't load model" << std::endl;
-			ssError << "Didn't load model >" << quad2Sided.name << "<" << std::endl;
-			bAllGood = false;
-		}
-		// ***********************************************************************
-		// NOTE the TRUE so that it keeps the mesh!!!
-		else if ( ! pVAOManager->loadMeshIntoVAO(quad2Sided, shaderID, true ) )
-		{
-			//std::cout << "Could not load mesh into VAO" << std::endl;
-			ssError << "Could not load mesh >" << quad2Sided.name << "< into VAO" << std::endl;
-			bAllGood = false;
-		}
-		// ***********************************************************************
-	}	
+		std::cout << error << std::endl;
+	}
+	if ( !Load3DModelHelper( "Room_2_Bigger_Triangulated.ply", 
+							 "Room_2_Bigger_Triangulated.ply", 
+							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
+	{
+		std::cout << error << std::endl;
+	}
+
+
 	{
 		cMesh testMesh;
 		testMesh.name = "SmoothSphereRadius1";

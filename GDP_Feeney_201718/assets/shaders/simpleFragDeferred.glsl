@@ -1,6 +1,5 @@
 // Fragment shader
-#version 400
-
+#version 450
 
 in vec4 fColor;					
 in vec3 fVertNormal;			// Also in "world" (no view or projection)
@@ -21,13 +20,20 @@ in vec3 fBitangent;		// For bump (or normal) mapping
 //out vec4 fragColourOut;			// Assumes it GL_COLOR_ATTACHMENT0
 
 //out vec4 fragOut[0];			// Assumes it GL_COLOR_ATTACHMENT0
-struct sFBOout
-{
-	vec4 colour;			// GL_COLOR_ATTACHMENT0
-	vec4 normal;			// GL_COLOR_ATTACHMENT1
-	vec4 vertexWorldPos;	// GL_COLOR_ATTACHMENT2
-};
-out sFBOout fragOut;
+// Apparently, you can't output a struct, now...
+//struct sFBOout
+//{
+//	vec4 colour;			// GL_COLOR_ATTACHMENT0
+//	vec4 normal;			// GL_COLOR_ATTACHMENT1
+//	vec4 vertexWorldPos;	// GL_COLOR_ATTACHMENT2
+//};
+//out sFBOout fragOut;
+
+out vec4 FBOout_colour;			// GL_COLOR_ATTACHMENT0
+out vec4 FBOout_normal;			// GL_COLOR_ATTACHMENT1
+out vec4 FBOout_vertexWorldPos;	// GL_COLOR_ATTACHMENT2
+
+
 
 //out vec4 fragColour[3];		// [0] is colour  GL_COLOR_ATTACHMENT0
 //                              // [1] is normal  GL_COLOR_ATTACHMENT1
@@ -42,6 +48,7 @@ out sFBOout fragOut;
 
 // The values our OBJECT material
 uniform vec4 materialDiffuse;	
+uniform bool bUseTextureAsDiffuse;
 //uniform vec4 materialAmbient;   		// 0.2
 uniform float ambientToDiffuseRatio; 	// Maybe	// 0.2 or 0.3
 uniform vec4 materialSpecular;  // rgb = colour of HIGHLIGHT only
@@ -161,9 +168,9 @@ void main()
 
 	//fragColourOut[0] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	//fragColourOut[1] = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	fragOut.colour = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
-	fragOut.normal = vec4( 0.0f, 0.0f, 0.0f, DONT_CALCULATE_LIGHTING );
-	fragOut.vertexWorldPos = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
+	FBOout_colour = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
+	FBOout_normal = vec4( 0.0f, 0.0f, 0.0f, DONT_CALCULATE_LIGHTING );
+	FBOout_vertexWorldPos = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	// if ( bIsSecondPass )
 	
@@ -178,12 +185,12 @@ void main()
 	//		fragColourOut[0].a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
 	//		fragColourOut[0].rgb += vec3(0.0f, 0.0f, 1.0f);		
 	//		fragColourOut[0] * 1.5f;	// Room too bright
-			fragOut.colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
-			fragOut.colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
+			FBOout_colour.rgb = materialDiffuse.rgb;			//gl_FragColor.rgb
+			FBOout_colour.a = materialDiffuse.a;				//gl_FragColor.a = 1.0f	
 	//		fragOut.colour.rgb *= 1.5f;	// Room too bright
 
-			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+			FBOout_vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			FBOout_normal.a = DONT_CALCULATE_LIGHTING;
 
 			return;		// Immediate return
 		}
@@ -199,10 +206,10 @@ void main()
 			
 	//		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 	//		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;
-			fragOut.colour = vec4(skyRGBA.rgb, 1.0f);
+			FBOout_colour = vec4(skyRGBA.rgb, 1.0f);
 
-			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+			FBOout_vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			FBOout_normal.a = DONT_CALCULATE_LIGHTING;
 
 			return;	
 		}
@@ -236,11 +243,11 @@ void main()
 			// Mix the two, based on how reflective the surface is
 		//	fragColourOut.r = 1.0f;
 		//	fragColourOut[0] = (rgbReflection * reflectBlendRatio) + 
-			fragOut.colour = (rgbReflection * reflectBlendRatio) + 
+			FBOout_colour = (rgbReflection * reflectBlendRatio) + 
 							 (rgbRefraction * refractBlendRatio);
 			
-			fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-			fragOut.normal.a = DONT_CALCULATE_LIGHTING;
+			FBOout_vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			FBOout_normal.a = DONT_CALCULATE_LIGHTING;
 			return;	
 		}	
 		
@@ -250,52 +257,64 @@ void main()
 
 		vec3 matDiffuse = vec3(0.0f, 0.0f, 0.0f);
 		
-		// ****************************************************************/
-		//uniform sampler2D myAmazingTexture00;
-		vec2 theUVCoords = fUV_X2.xy;		// use UV #1 of vertex
+		if ( bUseTextureAsDiffuse )
+		{
+			// ****************************************************************/
+			//uniform sampler2D myAmazingTexture00;
+			vec2 theUVCoords = fUV_X2.xy;		// use UV #1 of vertex
+				
+			vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
+			vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
+			vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
+			vec4 texCol03 = texture( texSamp2D03, theUVCoords.xy );
+			vec4 texCol04 = texture( texSamp2D04, theUVCoords.xy );
+			vec4 texCol05 = texture( texSamp2D05, theUVCoords.xy );
+			vec4 texCol06 = texture( texSamp2D06, theUVCoords.xy );
+			vec4 texCol07 = texture( texSamp2D07, theUVCoords.xy );
+			//... and so on (to how many textures you are using)
+		//	
+			// use the blend value to combine textures
+			matDiffuse.rgb += (texCol00.rgb * texBlend00) + 
+							  (texCol01.rgb * texBlend01) + 
+							  (texCol02.rgb * texBlend02) + 
+							  (texCol03.rgb * texBlend03) +
+							  (texCol04.rgb * texBlend04) +
+							  (texCol05.rgb * texBlend05) +
+							  (texCol06.rgb * texBlend06) +
+							  (texCol07.rgb * texBlend07);
+				
 			
-		vec4 texCol00 = texture( texSamp2D00, theUVCoords.xy );
-		vec4 texCol01 = texture( texSamp2D01, theUVCoords.xy );
-		vec4 texCol02 = texture( texSamp2D02, theUVCoords.xy );
-		vec4 texCol03 = texture( texSamp2D03, theUVCoords.xy );
-		vec4 texCol04 = texture( texSamp2D04, theUVCoords.xy );
-		vec4 texCol05 = texture( texSamp2D05, theUVCoords.xy );
-		vec4 texCol06 = texture( texSamp2D06, theUVCoords.xy );
-		vec4 texCol07 = texture( texSamp2D07, theUVCoords.xy );
-		//... and so on (to how many textures you are using)
-	//	
-		// use the blend value to combine textures
-		matDiffuse.rgb += (texCol00.rgb * texBlend00) + 
-						  (texCol01.rgb * texBlend01) + 
-						  (texCol02.rgb * texBlend02) + 
-						  (texCol03.rgb * texBlend03) +
-						  (texCol04.rgb * texBlend04) +
-						  (texCol05.rgb * texBlend05) +
-						  (texCol06.rgb * texBlend06) +
-						  (texCol07.rgb * texBlend07);
-			
+			// We will look at specular or gloss maps later, 
+			// 	but making the specular white is fine
+			vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
+
+
+			// Add the ambient here (AFTER the lighting)
+			// We have materialAmbient, but ambient is often 
+			//	just a percentage ratio of the diffuse
+			vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
+			//fragColourOut[0].rgb += ambientContribution.rgb;
+			FBOout_colour.rgb += ambientContribution.rgb;
+			// Transparency value (for alpha blending)
+			FBOout_colour.a = materialDiffuse.a;
+
+		}
+		else
+		{
+			// Use the object "colour" as colour, NOT the texture
+			// (includes the alpha value)
+			FBOout_colour = materialDiffuse;
+		}//if ( bUseTextureAsDiffuse )
 		
-		// We will look at specular or gloss maps later, 
-		// 	but making the specular white is fine
-		vec4 matSpecular = vec4(1.0f, 1.0f, 1.0f, 64.0f);
-
-
-		// Add the ambient here (AFTER the lighting)
-		// We have materialAmbient, but ambient is often 
-		//	just a percentage ratio of the diffuse
-		vec3 ambientContribution = matDiffuse.rgb * ambientToDiffuseRatio;
-		//fragColourOut[0].rgb += ambientContribution.rgb;
-		fragOut.colour.rgb += ambientContribution.rgb;
 		
-		// Transparency value (for alpha blending)
-		fragOut.colour.a = materialDiffuse.a;
+		// These are set to the G-Buffer for the deferred pass
+		FBOout_normal.rgb = fVertNormal.xyz;
 
-		fragOut.normal.rgb = fVertNormal.xyz;
+		FBOout_vertexWorldPos.xyz = fVecWorldPosition.xyz;
 
-		fragOut.vertexWorldPos.xyz = fVecWorldPosition.xyz;
-
-		fragOut.normal.a = CALCULATE_LIGHTING;
+		FBOout_normal.a = CALCULATE_LIGHTING;
 	//	fragOut.normal.a = -1.0f;
+		
 
 		// NO lighting pass here (there WOULD be if this were "forward renderered")
 		// ****************************************************************/	
@@ -318,7 +337,7 @@ void main()
 		//vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
 		//fragOut.colour.rgb = texture( texFBOVertexWorldPos2D, textCoords).rgb;
 		//fragOut.colour.a = 1.0f; 
-
+//
 		//uniform sampler2D texFBOColour2D;
 		//uniform sampler2D texFBONormal2D;
 		//uniform sampler2D texFBOVertexWorldPos2D;
@@ -332,15 +351,15 @@ void main()
 		if ( theNormalAtThisPixel.a != CALCULATE_LIGHTING )
 		{
 			// Return the colour as it is on the colour FBO
-			fragOut.colour.rgb = theColourAtThisPixel.rgb;
-			fragOut.colour.a = 1.0f;
+			FBOout_colour.rgb = theColourAtThisPixel.rgb;
+			FBOout_colour.a = 1.0f;
 		}
 		else
 		{
 			// ELSE: do the lighting...
 			for ( int index = 0; index < NUMBEROFLIGHTS; index++ )
 			{
-				fragOut.colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
+				FBOout_colour.rgb += calcLightColour( theNormalAtThisPixel.xyz, 					
 													   theVertLocWorldAtThisPixel, 
 													   index, 
 													   theColourAtThisPixel, 
@@ -357,8 +376,11 @@ void main()
 
 		//fragOut.colour.r += theNormalAtThisPixel.a;
 
-		fragOut.colour.rgb *= 1.5f;		// dim projector
-		fragOut.colour.a = 1.0f;
+		FBOout_colour.rgb *= 1.5f;		// dim projector
+		FBOout_colour.a = 1.0f;
+		
+		// Add ambient value 
+		FBOout_colour.rgb += theColourAtThisPixel * 0.2f;
 		
 		// "2nd pass effects"
 		
@@ -367,7 +389,7 @@ void main()
 //		float Y = (0.2126 * fragOut.colour.r) + 
 //		          (0.7152 * fragOut.colour.g) + 
 //				  (0.0722 * fragOut.colour.b);
-//		fragOut.colour.rgb = vec3(Y,Y,Y);
+//		FBOout_colour.rgb = vec3(Y,Y,Y);
 // **************************************************************************
 
 
@@ -387,7 +409,7 @@ void main()
 //		
 //		vec3 theRGB = vec3( colR, colG, colB );	
 //		
-//		fragOut.colour.rgb += theRGB;
+//		FBOout_colour.rgb += theRGB;
 // **************************************************************************
 
 // **************************************************************************
@@ -433,8 +455,8 @@ void main()
 			}//for ( float yOff
 		}//for ( float xOff
 
-//		fragOut.colour.rgb *= 0.0001f;	// make "zero"
-//		fragOut.colour.rgb += ( outColour / float(count) );
+//		FBOout_colour.rgb *= 0.0001f;	// make "zero"
+//		FBOout_colour.rgb += ( outColour / float(count) );
 			
 		// **************************************************************************		
 	
@@ -444,8 +466,8 @@ void main()
 	
 		// In this example, there is a single quad, that
 		//	is being drawn with the full, rendered buffer from the previous pass
-		fragOut.colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
-		fragOut.colour.a = 1.0f;
+		FBOout_colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+		FBOout_colour.a = 1.0f;
 	
 		break;	// end of pass PASS_2_FULL_SCREEN_EFFECT_PASS:
 	

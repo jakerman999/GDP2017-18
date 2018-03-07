@@ -77,7 +77,15 @@ bool cFBO::init( int width, int height, std::string &error )
 	glGenTextures(1, &( this->depthTexture_ID ));			//g_FBO_depthTexture
 	glBindTexture(GL_TEXTURE_2D, this->depthTexture_ID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, 
+	//glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, ]
+
+	// Note that, unless you specifically ask for it, the stencil buffer
+	// is NOT present... i.e. GL_DEPTH_COMPONENT32F DOESN'T have stencil
+
+	// These are:
+	// - GL_DEPTH32F_STENCIL8, which is 32 bit float depth + 8 bit stencil
+	// - GL_DEPTH24_STENCIL8,  which is 24 bit float depth + 8 bit stencil (more common?)
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8,
 				   this->width,		//g_FBO_SizeInPixes
 				   this->height);
 
