@@ -550,13 +550,12 @@ int main(void)
 
 		// 1. Drawing the "mask" object (that "stencil")
 
-		glEnable(GL_STENCIL_TEST);
 		// Note the addition to the stencil buffer clear
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+		// BIG NOTE: This clears the FINAL frame buffer! 
+		// (Keep in mind that when the stencil is enabled, it's enabled for ALL frame buffers)
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
-		// Clearing the stencil will all zeros
-		const GLint zero = 0;
-		glClearBufferiv(GL_STENCIL, 0, &zero);
+		glEnable(GL_STENCIL_TEST);
 
 		// Always SUCCEED (the stencil test).
 		// Don't mask anything (0xFF means don't "mask")
@@ -566,12 +565,22 @@ int main(void)
 		// - Whatever we draw will be written to the stencil as a value of 1
 		// - The mask of 0xFF (1111 1111) means nothing will be masked (prevented)
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
-		// Stencil will ALWAYS pass, so keep what's on if stencil FAILS
+		// Stencil will ALWAYS pass...
+		// Depth will pass, too (since this is the only thing we are drawing)
+		// If the Stencil AND the Depth PASS, then REPLACE the stencil value with the 
+		// ...value in the StencilFun(), which is the value 1, in this case
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilMask(0xFF);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		// Render the doorway mask
+//	glDisable(GL_DEPTH_TEST);
+//	glDepthMask(GL_FALSE);
 		std::vector< cGameObject* > vecOnlyTheRoomMask;
 		vecOnlyTheRoomMask.push_back( ::g_RoomMaskForStencil);
 		RenderScene(vecOnlyTheRoomMask, ::g_pGLFWWindow, deltaTime );
+		// So, at this point the stencil buffer will be zero (0), except where we 
+		// ...drew the door mask object, where it will be one (1)
+
 
 		// 2. 
 		// Clear colour buffer ONLY
@@ -579,15 +588,23 @@ int main(void)
 		//  - depth because we don't want to draw what's behind the mask
 		//  - stencil is untouched
 		//  - clear colour to "erase" the masking object.
-		glClear(GL_COLOR_BUFFER_BIT );
+//		glClear(GL_COLOR_BUFFER_BIT );
+//		glClear(GL_DEPTH_BUFFER_BIT );
 
 		// Draw only the room
 		// Where it's 0, draw the room (where we DIDN'T draw the masking object)
 		// (Note the bit mask is 0xFF, meaning we aren't selecting a particular stencil)
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		// BUT, we DON'T want to change what's already on the stencil buffer
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		// Stencil passes (always) - keep original
+		// AND Depth FAILS - Keep stencil (this is where the mask is IN FRONT OF portions of the room, like the far side)
+		// Stencil AND depth pass - REPLACE with a value of zero (meaning part of the room is IN FRONT OF the door mask)
+		// Parts of the room are in front of the door mask, but since the door mask was drawn 1st, the stencil
+		//	buffer will have 1s at those locations. These "in front of the mask" will now be set back to zeros.
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		// Draw ONLY the room
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//	glEnable(GL_DEPTH_TEST);
+//	glDepthMask(GL_TRUE);
 		std::vector< cGameObject* > vecOnlyTheRoom;
 		vecOnlyTheRoom.push_back( ::g_Room );
 		RenderScene( vecOnlyTheRoom, ::g_pGLFWWindow, deltaTime );
@@ -595,17 +612,23 @@ int main(void)
 
 		// 3. Draw the rest of the scene.
 		// Clear the depth buffer, too (where the door mask was)
-//		glClear( GL_DEPTH_BUFFER_BIT );
+		glClear( GL_DEPTH_BUFFER_BIT );
 		// Where it's 1, draw the scene 
 		// - remember, wherever we drew the masking object, it's 1
 		// - the rest of the scene is sill zero 
-		glStencilFunc(GL_GEQUAL, 1, 0xFF);
+		// So this passes where every the 0 is less than the stencil buffer
+		// - The stencil has 1 where the mask is, and zero everywhere else
+		glStencilFunc(GL_EQUAL, 1, 0xFF);
+		glStencilMask(0x00);		// Make sure we can't write to the stencil buffer
 		// BUT, we DON'T want to change what's already on the stencil buffer
 		glStencilOp(GL_KEEP,		// Stencil fail
 					GL_KEEP,		// Depth fail
 					GL_KEEP);		// Stencil AND Depth PASS
 
 		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
+
+
+
 
 //// *********************************************************************************
 //		// NOTE: The RenderScene eventually updates the skinned mesh info, 
@@ -697,10 +720,6 @@ int main(void)
 //									   glm::vec3(1.0f, 1.0f, 1.0f) );
 //// *********************************************************************************
 
-
-
-
-
 //    ___         __                         _   ___                _             ___               
 //   |   \  ___  / _| ___  _ _  _ _  ___  __| | | _ \ ___  _ _   __| | ___  _ _  | _ \ __ _  ___ ___
 //   | |) |/ -_)|  _|/ -_)| '_|| '_|/ -_)/ _` | |   // -_)| ' \ / _` |/ -_)| '_| |  _// _` |(_-<(_-<
@@ -717,6 +736,8 @@ int main(void)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+		glDisable(GL_STENCIL_TEST);
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");
 
@@ -780,6 +801,9 @@ int main(void)
 //		vecCopy2ndPass.push_back(pBunny);
 
 		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+
+
+
 
 		// Set the scissor buffer
 //// Example to render only INSIDE the scissor buffer (square) area

@@ -88,6 +88,11 @@ bool cFBO::init( int width, int height, std::string &error )
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8,
 				   this->width,		//g_FBO_SizeInPixes
 				   this->height);
+//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_DEPTH_COMPONENT );
+//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_STENCIL_COMPONENT );
+//	glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, this->width, this->height, 0, GL_EXT_packe
+
+//	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH24_STENCIL8, GL_TEXTURE_2D, this->depthTexture_ID, 0);
 
 // ***************************************************************
 
@@ -103,8 +108,11 @@ bool cFBO::init( int width, int height, std::string &error )
 						 GL_COLOR_ATTACHMENT2,			// Vertex world position #2
 						 this->vertexWorldPos_2_ID, 0);
 
+//	glFramebufferTexture(GL_FRAMEBUFFER,
+//						 GL_DEPTH_ATTACHMENT,
+//						 this->depthTexture_ID, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER,
-						 GL_DEPTH_ATTACHMENT,
+						 GL_DEPTH_STENCIL_ATTACHMENT,
 						 this->depthTexture_ID, 0);
 
 	static const GLenum draw_bufers[] = 
@@ -113,7 +121,7 @@ bool cFBO::init( int width, int height, std::string &error )
 		GL_COLOR_ATTACHMENT1, 
 		GL_COLOR_ATTACHMENT2
 	};
-	glDrawBuffers(3, draw_bufers);		// There are 2 outputs now
+	glDrawBuffers(3, draw_bufers);		// There are 3 outputs now
 
 	// ***************************************************************
 
@@ -159,6 +167,21 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 	if ( bClearDepth )
 	{
 		glClearBufferfv(GL_DEPTH, 0, &one);
+	}
+	// If buffer is GL_STENCIL, drawbuffer must be zero, and value points to a 
+	//  single value to clear the stencil buffer to. Masking is performed in the 
+	//  same fashion as for glClearStencil. Only the *iv forms of these commands 
+	//  should be used to clear stencil buffers; be used to clear stencil buffers; 
+	//  other forms do not accept a buffer of GL_STENCIL.
+	
+
+	{	// Clear stencil
+		//GLint intZero = 0;
+		//glClearBufferiv(GL_STENCIL, 0, &intZero );
+		glClearBufferfi( GL_DEPTH_STENCIL, 
+						 0,		// Must be zero
+						 1.0f,	// Clear value for depth
+						 0 );	// Clear value for stencil
 	}
 
 	return;

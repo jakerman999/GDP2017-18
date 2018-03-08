@@ -34,6 +34,11 @@ public:
 	
 	void clearBuffers(bool bClearColour = true, bool bClearDepth = true);
 
+	void clearColourBuffer(int bufferindex);
+	void clearAllColourBuffers(void);
+	void clearDepthBuffer(void);
+	void clearStencilBuffer( int clearColour, int mask = 0xFF );
+
 	int getMaxColourAttachments(void);
 	int getMaxDrawBuffers(void);
 };
