@@ -210,8 +210,6 @@ void cCamera::cFlyCameraLookAtRedirect::move(glm::vec3 direction_Zforward_Yup_Xr
 void cCamera::cFlyCameraLookAtRedirect::yawOrTurnRight(float angle, bool isDegrees /*=true*/)
 {
 	glm::vec3 direction = calcDirectionVector(this->pParentCamera->m_target, this->pParentCamera->m_eye);
-
-
 	return;
 }
 
