@@ -200,6 +200,12 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	//	}
 	//	// ***********************************************************************
 
+	if ( !Load3DModelHelper( "dalek2005_xyz_uv_res_2.ply", 
+							 "dalek2005_xyz_uv_res_2.ply", 
+							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
+	{
+		std::cout << error << std::endl;
+	}
 	
 	if ( !Load3DModelHelper( "Just_Inside_Door_Frame_for_Masking.ply", 
 							 "Just_Inside_Door_Frame_for_Masking.ply", 

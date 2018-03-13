@@ -85,7 +85,7 @@ bool cFBO::init( int width, int height, std::string &error )
 	// These are:
 	// - GL_DEPTH32F_STENCIL8, which is 32 bit float depth + 8 bit stencil
 	// - GL_DEPTH24_STENCIL8,  which is 24 bit float depth + 8 bit stencil (more common?)
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8,
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8,	//GL_DEPTH32F_STENCIL8,
 				   this->width,		//g_FBO_SizeInPixes
 				   this->height);
 //	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_STENCIL_TEXTURE_MODE, GL_DEPTH_COMPONENT );
@@ -163,6 +163,8 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 	if ( bClearColour )
 	{
 		glClearBufferfv(GL_COLOR, 0, &zero);
+//		glClearBufferfv(GL_COLOR, 1, &zero);
+		glClearBufferfv(GL_COLOR, 2, &zero);
 	}
 	if ( bClearDepth )
 	{
@@ -174,6 +176,8 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 	//  should be used to clear stencil buffers; be used to clear stencil buffers; 
 	//  other forms do not accept a buffer of GL_STENCIL.
 	
+	// 
+	glStencilMask(0xFF);
 
 	{	// Clear stencil
 		//GLint intZero = 0;

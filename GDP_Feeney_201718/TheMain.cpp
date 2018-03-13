@@ -45,6 +45,10 @@
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 //**********
 
+#include "Dalek_Threaded_01.h"
+iDalekManager* g_pDalekManager; 
+
+
 // Here, the scene is rendered in 3 passes:
 // 1. Render geometry to G buffer
 // 2. Perform deferred pass, rendering to Deferred buffer
@@ -204,7 +208,6 @@ int main(void)
 
 
 
-
 	std::cout << glGetString(GL_VENDOR) << " " 
 		<< glGetString(GL_RENDERER) << ", " 
 		<< glGetString(GL_VERSION) << std::endl;
@@ -271,6 +274,25 @@ int main(void)
 //									 glm::vec3( 1.0f, 1.0f, 0.0f ), 1000.0f );
 
 
+//***********************************************************
+//***********************************************************
+
+	const int NUMBER_OF_DALEKS = 500;
+
+	::g_pDalekManager = new cDalekManager01();
+	::g_pDalekManager->Init(NUMBER_OF_DALEKS);
+
+	for ( int count = 0; count != NUMBER_OF_DALEKS; count++ )
+	{
+		glm::vec3 position;
+		position.x = getRandInRange<float>(-100.0f, 100.0f);
+		//position.y = 0.0f
+		position.z = getRandInRange<float>(-100.0f, 100.0f);
+		cGameObject* pCurDalek = MakeDalekGameObject(position);
+	}
+//***********************************************************
+//***********************************************************
+
 
 
 	// Load models
@@ -291,6 +313,7 @@ int main(void)
 	}
 
 	LoadModelsIntoScene();
+
 
 
 	// Named unifrom block
@@ -502,6 +525,30 @@ int main(void)
 	// Gets the "current" time "tick" or "step"
 	double lastTimeStep = glfwGetTime();
 
+
+
+
+
+
+	//// Spawn the tread to update the Dalek 
+	//unsigned int DalekThreadHandle = 0;
+	//unsigned threadID = 0;
+
+	//// Creates critical section, etc.
+	//InitDalekThreading();
+
+	//DalekThreadHandle = _beginthreadex(
+	//	NULL,			// Don't change the security permissions for this thread
+	//	0,				// 0 = default stack
+	//	DalekBrainThread,		// The function we want to call. 
+	//	NULL, //pDataToPassA,			// Arguement list (or NULL if we are passing VOID)
+	//	0,				// or CREATE_SUSPENDED if it's paused and has to start
+	//	&threadID);
+
+	
+
+
+
 	// Main game or application loop
 	while ( ! glfwWindowShouldClose(::g_pGLFWWindow) )
     {
@@ -510,6 +557,24 @@ int main(void)
 		double curTime = glfwGetTime();
 		double deltaTime =  curTime - lastTimeStep;
 		lastTimeStep = curTime;
+
+		// Call the "thread" function
+		//::g_DeltaTime = deltaTime;
+//		::g_SetDeltaTime(deltaTime);
+//		DalekBrainThread(NULL);
+
+//		// Copy the Dalek information to the actual game object
+//		cGameObject* pDalekGO = findObjectByFriendlyName("Big D", ::g_vecGameObjects);
+//		cPhysProps state;
+//		pDalekGO->GetPhysState(state);
+////		state.position = ::g_DalekPosition;
+//		state.position = ::g_GetDalekPosition();
+//		pDalekGO->SetPhysState( state );
+//		std::cout 
+//			<< state.position.x << ", " 
+//			<< state.position.y << ", " 
+//			<< state.position.z << std::endl;
+
 
 
 		::g_pPhysicsWorld->IntegrationStep(deltaTime);
@@ -547,6 +612,8 @@ int main(void)
 		// Clear colour AND depth buffer
 		g_FBO_Pass1_G_Buffer.clearBuffers();
 
+//glDisable(GL_DEPTH_TEST);		// Check what's already in the depth buffer
+//glDepthMask(GL_FALSE);			// Written to the depth buffer
 
 		// 1. Drawing the "mask" object (that "stencil")
 
@@ -564,17 +631,19 @@ int main(void)
 		// - Stencil is currently all zeros. 
 		// - Whatever we draw will be written to the stencil as a value of 1
 		// - The mask of 0xFF (1111 1111) means nothing will be masked (prevented)
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
+//		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
+		glStencilFunc(GL_GEQUAL, 1, 0xFF);		// All 1s: 1111 1111
 		// Stencil will ALWAYS pass...
 		// Depth will pass, too (since this is the only thing we are drawing)
 		// If the Stencil AND the Depth PASS, then REPLACE the stencil value with the 
 		// ...value in the StencilFun(), which is the value 1, in this case
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilMask(0xFF);
+		glStencilMask(0xFF);		// Control of writing to the buffer
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		// Render the doorway mask
 //	glDisable(GL_DEPTH_TEST);
 //	glDepthMask(GL_FALSE);
+
 		std::vector< cGameObject* > vecOnlyTheRoomMask;
 		vecOnlyTheRoomMask.push_back( ::g_RoomMaskForStencil);
 		RenderScene(vecOnlyTheRoomMask, ::g_pGLFWWindow, deltaTime );
@@ -613,6 +682,7 @@ int main(void)
 		// 3. Draw the rest of the scene.
 		// Clear the depth buffer, too (where the door mask was)
 		glClear( GL_DEPTH_BUFFER_BIT );
+//		glDisable(GL_STENCIL_TEST);
 		// Where it's 1, draw the scene 
 		// - remember, wherever we drew the masking object, it's 1
 		// - the rest of the scene is sill zero 

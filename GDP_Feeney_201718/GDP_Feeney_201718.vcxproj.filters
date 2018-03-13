@@ -85,6 +85,12 @@
     <Filter Include="Shaders\DebugShaders">
       <UniqueIdentifier>{a4ac88a9-9b10-46d3-8119-6baff51e36cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Gem_Threaded_Dalek">
+      <UniqueIdentifier>{b3676d12-76a6-44db-b834-c749a1844806}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gem_Threaded_Dalek\Solution_01">
+      <UniqueIdentifier>{2e0d0283-f979-4524-a720-a1bd85500940}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -251,6 +257,21 @@
     </ClCompile>
     <ClCompile Include="cAnimationState.cpp">
       <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="cDalek.cpp">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClCompile>
+    <ClCompile Include="Dalek_Threaded__.cpp">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClCompile>
+    <ClCompile Include="Dalek_Threaded_Classes__.cpp">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClCompile>
+    <ClCompile Include="Dalek_Threaded_01.cpp">
+      <Filter>Gem_Threaded_Dalek\Solution_01</Filter>
+    </ClCompile>
+    <ClCompile Include="DalekThreadedCommon.cpp">
+      <Filter>Gem_Threaded_Dalek</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -427,6 +448,21 @@
     </ClInclude>
     <ClInclude Include="cAnimationState.h">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="cDalek.h">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClInclude>
+    <ClInclude Include="iDalekManager.h">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClInclude>
+    <ClInclude Include="Dalek_Threaded__.h">
+      <Filter>Gem_Threaded_Dalek</Filter>
+    </ClInclude>
+    <ClInclude Include="Dalek_Threaded_01.h">
+      <Filter>Gem_Threaded_Dalek\Solution_01</Filter>
+    </ClInclude>
+    <ClInclude Include="DalekThreadedCommon.h">
+      <Filter>Gem_Threaded_Dalek</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
