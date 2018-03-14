@@ -45,7 +45,10 @@
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 //**********
 
-#include "Dalek_Threaded_01.h"
+//#include "Dalek_Threaded_01.h"
+#include "Dalek_Threaded_02.h"
+//#include "Dalek_Threaded_03.h"
+#include "cDalek.h"
 iDalekManager* g_pDalekManager; 
 
 
@@ -276,19 +279,38 @@ int main(void)
 
 //***********************************************************
 //***********************************************************
+	const int NUMBER_OF_DALEKS = 50;
 
-	const int NUMBER_OF_DALEKS = 500;
-
-	::g_pDalekManager = new cDalekManager01();
+//	::g_pDalekManager = new cDalekManager01();
+	::g_pDalekManager = new cDalekManager02();
+//	::g_pDalekManager = new cDalekManager03();
 	::g_pDalekManager->Init(NUMBER_OF_DALEKS);
 
+	// Local array to point the Daleks
+	std::vector<glm::vec3> vecDalekPositions;
+	vecDalekPositions.reserve(NUMBER_OF_DALEKS);
+	for ( int count = 0; count != NUMBER_OF_DALEKS; count++ )
+	{
+		vecDalekPositions.push_back(glm::vec3(0.0f));
+	}
+
+	std::map< unsigned int /*Dalek Index*/, cGameObject* /*Dalek Game Object*/> mapDalekID_to_GameObject;
+
+	const float WORLDLIMIT = 1000.0f;
 	for ( int count = 0; count != NUMBER_OF_DALEKS; count++ )
 	{
 		glm::vec3 position;
-		position.x = getRandInRange<float>(-100.0f, 100.0f);
-		//position.y = 0.0f
-		position.z = getRandInRange<float>(-100.0f, 100.0f);
-		cGameObject* pCurDalek = MakeDalekGameObject(position);
+		position.x = getRandInRange<float>( -WORLDLIMIT, WORLDLIMIT );
+		position.y = 0.0f;
+		position.z = getRandInRange<float>( -WORLDLIMIT, WORLDLIMIT );
+		cGameObject* pCurDalekGO = MakeDalekGameObject(position);
+
+		cDalek* pCurrentDalek = NULL;
+		::g_pDalekManager->CreateDalekThread( pCurDalekGO, pCurrentDalek );
+
+		mapDalekID_to_GameObject[pCurrentDalek->getDalekID()] = pCurDalekGO;
+
+		::g_vecGameObjects.push_back( pCurDalekGO );
 	}
 //***********************************************************
 //***********************************************************
@@ -545,8 +567,9 @@ int main(void)
 	//	0,				// or CREATE_SUSPENDED if it's paused and has to start
 	//	&threadID);
 
-	
 
+	// Allow the Daleks to update
+	::g_pDalekManager->SetIsUpdatingOnAllDaleks(true);
 
 
 	// Main game or application loop
@@ -574,6 +597,25 @@ int main(void)
 //			<< state.position.x << ", " 
 //			<< state.position.y << ", " 
 //			<< state.position.z << std::endl;
+
+		// ************************************************************
+//		mapDalekID_to_GameObject;
+//			virtual bool getDalekPositionsAtIndexRange( unsigned int startIndex, unsigned int endIndex, 
+//									             );
+		::g_pDalekManager->getDalekPositionsAtIndexRange( vecDalekPositions );
+		for ( unsigned int index = 0; index != vecDalekPositions.size(); index++ )
+		{
+			cPhysProps DalekPhysState;
+			cGameObject* pDalekGO = mapDalekID_to_GameObject[index];
+			pDalekGO->GetPhysState( DalekPhysState );
+			DalekPhysState.position = vecDalekPositions[index];
+			pDalekGO->SetPhysState( DalekPhysState );
+		}
+
+		// For lockless, swich buffers
+		::g_pDalekManager->SwitchBuffers();
+
+		// ************************************************************
 
 
 
@@ -622,61 +664,61 @@ int main(void)
 		// (Keep in mind that when the stencil is enabled, it's enabled for ALL frame buffers)
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
-		glEnable(GL_STENCIL_TEST);
-
-		// Always SUCCEED (the stencil test).
-		// Don't mask anything (0xFF means don't "mask")
-		// Write "ref" to buffer if succeeds.
-		// NOTE: 
-		// - Stencil is currently all zeros. 
-		// - Whatever we draw will be written to the stencil as a value of 1
-		// - The mask of 0xFF (1111 1111) means nothing will be masked (prevented)
-//		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
-		glStencilFunc(GL_GEQUAL, 1, 0xFF);		// All 1s: 1111 1111
-		// Stencil will ALWAYS pass...
-		// Depth will pass, too (since this is the only thing we are drawing)
-		// If the Stencil AND the Depth PASS, then REPLACE the stencil value with the 
-		// ...value in the StencilFun(), which is the value 1, in this case
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilMask(0xFF);		// Control of writing to the buffer
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		// Render the doorway mask
-//	glDisable(GL_DEPTH_TEST);
-//	glDepthMask(GL_FALSE);
-
-		std::vector< cGameObject* > vecOnlyTheRoomMask;
-		vecOnlyTheRoomMask.push_back( ::g_RoomMaskForStencil);
-		RenderScene(vecOnlyTheRoomMask, ::g_pGLFWWindow, deltaTime );
-		// So, at this point the stencil buffer will be zero (0), except where we 
-		// ...drew the door mask object, where it will be one (1)
-
-
-		// 2. 
-		// Clear colour buffer ONLY
-		// Keep depth and stencil: 
-		//  - depth because we don't want to draw what's behind the mask
-		//  - stencil is untouched
-		//  - clear colour to "erase" the masking object.
-//		glClear(GL_COLOR_BUFFER_BIT );
-//		glClear(GL_DEPTH_BUFFER_BIT );
-
-		// Draw only the room
-		// Where it's 0, draw the room (where we DIDN'T draw the masking object)
-		// (Note the bit mask is 0xFF, meaning we aren't selecting a particular stencil)
-		glStencilFunc(GL_ALWAYS, 0, 0xFF);
-		// Stencil passes (always) - keep original
-		// AND Depth FAILS - Keep stencil (this is where the mask is IN FRONT OF portions of the room, like the far side)
-		// Stencil AND depth pass - REPLACE with a value of zero (meaning part of the room is IN FRONT OF the door mask)
-		// Parts of the room are in front of the door mask, but since the door mask was drawn 1st, the stencil
-		//	buffer will have 1s at those locations. These "in front of the mask" will now be set back to zeros.
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		// Draw ONLY the room
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//	glEnable(GL_DEPTH_TEST);
-//	glDepthMask(GL_TRUE);
-		std::vector< cGameObject* > vecOnlyTheRoom;
-		vecOnlyTheRoom.push_back( ::g_Room );
-		RenderScene( vecOnlyTheRoom, ::g_pGLFWWindow, deltaTime );
+//////////		glEnable(GL_STENCIL_TEST);
+//////////
+//////////		// Always SUCCEED (the stencil test).
+//////////		// Don't mask anything (0xFF means don't "mask")
+//////////		// Write "ref" to buffer if succeeds.
+//////////		// NOTE: 
+//////////		// - Stencil is currently all zeros. 
+//////////		// - Whatever we draw will be written to the stencil as a value of 1
+//////////		// - The mask of 0xFF (1111 1111) means nothing will be masked (prevented)
+////////////		glStencilFunc(GL_ALWAYS, 1, 0xFF);		// All 1s: 1111 1111
+//////////		glStencilFunc(GL_GEQUAL, 1, 0xFF);		// All 1s: 1111 1111
+//////////		// Stencil will ALWAYS pass...
+//////////		// Depth will pass, too (since this is the only thing we are drawing)
+//////////		// If the Stencil AND the Depth PASS, then REPLACE the stencil value with the 
+//////////		// ...value in the StencilFun(), which is the value 1, in this case
+//////////		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+//////////		glStencilMask(0xFF);		// Control of writing to the buffer
+//////////		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+//////////		// Render the doorway mask
+////////////	glDisable(GL_DEPTH_TEST);
+////////////	glDepthMask(GL_FALSE);
+//////////
+//////////		std::vector< cGameObject* > vecOnlyTheRoomMask;
+//////////		vecOnlyTheRoomMask.push_back( ::g_RoomMaskForStencil);
+//////////		RenderScene(vecOnlyTheRoomMask, ::g_pGLFWWindow, deltaTime );
+//////////		// So, at this point the stencil buffer will be zero (0), except where we 
+//////////		// ...drew the door mask object, where it will be one (1)
+//////////
+//////////
+//////////		// 2. 
+//////////		// Clear colour buffer ONLY
+//////////		// Keep depth and stencil: 
+//////////		//  - depth because we don't want to draw what's behind the mask
+//////////		//  - stencil is untouched
+//////////		//  - clear colour to "erase" the masking object.
+////////////		glClear(GL_COLOR_BUFFER_BIT );
+////////////		glClear(GL_DEPTH_BUFFER_BIT );
+//////////
+//////////		// Draw only the room
+//////////		// Where it's 0, draw the room (where we DIDN'T draw the masking object)
+//////////		// (Note the bit mask is 0xFF, meaning we aren't selecting a particular stencil)
+//////////		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+//////////		// Stencil passes (always) - keep original
+//////////		// AND Depth FAILS - Keep stencil (this is where the mask is IN FRONT OF portions of the room, like the far side)
+//////////		// Stencil AND depth pass - REPLACE with a value of zero (meaning part of the room is IN FRONT OF the door mask)
+//////////		// Parts of the room are in front of the door mask, but since the door mask was drawn 1st, the stencil
+//////////		//	buffer will have 1s at those locations. These "in front of the mask" will now be set back to zeros.
+//////////		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+//////////		// Draw ONLY the room
+//////////		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+////////////	glEnable(GL_DEPTH_TEST);
+////////////	glDepthMask(GL_TRUE);
+//////////		std::vector< cGameObject* > vecOnlyTheRoom;
+//////////		vecOnlyTheRoom.push_back( ::g_Room );
+//////////		RenderScene( vecOnlyTheRoom, ::g_pGLFWWindow, deltaTime );
 
 
 		// 3. Draw the rest of the scene.
@@ -970,6 +1012,9 @@ int main(void)
 	// 
 	delete ::g_pShaderManager;
 	delete ::g_pVAOManager;
+
+
+	::g_pDalekManager->KillAllDaleks();
 
 //    exit(EXIT_SUCCESS);
 	return 0;

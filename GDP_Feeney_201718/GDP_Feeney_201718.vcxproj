@@ -171,7 +171,7 @@
     <ClCompile Include="cCamera_Manual.cpp" />
     <ClCompile Include="cDalek.cpp" />
     <ClCompile Include="DalekThreadedCommon.cpp" />
-    <ClCompile Include="Dalek_Threaded_01.cpp" />
+    <ClCompile Include="Dalek_Threaded_02.cpp" />
     <ClCompile Include="cDebugRenderer.cpp" />
     <ClCompile Include="cDebugRenderer_BuiltInShapes.cpp" />
     <ClCompile Include="cFBO.cpp" />
@@ -184,13 +184,9 @@
     <ClCompile Include="cShaderManager.cpp" />
     <ClCompile Include="cTriangle.cpp" />
     <ClCompile Include="cVAOMeshManager.cpp" />
-    <ClCompile Include="Dalek_Threaded__.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Dalek_Threaded_Classes__.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    <ClCompile Include="Dalek_Threaded_03.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Error\CErrorLog.cpp" />
     <ClCompile Include="Error\COpenGLError.cpp" />
@@ -259,11 +255,11 @@
     <ClInclude Include="cTriangle.h" />
     <ClInclude Include="cVAOMeshManager.h" />
     <ClInclude Include="DalekThreadedCommon.h" />
-    <ClInclude Include="Dalek_Threaded__.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    <ClInclude Include="Dalek_Threaded_03.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Dalek_Threaded_01.h" />
+    <ClInclude Include="Dalek_Threaded_02.h" />
     <ClInclude Include="Error\CErrorLog.h" />
     <ClInclude Include="Error\COpenGLError.h" />
     <ClInclude Include="iDalekManager.h" />

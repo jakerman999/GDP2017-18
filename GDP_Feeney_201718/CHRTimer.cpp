@@ -76,7 +76,7 @@ void CHRTimer::Reset(bool bStopTimerToo /*= false*/)
 	//this->m_fLongDurationMinutes = 0.0f;
 	//this->m_fLongDurationSeconds = 0.0f;
 	//this->m_dLongDurationTotalSeconds = 0.0;
-	this->ResetLongDuration();
+	//this->ResetLongDuration();
 	
 	if ( bStopTimerToo )
 	{

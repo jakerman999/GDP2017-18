@@ -91,6 +91,12 @@
     <Filter Include="Gem_Threaded_Dalek\Solution_01">
       <UniqueIdentifier>{2e0d0283-f979-4524-a720-a1bd85500940}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Gem_Threaded_Dalek\Solution_02">
+      <UniqueIdentifier>{23f60539-5027-4cfb-abd0-41f835abefb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gem_Threaded_Dalek\Solution_03">
+      <UniqueIdentifier>{7d65d645-deda-4343-9856-dca62883d93d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -261,17 +267,14 @@
     <ClCompile Include="cDalek.cpp">
       <Filter>Gem_Threaded_Dalek</Filter>
     </ClCompile>
-    <ClCompile Include="Dalek_Threaded__.cpp">
-      <Filter>Gem_Threaded_Dalek</Filter>
-    </ClCompile>
-    <ClCompile Include="Dalek_Threaded_Classes__.cpp">
-      <Filter>Gem_Threaded_Dalek</Filter>
-    </ClCompile>
-    <ClCompile Include="Dalek_Threaded_01.cpp">
-      <Filter>Gem_Threaded_Dalek\Solution_01</Filter>
-    </ClCompile>
     <ClCompile Include="DalekThreadedCommon.cpp">
       <Filter>Gem_Threaded_Dalek</Filter>
+    </ClCompile>
+    <ClCompile Include="Dalek_Threaded_03.cpp">
+      <Filter>Gem_Threaded_Dalek\Solution_03</Filter>
+    </ClCompile>
+    <ClCompile Include="Dalek_Threaded_02.cpp">
+      <Filter>Gem_Threaded_Dalek\Solution_02</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -455,14 +458,14 @@
     <ClInclude Include="iDalekManager.h">
       <Filter>Gem_Threaded_Dalek</Filter>
     </ClInclude>
-    <ClInclude Include="Dalek_Threaded__.h">
-      <Filter>Gem_Threaded_Dalek</Filter>
-    </ClInclude>
-    <ClInclude Include="Dalek_Threaded_01.h">
-      <Filter>Gem_Threaded_Dalek\Solution_01</Filter>
-    </ClInclude>
     <ClInclude Include="DalekThreadedCommon.h">
       <Filter>Gem_Threaded_Dalek</Filter>
+    </ClInclude>
+    <ClInclude Include="Dalek_Threaded_03.h">
+      <Filter>Gem_Threaded_Dalek\Solution_03</Filter>
+    </ClInclude>
+    <ClInclude Include="Dalek_Threaded_02.h">
+      <Filter>Gem_Threaded_Dalek\Solution_02</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

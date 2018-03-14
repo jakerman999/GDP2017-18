@@ -46,19 +46,21 @@ public:
 //		return;
 //	}
 	glm::vec3 velocity;
+	float maxVelocity;
 	glm::vec3 target;
 	float timeToMove;
 
-	float minTimeToMove;
-	float maxTimeToMove;
-	static const float DEFAULT_MIN_TIME_TO_MOVE;// = 1.0;
-	static const float DEFAULT_MAX_TIME_TO_MOVE;// = 5.0;
 	float minDistanceToMove;
 	float maxDistanceToMove;
 	static const float DEFAULT_MIN_DISTANCE_TO_MOVE;// = 1.0;
 	static const float DEFAULT_MAX_DISTANCE_TO_MOVE;// = 25.0;
 
+	// If false, thread exits
 	bool bIsAlive;
+
+	// If true, thread is alive, but not updating
+	// Starts as false
+	bool bIsUpdating;
 
 	void Update(void);
 

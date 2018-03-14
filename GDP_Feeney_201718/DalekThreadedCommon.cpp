@@ -3,14 +3,21 @@
 #include "cGameObject.h"
 #include "DalekThreadedCommon.h"
 
+#include "cDalek.h"
+
 cRandThreaded* g_pThreadedRandom = NULL;
 
-cGameObject* MakeDalekGameObject(glm::vec3 position)
+
+// NOTE: Should be aligned on 32 bit boundtry (see _aligned_malloc)
+extern int unsigned* g_pCS_per_fram_count = NULL;
+
+
+cGameObject* MakeDalekGameObject(glm::vec3 initPosition)
 {
 	cGameObject* pDalek = new cGameObject();
 	pDalek->friendlyName = "Big D";
 	cPhysicalProperties physState;
-	physState.position = glm::vec3(getRandInRange(-100, 100), 0.0, getRandInRange(-100, 100));
+	physState.position = initPosition;
 	physState.setOrientationEulerAngles(glm::vec3(0.0, 0.0, 0.0f));
 	pDalek->SetPhysState(physState);
 	sMeshDrawInfo meshInfo;
@@ -22,4 +29,29 @@ cGameObject* MakeDalekGameObject(glm::vec3 position)
 	pDalek->vecMeshes.push_back(meshInfo);
 
 	return pDalek;
+}
+
+// This is the actual threading function
+DWORD WINAPI DalekBrainThread(void* pInitialData)	// CreateThread() format
+{
+	cDalek* pDalek = (cDalek*)(pInitialData);
+
+	while ( pDalek->bIsAlive )
+	{
+		if ( pDalek->bIsUpdating )
+		{
+			// That's it: calls the Update on the object that we passed in...
+			pDalek->Update();
+
+			Sleep(1);
+		}
+		else
+		{	
+			// Sleep for a while...
+			// This is likely happening during the start up phase
+			Sleep(500);
+		}
+	}//while ( pDalek->bIsAlive )
+
+	return 0;
 }

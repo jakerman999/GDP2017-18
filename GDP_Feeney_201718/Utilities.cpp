@@ -17,6 +17,9 @@ cRandThreaded::cRandThreaded()
 {
 	InitializeCriticalSection( &(this->CS_bufferIndexLock) );
 
+	// Load initial list of random numbmers
+	this->m_LoadBufferWithRandoms();
+
 	return;
 }
 
@@ -36,8 +39,8 @@ double cRandThreaded::getNextRandDouble(void)
 	if ( this->lastReadIndex >= cRandThreaded::SIZEOFBUFFER )
 	{
 		this->m_LoadBufferWithRandoms();
+		this->lastReadIndex = 0;
 	}
-	this->lastReadIndex = 0;
 
 	double theRandomNumber = this->randDoubles[this->lastReadIndex];
 
