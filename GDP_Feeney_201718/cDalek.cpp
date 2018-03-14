@@ -34,7 +34,7 @@ cDalek::cDalek(unsigned int DalekID_or_Index)
 
 	this->bIsAlive = true;
 
-	this->bIsUpdating = true;
+	this->bIsUpdating = false;
 
 	float minDistanceToMove = cDalek::DEFAULT_MIN_DISTANCE_TO_MOVE;
 	float maxDistanceToMove = cDalek::DEFAULT_MAX_DISTANCE_TO_MOVE;
@@ -130,9 +130,10 @@ void cDalek::Update(void)
 
 		// This updates the Dalek's location in the central store of positions.
 		// (the one that is thread safe)
+
 		if ( this->m_pDalekManager )
 		{
-			this->m_pDalekManager->setDalekPositionAtIndex( this->m_DalekID_or_Index, this->position );
+				this->m_pDalekManager->setDalekPositionAtIndex( this->m_DalekID_or_Index, this->position );
 		}
 	}
 

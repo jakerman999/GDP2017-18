@@ -193,12 +193,12 @@ void cDalekManager03::m_setDalekPositionAtIndex_ALL_BUFFERS(unsigned int index, 
 
 
 // From iDalekManger
-bool cDalekManager03::getDalekPositionsAtIndexRange(std::vector<glm::vec3> &vecDalekPositions)
+bool cDalekManager03::getAllDalekPositions(std::vector<glm::vec3> &vecDalekPositions)
 {
 //	this->m_LockDalekData();
 	for ( unsigned int index = 0; index != this->m_NumberOfDaleks; index++ )
 	{
-		assert(index <= this->m_NumberOfDaleks);
+		//assert(index <= this->m_NumberOfDaleks);
 		vecDalekPositions[index] = this->m_vecDalekPosition[this->m_currentReadBufferID][index];
 	}
 	// Or...
@@ -208,6 +208,7 @@ bool cDalekManager03::getDalekPositionsAtIndexRange(std::vector<glm::vec3> &vecD
 	return true;
 }
 
+// Every frame (60 Hz, or 16 ms)
 void cDalekManager03::SwitchBuffers(void)
 {
 	unsigned int nextReadBufferIndex = this->m_calcNextBuffer(this->m_currentReadBufferID);

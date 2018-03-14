@@ -54,14 +54,14 @@ bool cDalekManager02::CreateDalekThread( cGameObject* pGameObject, cDalek* &pDal
 	this->m_vec_pDaleks[pDalek->getDalekID()] = pDalek;
 
 
-	pDalek->threadInfo.handle = CreateThread( 
+	pDalek->threadInfo.handle = CreateThread(	//_beginthreadex()
 	                NULL, // Attributes
 		            0,		// 0 = default stack size,
 //	                DalekBrainThread_01, 
 	                DalekBrainThread, 
-	                (void*)pDalek,
-	                0,			// 0 or CREATE_SUSPENDED, 
-	                &(pDalek->threadInfo.address) );
+	                (void*)pDalek,		// Parameters to pass to the thread function
+	                0,			// 0 or CREATE_SUSPENDED, ResumeThread()
+	                &(pDalek->threadInfo.address) );		// Or NULL
 //	DalekBrainThread_01
 	this->m_nextDalekID++;
 
@@ -136,24 +136,24 @@ bool cDalekManager02::setDalekPositionAtIndex(unsigned int index, glm::vec3 posi
 		return false;
 	}
 
-	this->m_LockDalekData();
+	this->m_LockDalekData();		// Enter Critical Section
 	this->m_vecDalekPosition[index] = position;
-	this->m_UnlockDalekData();
+	this->m_UnlockDalekData();		// Leave Critical Section
 
 	return true;
 }
 
 // From iDalekManger
-bool cDalekManager02::getDalekPositionsAtIndexRange(std::vector<glm::vec3> &vecDalekPositions)
+bool cDalekManager02::getAllDalekPositions(std::vector<glm::vec3> &vecDalekPositions)
 {
-	this->m_LockDalekData();
+	this->m_LockDalekData();		// Enter Critical Section
 	for ( unsigned int index = 0; index != this->m_NumberOfDaleks; index++ )
 	{
 		vecDalekPositions[index] = this->m_vecDalekPosition[index];
 	}
 	// Or...
 	//std::copy( this->m_vecDalekPosition.begin(), this->m_vecDalekPosition.end(), vecDalekPositions );
-	this->m_UnlockDalekData();
+	this->m_UnlockDalekData();		// Leave Critical Section
 
 	return true;
 }

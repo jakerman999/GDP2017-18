@@ -25,7 +25,7 @@ public:
 	// Called by each Dalek
 	virtual bool setDalekPositionAtIndex(unsigned int index, glm::vec3 position) = 0;
 	// Called by both Daleks and the game loop
-	virtual bool getDalekPositionsAtIndexRange(std::vector<glm::vec3> &vecDalekPositions) = 0;
+	virtual bool getAllDalekPositions(std::vector<glm::vec3> &vecDalekPositions) = 0;
 
 	// Helper function to check for locking. 
 	// Isn't used here, but can be used decide if we should attempt data access

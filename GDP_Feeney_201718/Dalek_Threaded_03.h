@@ -34,7 +34,7 @@ public:
 	virtual bool setDalekPositionAtIndex(unsigned int index, glm::vec3 position);
 	// Called by Daleks and the main render loop
 	// NOTE: Passed vector MUST be allocated BEFORE call
-	virtual bool getDalekPositionsAtIndexRange( std::vector<glm::vec3> &vecDalekPositions );
+	virtual bool getAllDalekPositions( std::vector<glm::vec3> &vecDalekPositions );
 
 	// Does nothing in this version as there are no locks...
 	virtual bool IsDataLocked(void)
@@ -64,7 +64,7 @@ private:
 //	bool m_bIsLocked;
 //	CRITICAL_SECTION m_cs_DalekDataLock;
 
-	static const unsigned int NUMBER_OF_BUFFERS = 4;
+	static const unsigned int NUMBER_OF_BUFFERS = 4;  // 12 x 2 : 11 frames behind
 	std::vector<glm::vec3> m_vecDalekPosition[NUMBER_OF_BUFFERS];
 	unsigned int m_currentReadBufferID;
 	unsigned int m_currentWriteBufferID;

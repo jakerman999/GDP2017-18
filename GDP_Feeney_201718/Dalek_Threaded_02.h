@@ -42,7 +42,7 @@ public:
 	virtual bool setDalekPositionAtIndex(unsigned int index, glm::vec3 position);
 	// Called by Daleks and the main render loop
 	// NOTE: Passed vector MUST be allocated BEFORE call
-	virtual bool getDalekPositionsAtIndexRange( std::vector<glm::vec3> &vecDalekPositions );
+	virtual bool getAllDalekPositions( std::vector<glm::vec3> &vecDalekPositions );
 
 	// Sets the bIsAlive to false, exiting the thread
 	virtual void KillAllDaleks(void);

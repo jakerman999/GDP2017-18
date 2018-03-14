@@ -46,8 +46,8 @@
 //**********
 
 //#include "Dalek_Threaded_01.h"
-#include "Dalek_Threaded_02.h"
-//#include "Dalek_Threaded_03.h"
+//#include "Dalek_Threaded_02.h"
+#include "Dalek_Threaded_03.h"
 #include "cDalek.h"
 iDalekManager* g_pDalekManager; 
 
@@ -279,11 +279,11 @@ int main(void)
 
 //***********************************************************
 //***********************************************************
-	const int NUMBER_OF_DALEKS = 50;
+	const int NUMBER_OF_DALEKS = 1000;
 
 //	::g_pDalekManager = new cDalekManager01();
-	::g_pDalekManager = new cDalekManager02();
-//	::g_pDalekManager = new cDalekManager03();
+//	::g_pDalekManager = new cDalekManager02();
+	::g_pDalekManager = new cDalekManager03();
 	::g_pDalekManager->Init(NUMBER_OF_DALEKS);
 
 	// Local array to point the Daleks
@@ -571,6 +571,12 @@ int main(void)
 	// Allow the Daleks to update
 	::g_pDalekManager->SetIsUpdatingOnAllDaleks(true);
 
+	// Could also:
+	// 1. Start the threads as CREATE_SUSPENDED
+	// 2. Then go through all the threads and call 
+	//    ResumeThread() on each one. 
+	// Never call SuspendThead
+
 
 	// Main game or application loop
 	while ( ! glfwWindowShouldClose(::g_pGLFWWindow) )
@@ -585,7 +591,7 @@ int main(void)
 		//::g_DeltaTime = deltaTime;
 //		::g_SetDeltaTime(deltaTime);
 //		DalekBrainThread(NULL);
-
+//
 //		// Copy the Dalek information to the actual game object
 //		cGameObject* pDalekGO = findObjectByFriendlyName("Big D", ::g_vecGameObjects);
 //		cPhysProps state;
@@ -597,12 +603,12 @@ int main(void)
 //			<< state.position.x << ", " 
 //			<< state.position.y << ", " 
 //			<< state.position.z << std::endl;
-
+//
 		// ************************************************************
 //		mapDalekID_to_GameObject;
 //			virtual bool getDalekPositionsAtIndexRange( unsigned int startIndex, unsigned int endIndex, 
 //									             );
-		::g_pDalekManager->getDalekPositionsAtIndexRange( vecDalekPositions );
+		::g_pDalekManager->getAllDalekPositions( vecDalekPositions );
 		for ( unsigned int index = 0; index != vecDalekPositions.size(); index++ )
 		{
 			cPhysProps DalekPhysState;

@@ -36,14 +36,15 @@ DWORD WINAPI DalekBrainThread(void* pInitialData)	// CreateThread() format
 {
 	cDalek* pDalek = (cDalek*)(pInitialData);
 
-	while ( pDalek->bIsAlive )
+	while ( pDalek->bIsAlive )	// 0 or non-zero
 	{
 		if ( pDalek->bIsUpdating )
 		{
 			// That's it: calls the Update on the object that we passed in...
+
 			pDalek->Update();
 
-			Sleep(1);
+			Sleep(1);		// 16 ms
 		}
 		else
 		{	

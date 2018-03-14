@@ -26,25 +26,32 @@ public:
 	void setDalkeManager( iDalekManager* pDM );
 	void setRandThreaded( cRandThreaded* pRT );
 
-	CRITICAL_SECTION CS_POSITION;
+//	CRITICAL_SECTION CS_POSITION;
 
 	glm::vec3 position;
-//	glm::vec3 getPosition()
-//	{
-//		glm::vec3 thePosition;
-//		EnterCriticalSection( CS_POSITION );
-//		thePosition = this->position;
-//		LeaveCriticalSection( CS_POSITION );
-//		return thePosition;
-//	}
-//
-//	void setPosition(glm::vec3 newPosition)
-//	{
-//		EnterCriticalSection( CS_POSITION );
-//		this->position = newPosition;
-//		LeaveCriticalSection( CS_POSITION );
-//		return;
-//	}
+
+//	static const unsigned int NUMBER_OF_BUFFERS = 4;
+//	glm::vec3 position[NUMBER_OF_BUFFERS];
+
+	unsigned int m_CurrentReadBufferID = 0;
+	unsigned int m_CurrentWriteBufferID = 2;
+
+	//glm::vec3 getPosition()
+	//{
+	//	glm::vec3 thePosition;
+	//	EnterCriticalSection( CS_POSITION );
+	//	thePosition = this->position;
+	//	LeaveCriticalSection( CS_POSITION );
+	//	return thePosition;
+	//}
+
+	//void setPosition(glm::vec3 newPosition)
+	//{
+	//	EnterCriticalSection( CS_POSITION );
+	//	this->position = newPosition;
+	//	LeaveCriticalSection( CS_POSITION );
+	//	return;
+	//}
 	glm::vec3 velocity;
 	float maxVelocity;
 	glm::vec3 target;
