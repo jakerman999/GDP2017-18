@@ -463,12 +463,17 @@ void main()
 		break;	// end of pass PASS_1_DEFERRED_RENDER_PASS (1)
 	
 	case 2:
-	
+		
 		// In this example, there is a single quad, that
 		//	is being drawn with the full, rendered buffer from the previous pass
-		FBOout_colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
-		FBOout_colour.a = 1.0f;
-	
+		// FBOout_colour.rgb = texture( fullRenderedImage2D, fUV_X2.xy ).rgb;
+		// FBOout_colour.a = 1.0f;
+		{
+			vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, gl_FragCoord.y / screenHeight );
+			FBOout_colour.rgb = texture( fullRenderedImage2D, textCoords.xy ).rgb;
+			FBOout_colour.a = 1.0f;
+		}
+		
 		break;	// end of pass PASS_2_FULL_SCREEN_EFFECT_PASS:
 	
 	}// switch (passNumber)
@@ -501,6 +506,7 @@ vec3 calcLightColour( in vec3 vecNormal,
 	if ( myLight[lightID].typeParams.y <  lightDistance )
 	{
 		return colour;
+		//return vec3(0.0, 1.0f, 0.0f);
 	}
 	
 	// The "normalized" vector to the light (don't care about distance, just direction)

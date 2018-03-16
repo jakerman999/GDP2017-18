@@ -163,7 +163,51 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 	if ( bClearColour )
 	{
 		glClearBufferfv(GL_COLOR, 0, &zero);
-//		glClearBufferfv(GL_COLOR, 1, &zero);
+		glClearBufferfv(GL_COLOR, 1, &zero);
+		glClearBufferfv(GL_COLOR, 2, &zero);
+	}
+	if ( bClearDepth )
+	{
+		glClearBufferfv(GL_DEPTH, 0, &one);
+	}
+	// If buffer is GL_STENCIL, drawbuffer must be zero, and value points to a 
+	//  single value to clear the stencil buffer to. Masking is performed in the 
+	//  same fashion as for glClearStencil. Only the *iv forms of these commands 
+	//  should be used to clear stencil buffers; be used to clear stencil buffers; 
+	//  other forms do not accept a buffer of GL_STENCIL.
+	
+	// 
+	glStencilMask(0xFF);
+
+	{	// Clear stencil
+		//GLint intZero = 0;
+		//glClearBufferiv(GL_STENCIL, 0, &intZero );
+		glClearBufferfi( GL_DEPTH_STENCIL, 
+						 0,		// Must be zero
+						 1.0f,	// Clear value for depth
+						 0 );	// Clear value for stencil
+	}
+
+	return;
+}
+
+void cFBO::clearBuffers(glm::vec4 clearColour, bool bClearColour /*=true*/, bool bClearDepth /*=true*/)
+
+{
+	glViewport(0, 0, this->width, this->height);
+	GLfloat	zero = 0.0f;
+	GLfloat one = 1.0f;
+
+	GLfloat GLclearColour[4];
+	GLclearColour[0] = clearColour.x;
+	GLclearColour[1] = clearColour.y;
+	GLclearColour[2] = clearColour.z;
+	GLclearColour[3] = clearColour.a;
+
+	if ( bClearColour )
+	{
+		glClearBufferfv(GL_COLOR, 0, &(GLclearColour[0]) );
+		glClearBufferfv(GL_COLOR, 1, &zero);
 		glClearBufferfv(GL_COLOR, 2, &zero);
 	}
 	if ( bClearDepth )

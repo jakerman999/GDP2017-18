@@ -182,7 +182,7 @@ float cLight::calcApproxDistFromAtten(float targetLightLevel, float accuracy )	/
 }
                                                       
 float cLight::calcApproxDistFromAtten(float targetLightLevel, float accuracy, 
-                                                 float infiniteDistance, unsigned int maxIterations /*= DEFAULTMAXITERATIONS = 50*/ )
+                                      float infiniteDistance, unsigned int maxIterations /*= DEFAULTMAXITERATIONS = 50*/ )
 {
 	// See if the accuracy being set it too big for the targetLightLevel, unless targetLightLevel is actually zero (0.0f)
 	// If it's actually zero, then adjusting the accuracy to a tenth of zero would give... wait for it...

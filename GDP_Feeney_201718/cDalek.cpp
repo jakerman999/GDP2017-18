@@ -96,9 +96,9 @@ void cDalek::Update(void)
 
 			this->velocity = glm::normalize(this->target) * this->maxVelocity;
 
-			std::cout << "Dalek " << this->m_DalekID_or_Index << " picking new path. ";
-			std::cout << "Time to move = " << this->timeToMove << std::endl;
-			std::cout.flush();
+//			std::cout << "Dalek " << this->m_DalekID_or_Index << " picking new path. ";
+//			std::cout << "Time to move = " << this->timeToMove << std::endl;
+//			std::cout.flush();
 
 		}//if ( this->m_pRand )
 

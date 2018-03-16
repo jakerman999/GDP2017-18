@@ -70,6 +70,9 @@ cGameObject* g_pSkyBoxObject = NULL;	// (theMain.cpp)
 // Remember to #include <vector>...
 std::vector< cGameObject* >  g_vecGameObjects;
 
+// Used for the light pass of the deferred rendering
+cGameObject* g_pLightSphere2Sided = NULL;
+
 cCamera* g_pTheCamera = NULL;
 
 
@@ -279,7 +282,7 @@ int main(void)
 
 //***********************************************************
 //***********************************************************
-	const int NUMBER_OF_DALEKS = 1000;
+	const int NUMBER_OF_DALEKS = 25;
 
 //	::g_pDalekManager = new cDalekManager01();
 //	::g_pDalekManager = new cDalekManager02();
@@ -578,6 +581,8 @@ int main(void)
 	// Never call SuspendThead
 
 
+	bool bHACK_RUN_ONCE_TO_SET_LIGHT = false;
+
 	// Main game or application loop
 	while ( ! glfwWindowShouldClose(::g_pGLFWWindow) )
     {
@@ -670,6 +675,8 @@ int main(void)
 		// (Keep in mind that when the stencil is enabled, it's enabled for ALL frame buffers)
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
+		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// Clear colour is BLACK
+
 //////////		glEnable(GL_STENCIL_TEST);
 //////////
 //////////		// Always SUCCEED (the stencil test).
@@ -745,7 +752,7 @@ int main(void)
 
 		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
 
-
+		// At this pointer EVERYTHING in the scene is rendered to the "G-Buffer"
 
 
 //// *********************************************************************************
@@ -849,12 +856,16 @@ int main(void)
 
 
 		// Render it again, but point the the FBO texture... 
-//		glBindFramebuffer(GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
-//		g_FBO_Pass2_Deferred.clearBuffers();
+		glBindFramebuffer(GL_FRAMEBUFFER, g_FBO_Pass2_Deferred.ID );
+		//g_FBO_Pass2_Deferred.clearBuffers();
+// ************************************
+		// SETS THE CLEAR SCREEN COLOUR TO RED (to show outline of light volume)
+		g_FBO_Pass2_Deferred.clearBuffers(glm::vec4(1.0f, 0.0, 0.0, 1.0f));
+// ************************************
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 		glDisable(GL_STENCIL_TEST);
 
 		::g_pShaderManager->useShaderProgram("mySexyShader");
@@ -910,15 +921,60 @@ int main(void)
 		GLint CROffset_LocID = glGetUniformLocation(sexyShaderID, "CAoffset" );
 		glUniform1f( CROffset_LocID, g_ChromaticAberrationOffset);
 
-		std::vector< cGameObject* >  vecCopy2ndPass;
+		std::vector< cGameObject* >  vecLightAccumulationPass;
 		// Push back a SINGLE quad or GIANT triangle that fills the entire screen
 		// Here we will use the skybox (as it fills the entire screen)
-		vecCopy2ndPass.push_back( ::g_pSkyBoxObject );
-
+		//vecLightAccumulationPass.push_back( ::g_pSkyBoxObject );
 //		cGameObject* pBunny = findObjectByFriendlyName("bugs", ::g_vecGameObjects);
 //		vecCopy2ndPass.push_back(pBunny);
+		
 
-		RenderScene(vecCopy2ndPass, ::g_pGLFWWindow, deltaTime );
+		// Use the distance calculation to determine how bit the light sphere
+		//	object is going to be to draw...
+
+		cLight &Light0 = ::g_pLightManager->vecLights[0];
+
+		// HACK: Sets the light location and attenuation once, then we can move it...
+		if ( ! bHACK_RUN_ONCE_TO_SET_LIGHT)
+		{
+			Light0.position = glm::vec3(0.0f, 100.0f, -180.0f);
+			Light0.attenuation.x = 0.0f;
+			Light0.attenuation.y = 0.00330822f;
+			Light0.attenuation.z = 0.00507976f;
+			bHACK_RUN_ONCE_TO_SET_LIGHT = true;
+		}
+		// This looks nice: 0, 100, -180 dist = 136.719atten: 0:0.00330822:0.00507976
+
+
+		float HowMuchLightIsEffectivelyDark = 0.01f;		// 1 percent?
+		float lightEffectDistance 
+			= Light0.calcApproxDistFromAtten(HowMuchLightIsEffectivelyDark,
+											 0.001f );		// Within 0.1 percent?
+
+		//  myLight[lightID].typeParams.y is lightDistance
+		Light0.typeParams.y = lightEffectDistance;
+
+		g_pLightSphere2Sided->vecMeshes[0].scale = lightEffectDistance;
+
+		// Set this sphere where the light is...
+		cPhysProps LightSpherePys = ::g_pLightSphere2Sided->GetPhysState();
+		LightSpherePys.position = ::g_pLightManager->vecLights[0].position;
+
+		::g_pLightSphere2Sided->SetPhysState(LightSpherePys);
+		std::cout 
+			<< Light0.position.x << ", "
+			<< Light0.position.y << ", "
+			<< Light0.position.z
+			<< " dist = " << lightEffectDistance 
+			<< "atten: " 
+			<< Light0.attenuation.x << ":"
+			<< Light0.attenuation.y << ":" 
+			<< Light0.attenuation.z << std::endl;
+
+		vecLightAccumulationPass.push_back(::g_pLightSphere2Sided);
+		//vecLightAccumulationPass.push_back(::g_pSkyBoxObject);
+	//	glUniform( WhichLightIsThisID );
+		RenderScene(vecLightAccumulationPass, ::g_pGLFWWindow, deltaTime );
 
 
 
@@ -954,33 +1010,32 @@ int main(void)
 
 		// Now the final pass (in this case, only rendering to a quad)
 		//RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS
-///////	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-///////
-///////	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-///////
-///////	::g_pShaderManager->useShaderProgram("mySexyShader");
-///////
-///////	glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
-///////
-///////	/// The "deferred pass" FBO has a colour texture with the entire rendered scene
-///////	/// (including lighting, etc.)
-///////	GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
-///////
-///////	/// Pick a texture unit... 
-///////	unsigned int pass2unit = 50;
-///////	glActiveTexture( GL_TEXTURE0 + pass2unit);
-///////	glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
-///////	glUniform1i(fullRenderedImage2D_LocID, pass2unit);
-///////
-///////
-///////	std::vector< cGameObject* >  vecCopySingleLonelyQuad;
-///////	/// Push back a SINGLE quad or GIANT triangle that fills the entire screen
-///////	vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
-///////
-///////	cGameObject* pTheShip = findObjectByFriendlyName( "NCC-1701", ::g_vecGameObjects );
-///////	vecCopySingleLonelyQuad.push_back( pTheShip );
-///////
-///////	RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+		::g_pShaderManager->useShaderProgram("mySexyShader");
+
+		glUniform1i(renderPassNumber_LocID, RENDER_PASS_2_FULL_SCREEN_EFFECT_PASS );
+
+		/// The "deferred pass" FBO has a colour texture with the entire rendered scene
+		/// (including lighting, etc.)
+		GLint fullRenderedImage2D_LocID = glGetUniformLocation(sexyShaderID, "fullRenderedImage2D");
+
+		/// Pick a texture unit... 
+		unsigned int pass2unit = 50;
+		glActiveTexture( GL_TEXTURE0 + pass2unit);
+		glBindTexture(GL_TEXTURE_2D, ::g_FBO_Pass2_Deferred.colourTexture_0_ID);
+		glUniform1i(fullRenderedImage2D_LocID, pass2unit);
+
+
+		std::vector< cGameObject* >  vecCopySingleLonelyQuad;
+		/// Push back a SINGLE quad or GIANT triangle that fills the entire screen
+//		vecCopySingleLonelyQuad.push_back( ::g_ExampleTexturedQuad );
+//		cGameObject* pTheShip = findObjectByFriendlyName( "NCC-1701", ::g_vecGameObjects );
+//		vecCopySingleLonelyQuad.push_back( pTheShip );
+		vecCopySingleLonelyQuad.push_back( ::g_pSkyBoxObject );
+		RenderScene(vecCopySingleLonelyQuad, ::g_pGLFWWindow, deltaTime);
 
 
 

@@ -12,6 +12,8 @@
 
 extern std::vector< cGameObject* >  g_vecGameObjects;
 extern cGameObject* g_pTheDebugSphere;
+// Used for the light pass of the deferred rendering
+extern cGameObject* g_pLightSphere2Sided;
 
 extern cGameObject* g_ExampleTexturedQuad;
 
@@ -443,19 +445,36 @@ void LoadModelsIntoScene(void)
 //		::g_vecGameObjects.push_back( pTempGO );
 //	}
 
+	// The object that will represent the Point light "sphere" area
+	// We want this to render BOTH front and back facing triangles.
+	// (Here, we have a sphere with BOTH front and back facing triangles, but we could 
+	//	also render with the CullFace set to CULL_NONE, etc.)
+	{
+		//cGameObject* pTempGO = new cGameObject();
+		::g_pLightSphere2Sided = new cGameObject();
+		cPhysicalProperties physState;
+		::g_pLightSphere2Sided->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+		meshInfo.scale = 1.0f;
+		meshInfo.debugDiffuseColour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		meshInfo.name = "SmoothSphere_2_Sided_xyz_n.ply";
+		meshInfo.vecMeshCubeMaps.push_back(sTextureBindBlendInfo("space", 1.0f));
+		meshInfo.bIsSkyBoxObject = true;
+		::g_pLightSphere2Sided->vecMeshes.push_back(meshInfo);
+	}
 
-//  // Add the debug sphere
-//  {// STARTOF: Add the debug sphere
-//  	::g_pTheDebugSphere = new cGameObject();
-//  	::g_pTheDebugSphere->scale = 1.0f;
-//  	::g_pTheDebugSphere->diffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
-//  	::g_pTheDebugSphere->meshName = "SphereRadius1";
-//  	::g_pTheDebugSphere->typeOfObject = eTypeOfObject::SPHERE;
-//  	::g_pTheDebugSphere->radius = 1.0f;	
-//  	::g_pTheDebugSphere->bIsUpdatedInPhysics = false;
-//  	// NOTE: I'm NOT adding it to the vector of objects
-//  	//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
-//  }// ENDOF: Add the debug sphere
+  //// Add the debug sphere
+  //{// STARTOF: Add the debug sphere
+  //	::g_pTheDebugSphere = new cGameObject();
+  //	::g_pTheDebugSphere->scale = 1.0f;
+  //	::g_pTheDebugSphere->diffuseColour = glm::vec4( 1.0f, 1.0f, 1.0f, 1.0f );
+  //	::g_pTheDebugSphere->meshName = "SphereRadius1";
+  //	::g_pTheDebugSphere->typeOfObject = eTypeOfObject::SPHERE;
+  //	::g_pTheDebugSphere->radius = 1.0f;	
+  //	::g_pTheDebugSphere->bIsUpdatedInPhysics = false;
+  //	// NOTE: I'm NOT adding it to the vector of objects
+  //	//::g_vecGameObjects.push_back( pTempGO );		// Fastest way to add
+  //}// ENDOF: Add the debug sphere
 
 
 	//// Add a whole bunch of spheres!

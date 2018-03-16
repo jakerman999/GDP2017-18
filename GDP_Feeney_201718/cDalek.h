@@ -88,6 +88,8 @@ private:
 	//	vector in the DalekManager. 
 	unsigned int m_DalekID_or_Index;
 
+	std::vector<glm::vec3> m_vecDalekPositions;
+
 };
 
 #endif

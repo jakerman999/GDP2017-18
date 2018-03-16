@@ -4,6 +4,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 class cFBO
 {
@@ -32,7 +33,10 @@ public:
 	// Calls shutdown(), then init()
 	bool reset(int width, int height, std::string &error);
 	
+	//Clears colour to 0, depth to 1, and stencil to 0
 	void clearBuffers(bool bClearColour = true, bool bClearDepth = true);
+	//Clears colour to RGBA, depth to 1, and stencil 0
+	void clearBuffers(glm::vec4 clearColour, bool bClearColour = true, bool bClearDepth = true);
 
 	void clearColourBuffer(int bufferindex);
 	void clearAllColourBuffers(void);

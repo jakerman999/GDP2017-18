@@ -97,6 +97,9 @@
     <Filter Include="Gem_Threaded_Dalek\Solution_03">
       <UniqueIdentifier>{7d65d645-deda-4343-9856-dca62883d93d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{6edc1eae-4cdb-46a5-8a92-74b9b61ba56e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
@@ -275,6 +278,9 @@
     </ClCompile>
     <ClCompile Include="Dalek_Threaded_02.cpp">
       <Filter>Gem_Threaded_Dalek\Solution_02</Filter>
+    </ClCompile>
+    <ClCompile Include="cInputHandler.cpp">
+      <Filter>Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -466,6 +472,9 @@
     </ClInclude>
     <ClInclude Include="Dalek_Threaded_02.h">
       <Filter>Gem_Threaded_Dalek\Solution_02</Filter>
+    </ClInclude>
+    <ClInclude Include="cInputHandler.h">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

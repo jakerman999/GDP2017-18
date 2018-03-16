@@ -220,7 +220,25 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 		std::cout << error << std::endl;
 	}
 
-
+	{	// 2 sided sphere
+		cMesh testMesh;
+		testMesh.name = "SmoothSphere_2_Sided_xyz_n.ply";
+		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshWithNormals( "SmoothSphere_2_Sided_xyz_n.ply", testMesh ) )
+		{ 
+			//std::cout << "Didn't load model" << std::endl;
+			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+		// NOTE the TRUE so that it keeps the mesh!!!
+		else if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID, true ) )
+		{
+			//std::cout << "Could not load mesh into VAO" << std::endl;
+			ssError << "Could not load mesh >" << testMesh.name << "< into VAO" << std::endl;
+			bAllGood = false;
+		}
+		// ***********************************************************************
+	}	
 	{
 		cMesh testMesh;
 		testMesh.name = "SmoothSphereRadius1";
