@@ -15,3 +15,5 @@ bool cAnimationState::sStateDetails::IncrementTime(bool bResetToZero /*=true*/)
 
 	return bDidWeReset;
 }
+
+// I'm bringing sexy back. yeah.
