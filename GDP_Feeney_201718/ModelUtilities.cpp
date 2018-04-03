@@ -202,7 +202,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	//	}
 	//	// ***********************************************************************
 
-	// Load the HIGH RES bunny...
+	// STARTOF: LOD Bunnies
 	if ( !Load3DModelHelper( "bun_zipper_res1_xyz_n_uv.ply", 
 	                         "bunny", 
 	                         shaderID, pVAOManager, pModelAssetLoader, true, 
@@ -210,28 +210,28 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	{
 		std::cout << error << std::endl;
 	}	
-	if ( !Load3DModelHelper( "bun_zipper_res2_xyz_n_uv.ply", 
+	if ( !Load3DModelHelper( "bun_zipper_res2_xyz_n_uv.ply",
 							 "bunny", 
 	                         shaderID, pVAOManager, pModelAssetLoader, true, 
-	                         250.0f /*LOD_MinDistFromCamera*/, error ) )
+	                         50.0f /*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}	
 	if ( !Load3DModelHelper( "bun_zipper_res3_xyz_n_uv.ply", 
 							 "bunny", 
 	                         shaderID, pVAOManager, pModelAssetLoader, true, 
-	                         500.0f /*LOD_MinDistFromCamera*/, error ) )
+	                         250 /*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}	
 	if ( !Load3DModelHelper( "bun_zipper_res4_xyz_n_uv.ply", 
 							 "bunny", 
 	                         shaderID, pVAOManager, pModelAssetLoader, true, 
-	                         1000.0f /*LOD_MinDistFromCamera*/, error ) )
+	                         500.0f /*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}	
-	// Load the HIGH RES bunny...
+	// ENDOF: LOD Bunnies
 	
 	
 	if ( !Load3DModelHelper( "dalek2005_xyz_uv_res_2.ply", 
@@ -265,6 +265,7 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 		}
 		// ***********************************************************************
 		// NOTE the TRUE so that it keeps the mesh!!!
+
 		else if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID, true ) )
 		{
 			//std::cout << "Could not load mesh into VAO" << std::endl;

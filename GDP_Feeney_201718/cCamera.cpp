@@ -36,6 +36,10 @@ glm::vec3 cCamera::getEyePosition(void)
 	return this->m_eye;
 }
 
+glm::vec3 cCamera::DEBUG_getTarget(void)
+{
+	return this->m_target;
+}
 
 // For following, etc. 
 void cCamera::updateTick(double deltaTime)

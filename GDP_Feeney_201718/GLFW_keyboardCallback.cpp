@@ -43,6 +43,9 @@ extern double g_CA_CountDown;// = 0.0f;
 
 	const float CAM_ACCELL_THRUST = 100.0f;
 
+
+
+
 	if ( isShiftKeyDown(mods, true)  )
 	{
 		switch (key)
@@ -168,9 +171,15 @@ extern double g_CA_CountDown;// = 0.0f;
 			break;
 
 		case GLFW_KEY_5:
+			::g_FrustumCullAngle -= 1.0f;	// Degrees? 
+			std::cout << "FrustumCullAngle = " << ::g_FrustumCullAngle << std::endl;
 			break;
 		case GLFW_KEY_6:
+			::g_FrustumCullAngle += 1.0f;	// Degrees? 
+			std::cout << "FrustumCullAngle = " << ::g_FrustumCullAngle << std::endl;
 			break;
+
+
 		case GLFW_KEY_7:
 			break;
 		case GLFW_KEY_8:

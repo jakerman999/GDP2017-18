@@ -227,10 +227,40 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO, glm::vec3 cameraEy
 		}
 	}
 
-	if ( pTheGO->friendlyName == "ReallyBigShip" )
-	{
-		std::cout << "it's the really big ship!" << std::endl;
+//	if ( pTheGO->friendlyName == "ReallyBigShip" )
+//	{
+//		std::cout << "it's the really big ship!" << std::endl;
+//	}
+
+
+//    ___            _                 ___     _ _    ___             _  __   
+//   | __| _ _  _ __| |_ _  _ _ __    / __|  _| | |  / / |__  __ _ __(_)_\ \  
+//   | _| '_| || (_-<  _| || | '  \  | (_| || | | | | || '_ \/ _` (_-< / _| | 
+//   |_||_|  \_,_/__/\__|\_,_|_|_|_|  \___\_,_|_|_| | ||_.__/\__,_/__/_\__| | 
+//                                                   \_\                 /_/  
+	//::g_FrustumCullAngle
+	// Based on the dot product between the object and the camera view vector,
+	//  draw (or don't draw) the object
+
+	glm::vec3 viewVector = ::g_pTheCamera->DEBUG_getTarget() - ::g_pTheCamera->getEyePosition();
+	//  Normalize this
+	viewVector = glm::normalize(viewVector);
+
+	glm::vec3 objectToCameraVector = pTheGO->getPosition() - ::g_pTheCamera->getEyePosition();
+	
+	objectToCameraVector = glm::normalize(objectToCameraVector);
+
+	// use the Power of Math:
+	float sexyDotProductOfMagic = glm::dot( viewVector, objectToCameraVector );
+
+	// What to do with this number?? 
+	if ( sexyDotProductOfMagic < glm::cos(glm::radians(::g_FrustumCullAngle)))
+	{	
+		// Outside of current frustum, so DON'T draw
+		return;
 	}
+
+
 
 	// Go through all meshes, drawing them
 	unsigned int numMeshes = (unsigned int)pTheGO->vecMeshes.size();

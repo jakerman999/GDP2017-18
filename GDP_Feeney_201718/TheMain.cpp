@@ -103,6 +103,12 @@ cGameObject* g_RoomMaskForStencil = NULL;
 
 
 
+// Used to do basic frustum culling along x-z plane 
+//	based on the direction the camera is facing
+float g_FrustumCullAngle = 45.0;	// Degrees? 
+
+
+
 #include "cFrameBuffer.h"
 
 bool g_IsWindowFullScreen = false;
@@ -961,15 +967,15 @@ int main(void)
 		LightSpherePys.position = ::g_pLightManager->vecLights[0].position;
 
 		::g_pLightSphere2Sided->SetPhysState(LightSpherePys);
-		std::cout 
-			<< Light0.position.x << ", "
-			<< Light0.position.y << ", "
-			<< Light0.position.z
-			<< " dist = " << lightEffectDistance 
-			<< "atten: " 
-			<< Light0.attenuation.x << ":"
-			<< Light0.attenuation.y << ":" 
-			<< Light0.attenuation.z << std::endl;
+		//std::cout 
+		//	<< Light0.position.x << ", "
+		//	<< Light0.position.y << ", "
+		//	<< Light0.position.z
+		//	<< " dist = " << lightEffectDistance 
+		//	<< "atten: " 
+		//	<< Light0.attenuation.x << ":"
+		//	<< Light0.attenuation.y << ":" 
+		//	<< Light0.attenuation.z << std::endl;
 
 //		vecLightAccumulationPass.push_back(::g_pLightSphere2Sided);
 		vecLightAccumulationPass.push_back(::g_pSkyBoxObject);

@@ -80,4 +80,9 @@ extern cGameObject* g_Room;						// in theMain.cpp
 extern cGameObject* g_RoomMaskForStencil;		// in theMain.cpp
 
 
+// Used to do basic frustum culling along x-z plane 
+//	based on the direction the camera is facing
+extern float g_FrustumCullAngle;
+
+
 #endif

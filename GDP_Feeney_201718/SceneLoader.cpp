@@ -47,8 +47,8 @@ void LoadModelsIntoScene(void)
 	//	}
 	//}
 
-	const float WORLDSIZE = 1000.0;
-	const unsigned int NUMBER_OF_BUNNIES = 50;
+	const float WORLDSIZE = 3000.0;
+	const unsigned int NUMBER_OF_BUNNIES = 50000;
 
 	for ( unsigned int count = 0; count != NUMBER_OF_BUNNIES; count++ )
 	{// LOD bunny

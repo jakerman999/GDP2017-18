@@ -469,12 +469,12 @@ bool cVAOMeshManager::lookupVAOFromName(std::string name, sVAOInfo &theVAOInfo,
 
 		// Assume the 1st mesh in the vector is the "best candidate"
 
-		sVAOInfo& bestVAOSoFar = it_vecVAO->second[0]; 
+		sVAOInfo bestVAOSoFar = it_vecVAO->second[0]; 
 		unsigned int numberOfVAOs = (unsigned int)it_vecVAO->second.size();
 		for ( unsigned int index = 1; index != numberOfVAOs; index++ )
 		{
 			// Get the next candidate VAO...
-			sVAOInfo& curTestVAO = it_vecVAO->second[index];
+			sVAOInfo curTestVAO = it_vecVAO->second[index];
 
 			// Is this mesh larger (number of triangles)?
 			if ( curTestVAO.numberOfTriangles > bestVAOSoFar.numberOfTriangles )
@@ -489,7 +489,7 @@ bool cVAOMeshManager::lookupVAOFromName(std::string name, sVAOInfo &theVAOInfo,
 		for ( unsigned int index = 0; index != numberOfVAOs; index++ )
 		{
 			// Get the next candidate VAO...
-			sVAOInfo& curTestVAO = it_vecVAO->second[index];
+			sVAOInfo curTestVAO = it_vecVAO->second[index];
 
 			// Are we far enough from the camera to use this? 
 			// (i.e. we only draw this mesh if we are AT LEAST this camera distance away)

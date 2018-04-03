@@ -32,6 +32,8 @@ public:
 	std::string getCameraModeString(void);
 
 	glm::vec3 getEyePosition(void);
+	// NOTE: this is unreliable as we might not be using this value...
+	glm::vec3 DEBUG_getTarget(void);
 
 	// These are used to simplify the interface for the programmer, 
 	//	breaking the various modes of the camera into groups

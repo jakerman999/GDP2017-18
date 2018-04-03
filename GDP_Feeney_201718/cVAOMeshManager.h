@@ -97,6 +97,7 @@ private:
 	// 1st is what I'm indexing by (i.e. type)
 	// 2nd is what I'm actually storing (the type)
 	// The vector stores MORE than one mesh IF there are LOD meshes here
+//	std::map< std::string, sVAOInfo > m_mapNameTo_vecVAO;
 	std::map< std::string, std::vector<sVAOInfo> > m_mapNameTo_vecVAO;
 	bool m_mapNameToVAO_Is_Locked;
 	CRITICAL_SECTION m_CS_mapNameToVAO;
