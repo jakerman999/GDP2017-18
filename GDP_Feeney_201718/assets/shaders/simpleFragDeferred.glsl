@@ -60,6 +60,15 @@ layout(std140) uniform NUB_perFrame
 	vec3 eyePosition;	// Camera position
 } perFramNUB;
 
+
+layout(std140) uniform NUB_perObjectSkyBox	//Type of NUB
+{
+	vec4 skyBoxColourRGBX;
+	// These are for RGB, if they are NON-zero, 
+	//  then change the colour from the above values
+	vec4 skyBoxColourBlend;
+} skyBoxAdjustmentNUBExample;
+
 /*****************************************************/
 struct sLightDesc {
 	vec4 position;
@@ -203,6 +212,31 @@ void main()
 			// Note we are using the normals of our skybox object
 			//	to determine the point on the inside of the box
 			vec4 skyRGBA = texture( texSampCube00, fVertNormal.xyz );
+			
+			
+//layout(std140) uniform NUB_perObjectSkyBox	//Type of NUB
+//{
+//	vec4 skyBoxColourRGBX;
+//	// These are for RGB, if they are NON-zero, 
+//	//  then change the colour from the above values
+//	vec4 skyBoxColourBlend;
+//} skyBoxAdjustmentNUBExample;
+			
+			// *********************************************************
+			// Taken from the NUB example
+			if ( skyBoxAdjustmentNUBExample.skyBoxColourBlend.r != 0.0f )
+			{	// Adjust the red colour of ths skybox
+				skyRGBA.r = skyBoxAdjustmentNUBExample.skyBoxColourRGBX.r;
+			}
+			if ( skyBoxAdjustmentNUBExample.skyBoxColourBlend.g != 0.0f )
+			{	// Adjust the red colour of ths skybox
+				skyRGBA.g = skyBoxAdjustmentNUBExample.skyBoxColourRGBX.g;
+			}
+			if ( skyBoxAdjustmentNUBExample.skyBoxColourBlend.b != 0.0f )
+			{	// Adjust the red colour of ths skybox
+				skyRGBA.b = skyBoxAdjustmentNUBExample.skyBoxColourRGBX.b;
+			}
+			// *********************************************************			
 			
 	//		fragColourOut.rgb += vec3(0.0f, 1.0f, 0.0f);
 	//		fragColourOut[0] = vec4(skyRGBA.rgb, 1.0f);		//gl_FragColor = skyRGBA;

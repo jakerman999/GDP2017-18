@@ -374,6 +374,10 @@ int main(void)
 								&name_length_written,
 								NUBName_1);
 
+	// Or you could do it this way, asking for the location...
+	GLuint NUB_perObjectSkyBox_LocID = 
+					glGetUniformBlockIndex(currentProgID, "NUB_perObjectSkyBox");
+
 //	NUB_lighting
 //	NUB_perFrame
 
@@ -383,8 +387,51 @@ int main(void)
 	glGenBuffers(1, &NUB_Buffer_0_ID);
 	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID );
 
+	//layout(std140) uniform NUB_perObjectSkyBox	//Type of NUB
+	//{
+	//	vec4 skyBoxColourRGBX;
+	//	vec4 skyBoxColourBlend;
+	//} skyBoxAdjustmentNUBExample;
+
+	struct sNUB_perObjectSkyBox	//Type of NUB
+	{
+		sNUB_perObjectSkyBox()
+		{
+			memset(this, 0, sizeof(sNUB_perObjectSkyBox));
+		}
+		glm::vec4 skyBoxColourRGBX;
+		glm::vec4 skyBoxColourBlend;
+	};
+
+	// This instance of the class is what you update, then 
+	// update the buffer (on the application side)
+	sNUB_perObjectSkyBox theNUM_C_side_for_NUB;
+
+	theNUM_C_side_for_NUB.skyBoxColourBlend.r = 1.0f;
+	theNUM_C_side_for_NUB.skyBoxColourRGBX.r = 1.0f;
+
+	GLuint NUB_for_skybox_binding_point = 1;
+
+	// Connect the NUB to the buffer binding point
+	glUniformBlockBinding(currentProgID,					// Shader ID
+						  NUB_perObjectSkyBox_LocID,		// NUB index (from shader)
+						  NUB_for_skybox_binding_point);	// Binding point
+
+	// Every time I update the NUB...
+	glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
+				 sizeof(sNUB_perObjectSkyBox),			// How many bytes are we copying
+				 (void*) &theNUM_C_side_for_NUB,		// From where are we copying
+				 GL_DYNAMIC_DRAW );						// How often are we copying
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 
+					 NUB_for_skybox_binding_point,
+					 NUB_Buffer_0_ID );					// buffer ID
+
+	glBindBuffer(0, 0);
+	//
 	glGenBuffers(1, &NUB_Buffer_1_ID);
 	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_1_ID);
+	glBindBuffer(0, 0);
 
 
 
@@ -597,6 +644,31 @@ int main(void)
 		double curTime = glfwGetTime();
 		double deltaTime =  curTime - lastTimeStep;
 		lastTimeStep = curTime;
+
+
+// *********************************************************
+//    _  _ _   _ ___                 _      _        
+//   | \| | | | | _ )  _  _ _ __  __| |__ _| |_ ___  
+//   | .` | |_| | _ \ | || | '_ \/ _` / _` |  _/ -_) 
+//   |_|\_|\___/|___/  \_,_| .__/\__,_\__,_|\__\___| 
+//                         |_|                       
+
+		// Instead of calling glUniform(), we update the "c-side" instance of the class...
+		theNUM_C_side_for_NUB.skyBoxColourRGBX.r = getRandInRange<float>(0.0f, 1.0f);
+
+		// ...then re-copy the entire thing up to the shader:
+		// Every time I update the NUB...
+		glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID);
+
+		glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
+					 sizeof(sNUB_perObjectSkyBox),			// How many bytes are we copying
+					 ( void* )&theNUM_C_side_for_NUB,		// From where are we copying
+					 GL_DYNAMIC_DRAW);						// How often are we copying
+
+		glBindBuffer(0,0);
+
+// *********************************************************
+
 
 		// Call the "thread" function
 		//::g_DeltaTime = deltaTime;
