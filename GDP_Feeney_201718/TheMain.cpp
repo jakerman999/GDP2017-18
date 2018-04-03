@@ -282,7 +282,7 @@ int main(void)
 
 //***********************************************************
 //***********************************************************
-	const int NUMBER_OF_DALEKS = 25;
+	const int NUMBER_OF_DALEKS = 1;
 
 //	::g_pDalekManager = new cDalekManager01();
 //	::g_pDalekManager = new cDalekManager02();
@@ -934,15 +934,15 @@ int main(void)
 
 		cLight &Light0 = ::g_pLightManager->vecLights[0];
 
-		// HACK: Sets the light location and attenuation once, then we can move it...
-		if ( ! bHACK_RUN_ONCE_TO_SET_LIGHT)
-		{
-			Light0.position = glm::vec3(0.0f, 100.0f, -180.0f);
-			Light0.attenuation.x = 0.0f;
-			Light0.attenuation.y = 0.00330822f;
-			Light0.attenuation.z = 0.00507976f;
-			bHACK_RUN_ONCE_TO_SET_LIGHT = true;
-		}
+		//// HACK: Sets the light location and attenuation once, then we can move it...
+		//if ( ! bHACK_RUN_ONCE_TO_SET_LIGHT)
+		//{
+		//	Light0.position = glm::vec3(0.0f, 100.0f, -180.0f);
+		//	Light0.attenuation.x = 0.0f;
+		//	Light0.attenuation.y = 0.00330822f;
+		//	Light0.attenuation.z = 0.00507976f;
+		//	bHACK_RUN_ONCE_TO_SET_LIGHT = true;
+		//}
 		// This looks nice: 0, 100, -180 dist = 136.719atten: 0:0.00330822:0.00507976
 
 
@@ -971,8 +971,8 @@ int main(void)
 			<< Light0.attenuation.y << ":" 
 			<< Light0.attenuation.z << std::endl;
 
-		vecLightAccumulationPass.push_back(::g_pLightSphere2Sided);
-		//vecLightAccumulationPass.push_back(::g_pSkyBoxObject);
+//		vecLightAccumulationPass.push_back(::g_pLightSphere2Sided);
+		vecLightAccumulationPass.push_back(::g_pSkyBoxObject);
 	//	glUniform( WhichLightIsThisID );
 		RenderScene(vecLightAccumulationPass, ::g_pGLFWWindow, deltaTime );
 

@@ -45,12 +45,13 @@ cGameObject* findObjectByUniqueID(unsigned int ID, std::vector<cGameObject*> &ve
 
 // Called by Load3DModelsIntoMeshManager() function
 bool Load3DModelHelper( std::string fileName, 
-					   std::string meshFriendlyName,
-					   int shaderID, 
-					   cVAOMeshManager* pVAOManager,
-					   cModelAssetLoader* pModelAssetLoader,
-					   bool bModelHasUVs, 
-					   std::string &error )
+                        std::string meshFriendlyName,
+                        int shaderID, 
+                        cVAOMeshManager* pVAOManager,
+                        cModelAssetLoader* pModelAssetLoader,
+                        bool bModelHasUVs, 
+						float LOD_MinDistFromCamera,
+                        std::string &error )
 {
 	bool bAllGood = true;
 
@@ -78,7 +79,8 @@ bool Load3DModelHelper( std::string fileName,
 
 	if ( bAllGood )
 	{
-			if (!pVAOManager->loadMeshIntoVAO(tempMesh, shaderID, true))
+		//if (!pVAOManager->loadMeshIntoVAO(tempMesh, shaderID, true))
+		if (!pVAOManager->loadMeshIntoVAO(tempMesh, shaderID, LOD_MinDistFromCamera, true))
 		{
 			ssError << "Could not load mesh >" << tempMesh.name << "< into VAO" << std::endl;
 			bAllGood = false;
@@ -200,22 +202,54 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 	//	}
 	//	// ***********************************************************************
 
+	// Load the HIGH RES bunny...
+	if ( !Load3DModelHelper( "bun_zipper_res1_xyz_n_uv.ply", 
+	                         "bunny", 
+	                         shaderID, pVAOManager, pModelAssetLoader, true, 
+	                         0.0f /*LOD_MinDistFromCamera*/, error ) )
+	{
+		std::cout << error << std::endl;
+	}	
+	if ( !Load3DModelHelper( "bun_zipper_res2_xyz_n_uv.ply", 
+							 "bunny", 
+	                         shaderID, pVAOManager, pModelAssetLoader, true, 
+	                         250.0f /*LOD_MinDistFromCamera*/, error ) )
+	{
+		std::cout << error << std::endl;
+	}	
+	if ( !Load3DModelHelper( "bun_zipper_res3_xyz_n_uv.ply", 
+							 "bunny", 
+	                         shaderID, pVAOManager, pModelAssetLoader, true, 
+	                         500.0f /*LOD_MinDistFromCamera*/, error ) )
+	{
+		std::cout << error << std::endl;
+	}	
+	if ( !Load3DModelHelper( "bun_zipper_res4_xyz_n_uv.ply", 
+							 "bunny", 
+	                         shaderID, pVAOManager, pModelAssetLoader, true, 
+	                         1000.0f /*LOD_MinDistFromCamera*/, error ) )
+	{
+		std::cout << error << std::endl;
+	}	
+	// Load the HIGH RES bunny...
+	
+	
 	if ( !Load3DModelHelper( "dalek2005_xyz_uv_res_2.ply", 
 							 "dalek2005_xyz_uv_res_2.ply", 
-							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
+							 shaderID, pVAOManager, pModelAssetLoader, true, 0.0f/*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}
 	
 	if ( !Load3DModelHelper( "Just_Inside_Door_Frame_for_Masking.ply", 
 							 "Just_Inside_Door_Frame_for_Masking.ply", 
-							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
+							 shaderID, pVAOManager, pModelAssetLoader, true, 0.0f/*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}
 	if ( !Load3DModelHelper( "Room_2_Bigger_Triangulated.ply", 
 							 "Room_2_Bigger_Triangulated.ply", 
-							 shaderID, pVAOManager, pModelAssetLoader, true, error ) )
+							 shaderID, pVAOManager, pModelAssetLoader, true, 0.0f/*LOD_MinDistFromCamera*/, error ) )
 	{
 		std::cout << error << std::endl;
 	}
@@ -314,22 +348,22 @@ bool Load3DModelsIntoMeshManager( int shaderID,
 		}
 	}
 
-	{
-		cMesh testMesh;
-		testMesh.name = "bunny";
-		if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "bun_zipper_res2_xyz.ply", testMesh ) )
-		{ 
-			//std::cout << "Didn't load model" << std::endl;
-			ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
-			bAllGood = false;
-		}
-		else if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID ) )
-		{
-			//std::cout << "Could not load mesh into VAO" << std::endl;
-			ssError << "Could not load mesh >" << testMesh.name << "< into VAO" << std::endl;
-			bAllGood = false;
-		}
-	}
+	//{
+	//	cMesh testMesh;
+	//	testMesh.name = "bunny";
+	//	if ( ! pModelAssetLoader->LoadPlyFileIntoMeshXYZOnly( "bun_zipper_res2_xyz.ply", testMesh ) )
+	//	{ 
+	//		//std::cout << "Didn't load model" << std::endl;
+	//		ssError << "Didn't load model >" << testMesh.name << "<" << std::endl;
+	//		bAllGood = false;
+	//	}
+	//	else if ( ! pVAOManager->loadMeshIntoVAO( testMesh, shaderID ) )
+	//	{
+	//		//std::cout << "Could not load mesh into VAO" << std::endl;
+	//		ssError << "Could not load mesh >" << testMesh.name << "< into VAO" << std::endl;
+	//		bAllGood = false;
+	//	}
+	//}
 	{
 		cMesh testMesh;
 		testMesh.name = "teapot";

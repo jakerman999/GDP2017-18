@@ -41,7 +41,17 @@ cVAOMeshManager::~cVAOMeshManager()
 	return;
 }
 
-bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepMesh /*=false*/)
+// No LOD distance, so FLT_MAX is passed as distanceFromCameraLOD
+bool cVAOMeshManager::loadMeshIntoVAO(cMesh &theMesh, int shaderID, bool bKeepMesh /*=false*/)
+{
+	return this->loadMeshIntoVAO( theMesh, shaderID, 
+								  0.0f /*LOD_MinDistFromCamera*/, bKeepMesh );
+
+}
+
+
+bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, 
+									   float LOD_MinDistFromCamera, bool bKeepMesh /*=false*/)
 {
 // ******************************************************************************
 //__      __       _              ____         __  __          
@@ -292,7 +302,34 @@ bool cVAOMeshManager::loadMeshIntoVAO( cMesh &theMesh, int shaderID, bool bKeepM
 	// Store the VAO info by mesh name
 	this->Lock_mapNameToVAO();
 	//EnterCriticalSection( & this->m_CS_mapNameToVAO );
-	this->m_mapNameToVAO[ theMesh.name ] = theVAOInfo;
+
+	// Now, with LOD. 
+	theVAOInfo.LOD_MinDistanceToDraw = LOD_MinDistFromCamera;
+
+	// Check to see if this mesh name is already present...
+	std::map< std::string, std::vector<sVAOInfo> >::iterator it_vecVAO
+		= this->m_mapNameTo_vecVAO.find(theVAOInfo.friendlyName);
+
+	if ( it_vecVAO == this->m_mapNameTo_vecVAO.end() )
+	{	
+		// We DIDN'T find a mesh, so this is the 1st one to be added.
+		std::vector<sVAOInfo> vecVAOs;
+		vecVAOs.push_back(theVAOInfo);
+
+		// Add the VAOinfo
+		this->m_mapNameTo_vecVAO[theMesh.name] = vecVAOs;
+	}
+	else
+	{
+		// There ALREADY IS a mesh of this name, 
+		// so look up the vector of VAOs that's already there... 
+
+		it_vecVAO->second.push_back( theVAOInfo );
+
+	}//if (it_vecVAO...
+
+
+
 	//LeaveCriticalSection( & this->m_CS_mapNameToVAO );
 	this->UnLock_mapNameToVAO();
 
@@ -347,26 +384,137 @@ bool cVAOMeshManager::lookupMeshFromName(std::string name, cMesh &theMesh)
 	return true;
 }
 
-
-
+// Looks up the 1st mesh we find (i.e. IGNORES LOD)
 bool cVAOMeshManager::lookupVAOFromName( std::string name, sVAOInfo &theVAOInfo )
+{
+	// if we pass zero (0.0f), then return the CLOSEST distance value
+	return this->lookupVAOFromName( name, theVAOInfo, 0.0f );
+}
+
+// If we pass zero (0.0f), then we return the CLOSEST distance
+// (in other words, the HIGHEST resolution model - this is in cases
+//  where there ISN'T several LOD models loaded)
+bool cVAOMeshManager::lookupVAOFromName(std::string name, sVAOInfo &theVAOInfo,
+					   // Pass in a float indicating how far the object is... 
+					   float distanceFromCameraLOD)
 {
 	// look up in map for the name of the mesh we want to draw
 
 	 //	std::map< std::string, sVAOInfo > m_mapNameToVAO;
 	// "Interator" is a class that can access inside a container
 	this->Lock_mapNameToVAO();
-	std::map< std::string, sVAOInfo >::iterator itVAO = this->m_mapNameToVAO.find( name );
+//	std::map< std::string, sVAOInfo >::iterator itVAO = this->m_mapNameToVAO.find( name );
+
+	std::map< std::string, std::vector<sVAOInfo> >::iterator it_vecVAO 
+						= this->m_mapNameTo_vecVAO.find( name );
 
 	// Did I find something?
-	if ( itVAO == this->m_mapNameToVAO.end() )
-	{	// ON NO! we DIDN'T!
+	if (it_vecVAO == this->m_mapNameTo_vecVAO.end() )
+	{	
+		// There is no mesh with this name, so return false
 		this->UnLock_mapNameToVAO();
 		return false;
 	}
-	// DID find what we were looking for, so 
-	//	ISN'T pointing to the "end()" built-in iterator
-	theVAOInfo = itVAO->second;		// Because the "second" thing is the sVAO
+
+	// LOD (Level of Detail)
+	// 
+	// There  now could be more than one mesh stored by the "friendly name", for example:
+	// .. the friendy name = "bunny" has been loaded 4 times:
+	// - "bun_zipper_res1_xyz_n_uv.ply", LOD min distance = 0.0f
+	// - "bun_zipper_res2_xyz_n_uv.ply", LOD min distance = 25.0f
+	// - "bun_zipper_res3_xyz_n_uv.ply", LOD min distance = 50.0f
+	// - "bun_zipper_res4_xyz_n_uv.ply", LOD min distance = 100.0f
+
+	// But there are still models that have only one model. 
+	// In other words, they aren't using the LOD feature. 
+
+	// The sVAOInfo structure now has Min Distance From Camera float value. 
+	
+	// When looking up a mesh, we check to see if there is only 1 mesh
+	//  contained in the vector of sVAOInfo. 
+	// - If there's only 1, then we simply return it (i.e. NO LOD, like before)
+	// - If there is GT 1, then we need to determine which one is the "best" LOD mesh
+
+	
+	// Case 1: NOT using LOD, so there's only one mesh
+	if ( it_vecVAO->second.size() == 1 )
+	{
+		// There is only 1 mesh here, so we AREN'T using LOD, 
+		//  so simply "return" this one
+		theVAOInfo = it_vecVAO->second[0];		// second points to a "std::vector<sVAOInfo>" container
+	}
+	else
+	{
+		// Case 2: Are using LOD, so there are a number of mesh candidates. 
+		// Here's how we deal with this:
+		// - Initially find the largest mesh we have (the best quality), and 
+		//   make this the "best candidate"
+		// - Go through the remaining meshes comparing by:
+		//   - Is this candidate mesh "Min Camera Distance" OK? 
+		//     (i.e. is the actual camera distance GT the min camera distance?)
+		//   - IF TRUE, then see if:
+		//     - The Min LOD distance is GREATER THAN the current best ++OR++
+		//     - This mesh has FEWER +TRIANGLES+ than the current best candidate
+		//       - IF TRUE, then this is our new best candidate. 
+		//     (Note: We are using triangles, rather than vertices, as you could have two models
+		//      with the same number of vertices, but the one with more triangles takes londer to draw)
+
+		// NOTE: 
+		// - because we "just picked" the 1st mesh as our initial guess, even if 
+		//   ALL the other meshes fail, we have something to return (and draw)
+		// - We could sort them, but with a linear search through a set this small,
+		//   there's no point (linear searches with 20-ish values are going to be 
+		//   WAY faster than sorting, and - more importantly - we STILL have to 
+		//   do the two comparisons, anyway - so sorting is actually pointless. 
+
+		// Assume the 1st mesh in the vector is the "best candidate"
+
+		sVAOInfo& bestVAOSoFar = it_vecVAO->second[0]; 
+		unsigned int numberOfVAOs = (unsigned int)it_vecVAO->second.size();
+		for ( unsigned int index = 1; index != numberOfVAOs; index++ )
+		{
+			// Get the next candidate VAO...
+			sVAOInfo& curTestVAO = it_vecVAO->second[index];
+
+			// Is this mesh larger (number of triangles)?
+			if ( curTestVAO.numberOfTriangles > bestVAOSoFar.numberOfTriangles )
+			{
+				// Make this the best one
+				bestVAOSoFar = curTestVAO;
+			}
+		}
+
+		// Now go through and see if we should replace this with a lower LOD candidate, 
+		// based on camera distance 
+		for ( unsigned int index = 0; index != numberOfVAOs; index++ )
+		{
+			// Get the next candidate VAO...
+			sVAOInfo& curTestVAO = it_vecVAO->second[index];
+
+			// Are we far enough from the camera to use this? 
+			// (i.e. we only draw this mesh if we are AT LEAST this camera distance away)
+			if ( distanceFromCameraLOD > curTestVAO.LOD_MinDistanceToDraw )
+			{
+				// Yes, we are far enough away to draw this
+				// Is the LOD distance for this mesh GREATER THAN the best candidate?
+				// OR, would we draw FEWER triangles than the current best? 
+				if ( ( curTestVAO.LOD_MinDistanceToDraw > bestVAOSoFar.LOD_MinDistanceToDraw ) || 
+				     ( curTestVAO.numberOfTriangles < bestVAOSoFar.numberOfTriangles ) )
+				{
+					// Yes, so this is the better candidate
+					bestVAOSoFar = curTestVAO;
+				}
+
+			}// if ( distanceFromCameraLOD...
+
+		}// for ( unsigned int index...
+
+		// "return" the best candidate VAO
+		theVAOInfo = bestVAOSoFar;	
+
+	}// if ( it_vecVAO->second.size() == 1 )
+
+
 	this->UnLock_mapNameToVAO();
 
 	return true;

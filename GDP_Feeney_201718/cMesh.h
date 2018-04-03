@@ -20,6 +20,7 @@ public:
 	cMesh();
 	~cMesh();
 
+
 	std::string name;	// the friendly name of the mesh
 
 	// Array of vertices 

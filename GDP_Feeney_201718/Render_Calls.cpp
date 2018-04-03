@@ -23,11 +23,13 @@ extern cFBO g_FBO_Pass2_Deferred;
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
-void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO );
+//void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO );
+void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO, glm::vec3 cameraEyeLocationForLOD );
 
 // Draws one mesh in the game object. 
 // The game object is passed to get the orientation.
-void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO );
+//void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO );
+void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO, glm::vec3 cameraEyeLocationForLOD );
 
 
 
@@ -185,7 +187,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 			}
 	
 			// This is the top level vector, so they are all "parents" 
-			DrawObject( pTheGO, NULL );
+			DrawObject( pTheGO, NULL, ::g_pTheCamera->getEyePosition() );
 	
 		}//for ( int index = 0...
 	
@@ -207,7 +209,7 @@ void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow
 
 // Draw a single object
 // If pParentGO == NULL, then IT'S the parent
-void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
+void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO, glm::vec3 cameraEyeLocationForLOD )
 {
 	if (!pTheGO)
 	{	// Shouldn't happen, but if GO pointer is invlaid, return
@@ -221,7 +223,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 		unsigned int numChildGOs = (unsigned int)pTheGO->vec_pChildObjects.size();
 		for ( unsigned int index = 0; index != numChildGOs; index++ ) 
 		{
-			DrawObject( pTheGO->vec_pChildObjects[index], pTheGO );
+			DrawObject( pTheGO->vec_pChildObjects[index], pTheGO, cameraEyeLocationForLOD );
 		}
 	}
 
@@ -234,7 +236,7 @@ void DrawObject( cGameObject* pTheGO, cGameObject* pParentGO )
 	unsigned int numMeshes = (unsigned int)pTheGO->vecMeshes.size();
 	for ( unsigned int meshIndex = 0; meshIndex != numMeshes; meshIndex++ )
 	{
-		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO );
+		DrawMesh( pTheGO->vecMeshes[meshIndex], pTheGO, cameraEyeLocationForLOD );
 	}
 
 
@@ -257,7 +259,7 @@ namespace QnDTexureSamplerUtility
 
 // Draws one mesh in the game object. 
 // The game object is passed to get the orientation.
-void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
+void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO, glm::vec3 cameraEyeLocationForLOD )
 {
 	if ( ! theMesh.bIsVisible )
 	{
@@ -269,9 +271,12 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO )
 		int sexyBreakpoint = 0;
 	}
 
+	// Determine distance to camera from this object (we are using the game object location as reference)
+	float distanceToCamera = glm::distance( pTheGO->getPosition(), cameraEyeLocationForLOD );
 
 	sVAOInfo VAODrawInfo;
-	if ( ::g_pVAOManager->lookupVAOFromName( theMesh.name, VAODrawInfo ) == false )
+	//if ( ::g_pVAOManager->lookupVAOFromName( theMesh.name, VAODrawInfo ) == false )
+	if ( ::g_pVAOManager->lookupVAOFromName( theMesh.name, VAODrawInfo, distanceToCamera ) == false )
 	{	// Didn't find mesh
 		//std::cout << "WARNING: Didn't find mesh " << meshToDraw << " in VAO Manager" << std::endl;
 		return;

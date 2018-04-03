@@ -47,6 +47,30 @@ void LoadModelsIntoScene(void)
 	//	}
 	//}
 
+	const float WORLDSIZE = 1000.0;
+	const unsigned int NUMBER_OF_BUNNIES = 50;
+
+	for ( unsigned int count = 0; count != NUMBER_OF_BUNNIES; count++ )
+	{// LOD bunny
+		cGameObject* pLODBunny = new cGameObject();
+		pLODBunny->friendlyName = "Bunny";
+		cPhysicalProperties physState;
+		physState.position = glm::vec3( getRandInRange<float>( -WORLDSIZE, WORLDSIZE ), 
+									    0.0f,  
+									    getRandInRange<float>( -WORLDSIZE, WORLDSIZE ) );
+		physState.setOrientationEulerAngles(glm::vec3(0.0, 0.0, 0.0f));
+		pLODBunny->SetPhysState(physState);
+		sMeshDrawInfo meshInfo;
+//		meshInfo.name = "bun_zipper_res1_xyz_n_uv.ply";
+		meshInfo.name = "bunny";
+		meshInfo.scale = 100.0f;
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("GuysOnSharkUnicorn.bmp", 0.0f));
+		meshInfo.vecMehs2DTextures.push_back(sTextureBindBlendInfo("Utah_Teapot_xyz_n_uv_Enterprise.bmp", 1.0f));
+		pLODBunny->vecMeshes.push_back(meshInfo);
+		::g_vecGameObjects.push_back( pLODBunny );
+	} 
+
+
 	{// Room model (for stencil buffer example)
 		::g_Room = new cGameObject();
 		::g_Room->friendlyName = "Room";

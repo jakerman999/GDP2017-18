@@ -97,9 +97,6 @@
     <Filter Include="Gem_Threaded_Dalek\Solution_03">
       <UniqueIdentifier>{7d65d645-deda-4343-9856-dca62883d93d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NewFilter1">
-      <UniqueIdentifier>{6edc1eae-4cdb-46a5-8a92-74b9b61ba56e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TheMain.cpp">
