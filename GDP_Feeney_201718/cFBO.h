@@ -13,6 +13,7 @@ public:
 		ID(0), 
 		colourTexture_0_ID(0),
 		normalTexture_1_ID(1),
+		vertexWorldPos_2_ID(2),
 		depthTexture_ID(0), 
 		width(-1), height(-1) {};
 

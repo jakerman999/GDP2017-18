@@ -13,6 +13,9 @@ uniform bool isASkyBox;		// Same as the one in the fragments
 uniform sampler2D texHeightMap;			// Is Texture Unit 0 no matter WHAT! WHY???
 uniform bool bIsHeightMap;
 
+// Is true if this is being used as only a light shadow pass
+uniform bool bIsShadowPass; 
+
 
 // "Vertex" attribute (now use 'in')
 in vec4 vCol;		// attribute

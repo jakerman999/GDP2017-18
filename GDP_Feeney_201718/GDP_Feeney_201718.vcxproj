@@ -170,6 +170,7 @@
     <ClCompile Include="cCamera_Follow.cpp" />
     <ClCompile Include="cCamera_Manual.cpp" />
     <ClCompile Include="cDalek.cpp" />
+    <ClCompile Include="cFBO_Shadow.cpp" />
     <ClCompile Include="cInputHandler.cpp" />
     <ClCompile Include="DalekThreadedCommon.cpp" />
     <ClCompile Include="Dalek_Threaded_02.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="cDalek.h" />
     <ClInclude Include="cDebugRenderer.h" />
     <ClInclude Include="cFBO.h" />
+    <ClInclude Include="cFBO_Shadow.h" />
     <ClInclude Include="cFrameBuffer.h" />
     <ClInclude Include="cGameObject.h" />
     <ClInclude Include="CHRTimer.h" />

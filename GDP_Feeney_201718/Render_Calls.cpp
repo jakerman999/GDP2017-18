@@ -87,50 +87,55 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime )
 {
 
-		float ratio;
-		int width, height;
-		glm::mat4x4 matProjection;			// was "p"
-	
-		glfwGetFramebufferSize(pGLFWWindow, &width, &height);
-		ratio = width / (float) height;
-		glViewport(0, 0, width, height);
-	
-//		// Clear colour AND depth buffer
-//		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-		//glEnable(GL_DEPTH_TEST);
-	
-		//        glUseProgram(program);
-		::g_pShaderManager->useShaderProgram( "mySexyShader" );
-		GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
-	
-		// Update all the light uniforms...
-		// (for the whole scene)
-		::g_pLightManager->CopyLightInformationToCurrentShader();
-	
-		// Projection and view don't change per scene (maybe)
-		matProjection = glm::perspective( 0.6f,			// FOV
-											ratio,		// Aspect ratio
-											1.0f,		// Near (as big as possible)
-											10000.0f );	// Far (as small as possible)
-	
-	
-		// View or "camera" matrix
-		glm::mat4 matView = glm::mat4(1.0f);	// was "v"
-	
-		// Now the veiw matrix is taken right from the camera class
-		matView = ::g_pTheCamera->getViewMatrix();
-		//matView = glm::lookAt( g_cameraXYZ,						// "eye" or "camera" position
-		//					   g_cameraTarget_XYZ,		// "At" or "target" 
-		//					   glm::vec3( 0.0f, 1.0f, 0.0f ) );	// "up" vector
+	int viewportWidth = 0;
+	int viewportHeight = 0;
+	glfwGetFramebufferSize(::g_pGLFWWindow, &viewportWidth, &viewportHeight);
+	float aspectRatio = viewportWidth / ( float )viewportHeight;
 
-		GLint uniLoc_mView = glGetUniformLocation( curShaderID, "mView" );
-		GLint uniLoc_mProjection = glGetUniformLocation( curShaderID, "mProjection" );
+	::g_pShaderManager->useShaderProgram("mySexyShader");
+	GLint curShaderID = ::g_pShaderManager->getIDFromFriendlyName("mySexyShader");
+
+
+	// Projection and view don't change per scene (maybe)
+	glm::mat4x4 matProjection;			// was "p"
+	matProjection = glm::perspective(0.6f,			// FOV
+									 aspectRatio,		// Aspect ratio
+									 1.0f,		// Near (as big as possible)
+									 10000.0f);	// Far (as small as possible)
+												// View or "camera" matrix
+	glm::mat4 matView = glm::mat4(1.0f);	// was "v"
+
+											// Now the veiw matrix is taken right from the camera class
+	matView = ::g_pTheCamera->getViewMatrix();
+
+	RenderScene( vec_pGOs, matView, matProjection, curShaderID, 
+				 viewportWidth, viewportHeight, deltaTime );
+
+	return;
+}
+
+// Updated to allow for shadow map rendering
+void RenderScene(std::vector< cGameObject* > &vec_pGOs,
+				 glm::mat4 matView, glm::mat4 matProjection,
+				 GLint shaderID,
+				 int viewportWidth, int viewportHeight,
+				 double deltaTime)
+{
+		float aspectRatio = viewportWidth / ( float )viewportHeight;
+		glViewport(0, 0, viewportWidth, viewportHeight);
+
+		GLint uniLoc_mView = glGetUniformLocation(shaderID, "mView" );
+		GLint uniLoc_mProjection = glGetUniformLocation(shaderID, "mProjection" );
 
 		glUniformMatrix4fv( uniLoc_mView, 1, GL_FALSE, 
 							(const GLfloat*) glm::value_ptr(matView) );
 		glUniformMatrix4fv( uniLoc_mProjection, 1, GL_FALSE, 
 							(const GLfloat*) glm::value_ptr(matProjection) );
-	
+
+		// Update all the light uniforms...
+		// (for the whole scene)
+		::g_pLightManager->CopyLightInformationToCurrentShader();
+
 		// Set ALL texture units and binding for ENTIRE SCENE (is faster)
 		//{
 		//	// 0 

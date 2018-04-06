@@ -9,6 +9,8 @@
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+
 
 
 #include <stdlib.h>
@@ -39,6 +41,7 @@
 #include "cCamera.h"
 
 #include "cFBO.h" 
+#include "cFBO_Shadow.h"		// for shadow mapping
 
 //**********
 // BE a little careful of including this everywhere...
@@ -59,6 +62,12 @@ iDalekManager* g_pDalekManager;
 //    Copying from the Pass2_Deferred buffer to the final screen
 cFBO g_FBO_Pass1_G_Buffer;
 cFBO g_FBO_Pass2_Deferred;
+
+// We have a number of these, 1 per light that has shadows. 
+// NOTE: The shader only handles ONE light with shadow
+// (if you want more, you have to deal with the texture unit limit, or
+//  have one pass per light)
+cFBO_Shadow g_FBOShadows[NUMBER_OF_LIGHTS];
 
 
 void DrawDebugLightingSpheres(void);
@@ -444,7 +453,7 @@ int main(void)
 
 	::g_pLightManager = new cLightManager();
 
-	::g_pLightManager->CreateLights(10);	// There are 10 lights in the shader
+	::g_pLightManager->CreateLights(NUMBER_OF_LIGHTS);	// There are 10 lights in the shader
 
 	::g_pLightManager->vecLights[0].setLightParamType(cLight::POINT);		
 	::g_pLightManager->vecLights[0].position = glm::vec3(500.0f, 500.0f, 1000.0f);
@@ -596,6 +605,18 @@ int main(void)
 
 
 
+	if ( ! ::g_FBOShadows[0].init( 1920, 1090, error ) )
+	{
+		std::cout << "g_FBOShadows[0] generated error: " << error << std::endl;
+	}
+	else
+	{
+		std::cout << "FBO for Shadow is good." << std::endl;
+		std::cout << "\t::g_FBOShadows[0] ID = " << ::g_FBOShadows[0].ID << std::endl;
+		std::cout << "\tdepth texture ID = " << ::g_FBOShadows[0].depthTexture_ID << std::endl;
+		std::cout << "\tworld XYZ texture ID = " << ::g_FBOShadows[0].vertexWorldPos_ID << std::endl;
+	}
+
 
 	setWindowFullScreenOrWindowed( ::g_pGLFWWindow, ::g_IsWindowFullScreen );
 
@@ -654,7 +675,8 @@ int main(void)
 //                         |_|                       
 
 		// Instead of calling glUniform(), we update the "c-side" instance of the class...
-		theNUM_C_side_for_NUB.skyBoxColourRGBX.r = getRandInRange<float>(0.0f, 1.0f);
+//		theNUM_C_side_for_NUB.skyBoxColourRGBX.r = getRandInRange<float>(0.0f, 1.0f);
+		theNUM_C_side_for_NUB.skyBoxColourBlend.r = 0.0f;  
 
 		// ...then re-copy the entire thing up to the shader:
 		// Every time I update the NUB...
@@ -706,6 +728,7 @@ int main(void)
 
 		// ************************************************************
 
+		// ***********************************************************
 
 
 		::g_pPhysicsWorld->IntegrationStep(deltaTime);
@@ -723,6 +746,66 @@ int main(void)
 		skyBoxPP.position = ::g_pTheCamera->getEyePosition();
 		::g_pSkyBoxObject->SetPhysState(skyBoxPP);
 
+
+
+
+
+
+
+		//    ___ _            _              __  __              ___                             
+		//   / __| |_  __ _ __| |_____ __ __ |  \/  |__ _ _ __   / __|___ _ _    _ __  __ _ ______
+		//   \__ \ ' \/ _` / _` / _ \ V  V / | |\/| / _` | '_ \ | (_ / -_) ' \  | '_ \/ _` (_-<_-<
+		//   |___/_||_\__,_\__,_\___/\_/\_/  |_|  |_\__,_| .__/  \___\___|_||_| | .__/\__,_/__/__/
+		//                                               |_|                    |_|               
+		// inital light shadow pass
+		// - Draw scene from view location of light, rendering depth
+		// (and in our case, the world XYZ location)
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, ::g_FBOShadows[0].ID);
+		// Clear colour AND depth buffer
+		::g_FBOShadows[0].clearDepth();
+		::g_FBOShadows[0].clearWorldXYZ();
+
+		// Render the scene but from the perspective of the light
+		// ... to the shadow buffer 
+		// Typically, you only need the depth buffer, but we are 
+		//	also rendering the XYZ vertex coords to the vertWorldXYZ location buffer	
+		//		RenderScene(::g_vecGameObjects, ::g_pGLFWWindow, deltaTime);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		GLint bIsShadowPass_uniLoc = glGetUniformLocation(::g_pShaderManager->getCurrentShaderID(), "bIsShadowPass");
+		glUniform1f(bIsShadowPass_uniLoc, GL_TRUE);
+
+		cLight &Light0 = ::g_pLightManager->vecLights[0];
+
+		// Get the view projection FROM THE PERSPECTIVE OF THE LIGHT
+		glm::mat4 matLightView = glm::lookAt( Light0.position, 
+											 ::g_pTheCamera->DEBUG_getTarget(), 
+											 glm::vec3(0.0f, 1.0f, 0.0f) );
+
+		// Set the projection transform, as you'd like it from the light.
+		// If it's a point light (in this case), just pick something that "looks nice"
+		// Or, if it's sunlight, then you could make this an orthographic projection, I suppose.
+
+		// NOTE: The near and far should be as tight as possible to contain the scene, FROM 
+		//  THE PERSPECTIVE OF THE LIGHT. However, we are using a 32 bit depth, so it might 
+		//  not be a big issue. 
+
+		glm::mat4 matLightProjection = glm::perspective(
+		                                 0.6f,			// FOV
+										 ::g_FBOShadows[0].CalculateAspectRatio(),		// Aspect ratio
+										 1.0f,		// Near (as big as possible)
+										 10000.0f);	// Far (as small as possible)
+
+		RenderScene( ::g_vecGameObjects, 
+					 matLightView, matLightProjection, sexyShaderID, 
+					 ::g_FBOShadows[0].width, ::g_FBOShadows[0].height, 
+					 deltaTime );
+
+
+		glUniform1f(bIsShadowPass_uniLoc, GL_FALSE);
 
 
 //    ___                _             _           ___       _            __   __           
@@ -828,7 +911,12 @@ int main(void)
 					GL_KEEP,		// Depth fail
 					GL_KEEP);		// Stencil AND Depth PASS
 
-		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow, deltaTime );
+
+
+
+
+		RenderScene( ::g_vecGameObjects, ::g_pGLFWWindow,
+					 deltaTime );
 
 		// At this pointer EVERYTHING in the scene is rendered to the "G-Buffer"
 
@@ -953,11 +1041,11 @@ int main(void)
 		//uniform sampler2D texFBONormal2D;
 		//uniform sampler2D texFBOVertexWorldPos2D;
 
-		GLint texFBOColour2DTextureUnitID = 10;
+		GLint texFBOColour2DTextureUnitID = 50;
 		GLint texFBOColour2DLocID = glGetUniformLocation(sexyShaderID, "texFBOColour2D");
-		GLint texFBONormal2DTextureUnitID = 11;
+		GLint texFBONormal2DTextureUnitID = 51;
 		GLint texFBONormal2DLocID = glGetUniformLocation(sexyShaderID, "texFBONormal2D");
-		GLint texFBOWorldPosition2DTextureUnitID = 12;
+		GLint texFBOWorldPosition2DTextureUnitID = 52;
 		GLint texFBOWorldPosition2DLocID = glGetUniformLocation(sexyShaderID, "texFBOVertexWorldPos2D");
 
 		// Pick a texture unit... 
@@ -1010,7 +1098,7 @@ int main(void)
 		// Use the distance calculation to determine how bit the light sphere
 		//	object is going to be to draw...
 
-		cLight &Light0 = ::g_pLightManager->vecLights[0];
+		Light0 = ::g_pLightManager->vecLights[0];
 
 		//// HACK: Sets the light location and attenuation once, then we can move it...
 		//if ( ! bHACK_RUN_ONCE_TO_SET_LIGHT)
@@ -1048,6 +1136,57 @@ int main(void)
 		//	<< Light0.attenuation.x << ":"
 		//	<< Light0.attenuation.y << ":" 
 		//	<< Light0.attenuation.z << std::endl;
+
+
+		// *********************************************************************
+		{	// START OF: Add the information from the shadow pass
+			GLint bIsShadowPass_uniLoc = glGetUniformLocation(::g_pShaderManager->getCurrentShaderID(), "bIsShadowPass");
+
+			cLight &Light0 = ::g_pLightManager->vecLights[0];
+
+			// Get the view projection FROM THE PERSPECTIVE OF THE LIGHT
+			glm::mat4 matLightView = glm::lookAt(Light0.position,
+												 ::g_pTheCamera->DEBUG_getTarget(),
+												 glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+			glm::mat4 matLightProjection = glm::perspective(
+				0.6f,			// FOV
+				::g_FBOShadows[0].CalculateAspectRatio(),		// Aspect ratio
+				1.0f,		// Near (as big as possible)
+				10000.0f);	// Far (as small as possible)
+
+			glm::mat4 matMVPLight = glm::mat4(1.0f) * matLightView * matLightProjection;
+
+			GLint mMVPLightWithShadow_UniLoc = glGetUniformLocation( ::g_pShaderManager->getCurrentShaderID(), 
+																	 "mMVPLightWithShadow" );
+
+			// Set the model-view-projection FOR THE LIGHT in the shader
+			glUniformMatrix4fv( mMVPLightWithShadow_UniLoc, 1, GL_FALSE,
+			                    ( const GLfloat* )glm::value_ptr(matMVPLight));
+
+			
+			// Set the textures to be read from the FBO Shadow texture "shadow pass" rendered earlier
+
+			// Pick a texture unit for "uniform sampler2D lightFBOWorldXYZ;"
+			GLint texFBOShadow2DWorldXYZUnitID = 60;
+			GLint texFBOShadow2DWorldXYZLocID = glGetUniformLocation(sexyShaderID, "lightFBOWorldXYZ");
+			glActiveTexture(GL_TEXTURE0 + texFBOShadow2DWorldXYZUnitID);
+			glBindTexture(GL_TEXTURE_2D, ::g_FBOShadows[0].vertexWorldPos_ID);
+			glUniform1i(texFBOShadow2DWorldXYZLocID, texFBOShadow2DWorldXYZUnitID);
+
+			// Pick a texture unit for "uniform sampler2DShadow light2DShadowmap;"
+			GLint texFBOShadow2DDepthUnitID = 61;
+			GLint texFBOShadow2DDepthLocID = glGetUniformLocation(sexyShaderID, "light2DShadowmap");
+			glActiveTexture(GL_TEXTURE0 + texFBOShadow2DDepthUnitID);
+			glBindTexture(GL_TEXTURE_2D, ::g_FBOShadows[0].depthTexture_ID);
+			glUniform1i(texFBOShadow2DDepthLocID, texFBOShadow2DDepthUnitID);
+
+		}// ENDOF: Setting up the shadow pass
+		// *********************************************************************
+
+
+
 
 //		vecLightAccumulationPass.push_back(::g_pLightSphere2Sided);
 		vecLightAccumulationPass.push_back(::g_pSkyBoxObject);

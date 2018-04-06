@@ -193,6 +193,9 @@ public:
 	cShaderProgram* getShaderProgPointerFromID(unsigned int shaderID);
 	cShaderProgram* getShaderProgPointerFromFriendlyName( std::string friendlyName );
 
+	// Returns the last shader that you set, or 0 if none is set
+	GLint getCurrentShaderID(void);
+
 
 	// Loads uniforms, vertex attributes, and NUBs
 	bool LoadActiveShaderVariables(GLuint shaderID);
@@ -211,6 +214,8 @@ private:
 	bool m_wasThereALinkError( unsigned int progID, std::string &errorText );
 
 	std::string m_lastError;
+
+	GLint m_CurrentShaderID;
 
 	std::map< unsigned int /*ID*/, cShaderProgram > m_ID_to_Shader;
 	std::map< std::string /*name*/, unsigned int /*ID*/ > m_name_to_ID;

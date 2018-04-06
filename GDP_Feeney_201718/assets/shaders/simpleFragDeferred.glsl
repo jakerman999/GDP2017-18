@@ -11,7 +11,6 @@ in vec3 fTangent;		// For bump (or normal) mapping
 in vec3 fBitangent;		// For bump (or normal) mapping
 
 
-
 //uniform vec4 diffuseColour;		// New variable
 
 // gl_FragColor is deprecated after version 120
@@ -91,6 +90,15 @@ const int NUMBEROFLIGHTS = 100;
 //} lightingNUB;
 
 uniform sLightDesc myLight[NUMBEROFLIGHTS];
+
+// For shadow mapping: The number of lights with shadows
+uniform mat4 mMVPLightWithShadow;
+uniform sampler2D lightFBOWorldXYZ;
+uniform sampler2DShadow light2DShadowmap;
+
+// Is true if this is being used as only a light shadow pass
+uniform bool bIsShadowPass; 
+
 
 uniform int theLightId;
 
@@ -182,6 +190,18 @@ void main()
 	FBOout_vertexWorldPos = vec4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	// if ( bIsSecondPass )
+	
+	if ( bIsShadowPass )
+	{
+		// We only have a world xyz output and a depth output
+		FBOout_colour.xyz = fVecWorldPosition.xyz;		// HACK (for now)
+		FBOout_normal.xyz = fVecWorldPosition.xyz;		// HACK (for now) not sure why it's not writing to FBO
+		FBOout_vertexWorldPos.xyz = fVecWorldPosition.xyz;
+			
+		// The depth value is written automatically to the depth buffer
+	
+		return;
+	}
 	
 	switch (renderPassNumber)
 	{
@@ -491,6 +511,13 @@ void main()
 
 //		FBOout_colour.rgb *= 0.0001f;	// make "zero"
 //		FBOout_colour.rgb += ( outColour / float(count) );
+
+//		FBOout_colour.rgb *= 0.00001f;
+//		FBOout_colour.rgb += texture(lightFBOWorldXYZ, textCoords.xy ).rgb;
+				
+//		FBOout_colour.r += texture( light2DShadowmap, textCoords.xy ).r;
+//		FBOout_colour.g += texture( light2DShadowmap, textCoords.xy ).r;
+//		FBOout_colour.b += texture( light2DShadowmap, textCoords.xy ).r;
 			
 		// **************************************************************************		
 	

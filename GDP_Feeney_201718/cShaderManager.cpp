@@ -27,6 +27,9 @@ bool cShaderManager::useShaderProgram( unsigned int ID )
 {
 	// Use the number directy... 
 	// TODO: Might do a lookup to see if we really have that ID...
+
+	this->m_CurrentShaderID = ID;
+
 	glUseProgram(ID);
 	return true;
 }
@@ -41,10 +44,20 @@ bool cShaderManager::useShaderProgram( std::string friendlyName )
 		// Maybe set glUseProgram(0)....?
 		return false;
 	}
+
+	this->m_CurrentShaderID = itShad->second;
+
 	glUseProgram(itShad->second);
 
 	return true;
 }
+
+// Returns the last shader that you set, or 0 if none is set
+GLint cShaderManager::getCurrentShaderID(void)
+{
+	return this->m_CurrentShaderID;
+}
+
 
 unsigned int cShaderManager::getIDFromFriendlyName( std::string friendlyName )
 {

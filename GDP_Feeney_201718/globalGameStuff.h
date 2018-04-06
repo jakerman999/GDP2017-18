@@ -64,6 +64,13 @@ extern cDebugRenderer*			g_pDebugRenderer;	// (theMain.cpp)
 
 void RenderScene( std::vector< cGameObject* > &vec_pGOs, GLFWwindow* pGLFWWindow, double deltaTime );
 
+// Updated to allow for shadow map rendering.
+void RenderScene( std::vector< cGameObject* > &vec_pGOS,
+				  glm::mat4 matView, glm::mat4 matProjection, 
+				  GLint shaderID, 
+				  int viewPortWidth, int viewPortHeight, 
+				  double deltaTime );
+
 extern cGameObject* g_pSkyBoxObject;	// (theMain.cpp)
 
 extern	GLFWwindow* g_pGLFWWindow;	// In TheMain.cpp
@@ -83,6 +90,9 @@ extern cGameObject* g_RoomMaskForStencil;		// in theMain.cpp
 // Used to do basic frustum culling along x-z plane 
 //	based on the direction the camera is facing
 extern float g_FrustumCullAngle;
+
+
+#define NUMBER_OF_LIGHTS 10
 
 
 #endif

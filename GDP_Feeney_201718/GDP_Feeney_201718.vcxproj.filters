@@ -279,6 +279,9 @@
     <ClCompile Include="cInputHandler.cpp">
       <Filter>Input</Filter>
     </ClCompile>
+    <ClCompile Include="cFBO_Shadow.cpp">
+      <Filter>FrameBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cTriangle.h">
@@ -472,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="cInputHandler.h">
       <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="cFBO_Shadow.h">
+      <Filter>FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
