@@ -238,6 +238,7 @@
     <ClCompile Include="Utilities\CStringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assets\shaders\sNUB_skinnedMeshBones.h" />
     <ClInclude Include="assimp\cAssimpBasic.h" />
     <ClInclude Include="assimp\cAssimpBasic_Imp.h" />
     <ClInclude Include="assimp\cSimpleAssimpSkinnedMeshLoader_OneMesh.h" />
@@ -327,6 +328,7 @@
     <None Include="assets\shaders\simpleFrag.glsl" />
     <None Include="assets\shaders\simpleFragDeferred.glsl" />
     <None Include="assets\shaders\simpleVert.glsl" />
+    <None Include="assets\shaders\simpleVertBlendedSkinnedMesh.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

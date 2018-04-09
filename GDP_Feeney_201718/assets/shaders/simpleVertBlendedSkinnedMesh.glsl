@@ -36,6 +36,22 @@ uniform mat4 bones[MAXNUMBEROFBONES];
 uniform int numBonesUsed;			
 uniform bool bIsASkinnedMesh;	// True to do the skinned mesh
 
+layout (std140) uniform NUB_skinnedMeshBones
+{
+	mat4 bones_pose_0[MAXNUMBEROFBONES];
+	mat4 bones_pose_1[MAXNUMBEROFBONES];
+	//mat4 bones_pose_2[MAXNUMBEROFBONES];	
+	//mat4 bones_pose_3[MAXNUMBEROFBONES];
+	
+	// For std140: 
+	// "If the member is a scalar consuming N basic 
+	// "machine units, the base alignment is N."
+	float blendWeight_pose_0[MAXNUMBEROFBONES];
+	float blendWeight_pose_1[MAXNUMBEROFBONES];
+	//float blendWeight_pose_2[MAXNUMBEROFBONES];
+	//float blendWeight_pose_3[MAXNUMBEROFBONES];
+} blendedBones;
+
 
 out vec4 fColor;				// was: vec4
 out vec3 fVertNormal;		// Also in "world" (no view or projection)

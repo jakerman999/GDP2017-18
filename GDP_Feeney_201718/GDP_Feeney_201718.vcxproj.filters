@@ -479,6 +479,9 @@
     <ClInclude Include="cFBO_Shadow.h">
       <Filter>FrameBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="assets\shaders\sNUB_skinnedMeshBones.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\simpleVert.glsl">
@@ -501,6 +504,9 @@
     </None>
     <None Include="assets\shaders\debugVert.glsl">
       <Filter>Shaders\DebugShaders</Filter>
+    </None>
+    <None Include="assets\shaders\simpleVertBlendedSkinnedMesh.glsl">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

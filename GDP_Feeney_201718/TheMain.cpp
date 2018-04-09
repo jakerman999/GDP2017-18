@@ -46,6 +46,8 @@
 //**********
 // BE a little careful of including this everywhere...
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
+// The struct that matches the "blend bones" NUB in the simpleVertBlendedSkinnedMesh.glsl shader
+#include "assets/shaders/sNUB_skinnedMeshBones.h" 
 //**********
 
 //#include "Dalek_Threaded_01.h"
@@ -109,6 +111,9 @@ cGameObject* g_ExampleTexturedQuad = NULL;
 // For stencil buffer example...
 cGameObject* g_Room = NULL;
 cGameObject* g_RoomMaskForStencil = NULL;
+
+// For the blended skinned mesh example
+sNUB_skinnedMeshBones g_pNUBBufferBlendedSkinnedMeshNUBBuffer;
 
 
 
@@ -356,6 +361,12 @@ int main(void)
 
 
 
+	// *******************************************************************
+	//    ___ _            _          __   _   _  _ _   _ ___ 
+	//   / __| |_ __ _ _ _| |_   ___ / _| (_) | \| | | | | _ )
+	//   \__ \  _/ _` | '_|  _| / _ \  _|  _  | .` | |_| | _ \
+	//   |___/\__\__,_|_|  \__| \___/_|   (_) |_|\_|\___/|___/
+	//                                                        
 	// Named unifrom block
 	// Now many uniform blocks are there? 
 	GLint numberOfUniformBlocks = -1;
@@ -387,11 +398,18 @@ int main(void)
 	GLuint NUB_perObjectSkyBox_LocID = 
 					glGetUniformBlockIndex(currentProgID, "NUB_perObjectSkyBox");
 
+
 //	NUB_lighting
 //	NUB_perFrame
 
 	GLuint NUB_Buffer_0_ID = 0;
 	GLuint NUB_Buffer_1_ID = 0;
+	GLuint NUB_blended_bones = 0;		// For the blending skinned mesh
+
+	// NUBs are tied to a "binding point" (like textures)
+	GLuint NUB_binding_point_for_skybox = 1;
+	GLuint NUB_binding_point_for_blended_bones = 2;	// For the blending skinned mesh
+
 
 	glGenBuffers(1, &NUB_Buffer_0_ID);
 	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID );
@@ -419,12 +437,11 @@ int main(void)
 	theNUM_C_side_for_NUB.skyBoxColourBlend.r = 1.0f;
 	theNUM_C_side_for_NUB.skyBoxColourRGBX.r = 1.0f;
 
-	GLuint NUB_for_skybox_binding_point = 1;
 
 	// Connect the NUB to the buffer binding point
 	glUniformBlockBinding(currentProgID,					// Shader ID
 						  NUB_perObjectSkyBox_LocID,		// NUB index (from shader)
-						  NUB_for_skybox_binding_point);	// Binding point
+						  NUB_binding_point_for_skybox);	// Binding point
 
 	// Every time I update the NUB...
 	glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
@@ -433,7 +450,7 @@ int main(void)
 				 GL_DYNAMIC_DRAW );						// How often are we copying
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 
-					 NUB_for_skybox_binding_point,
+					 NUB_binding_point_for_skybox,
 					 NUB_Buffer_0_ID );					// buffer ID
 
 	glBindBuffer(0, 0);
@@ -442,7 +459,45 @@ int main(void)
 	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_1_ID);
 	glBindBuffer(0, 0);
 
+	//    _  _ _   _ ___   ___ _             _        _   ___ __  __ 
+	//   | \| | | | | _ ) | _ ) |___ _ _  __| |___ __| | / __|  \/  |
+	//   | .` | |_| | _ \ | _ \ / -_) ' \/ _` / -_) _` | \__ \ |\/| |
+	//   |_|\_|\___/|___/ |___/_\___|_||_\__,_\___\__,_| |___/_|  |_|
+	//                                                               
+	GLuint NUB_blended_bones_ID = 0;		// For the blending skinned mesh
 
+	glGenBuffers(1, &NUB_blended_bones_ID);
+	glBindBuffer(GL_UNIFORM_BUFFER, NUB_blended_bones_ID);
+
+	GLuint NUB_skinnedMeshBones_LocID =
+		glGetUniformBlockIndex(currentProgID, "NUB_skinnedMeshBones");
+
+	// Connect the NUB to the buffer binding point
+	glUniformBlockBinding(currentProgID,					// Shader ID
+						  NUB_skinnedMeshBones_LocID,		// NUB index (from shader)
+						  NUB_binding_point_for_blended_bones);	// Binding point
+
+	// Every time I update the NUB...
+	glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
+				 sizeof(sNUB_skinnedMeshBones),			// How many bytes are we copying
+				 (void*) &g_pNUBBufferBlendedSkinnedMeshNUBBuffer,		// From where are we copying
+				 GL_DYNAMIC_DRAW );						// How often are we copying
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 
+					 NUB_binding_point_for_blended_bones,
+					 NUB_blended_bones_ID);					// buffer ID
+
+	glBindBuffer(0, 0);
+	//
+
+	//    ___         _        __   _   _  _ _   _ ___ 
+	//   | __|_ _  __| |  ___ / _| (_) | \| | | | | _ )
+	//   | _|| ' \/ _` | / _ \  _|  _  | .` | |_| | _ \
+	//   |___|_||_\__,_| \___/_|   (_) |_|\_|\___/|___/
+	//                                                 
+	// *******************************************************************
+
+	// 
 
 
 	// Get the uniform locations for this shader
