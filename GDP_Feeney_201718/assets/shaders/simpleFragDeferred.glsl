@@ -59,7 +59,6 @@ layout(std140) uniform NUB_perFrame
 	vec3 eyePosition;	// Camera position
 } perFramNUB;
 
-
 layout(std140) uniform NUB_perObjectSkyBox	//Type of NUB
 {
 	vec4 skyBoxColourRGBX;
@@ -83,7 +82,7 @@ struct sLightDesc {
 						// y = distance cut-off
 	                    // z angle1, w = angle2		- only for spot
 };
-const int NUMBEROFLIGHTS = 100;
+const int NUMBEROFLIGHTS = 10;
 //layout (std140) uniform NUB_lighting
 //{
 //	sLightDesc myLights[NUMBEROFLIGHTS];

@@ -9,6 +9,9 @@
 // cSimpleAssimpSkinnedMesh class
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 
+#include "assets/shaders/sNUB_skinnedMeshBones.h"
+
+
 #include "cAnimationState.h"
 
 // HACK
@@ -291,6 +294,8 @@ namespace QnDTexureSamplerUtility
 };
 
 
+static float g_SexyAnimationBlendControl = 0.0f;
+static float g_SexyAnimationBlendControlChange = 0.0001f;
 
 // Draws one mesh in the game object. 
 // The game object is passed to get the orientation.
@@ -624,6 +629,32 @@ void DrawMesh( sMeshDrawInfo &theMesh, cGameObject* pTheGO, glm::vec3 cameraEyeL
 		glUniform1f( UniLoc_IsSkinnedMesh, GL_FALSE );
 	}
 
+	// This controls the overall blending from one pose to another 
+	GLint globalBlendWeight_Pose0_LocID = glGetUniformLocation(curShaderProgID, "globalBlendWeight_Pose0");
+	GLint globalBlendWeight_Pose1_LocID = glGetUniformLocation(curShaderProgID, "globalBlendWeight_Pose1");
+
+
+	glUniform1f(globalBlendWeight_Pose0_LocID, 1.0f);
+	glUniform1f(globalBlendWeight_Pose1_LocID, 0.0f);
+	//glUniform1f(globalBlendWeight_Pose0_LocID, g_SexyAnimationBlendControl );
+	//glUniform1f(globalBlendWeight_Pose1_LocID, 1.0f - g_SexyAnimationBlendControl );
+
+	::g_SexyAnimationBlendControl += ::g_SexyAnimationBlendControlChange;
+
+//	std::cout << ::g_SexyAnimationBlendControl << std::endl;
+
+	if ( ::g_SexyAnimationBlendControl >= 1.0f )
+	{
+		// Make the blending to backwards (towards pose 0)
+		::g_SexyAnimationBlendControlChange = -(fabs(::g_SexyAnimationBlendControlChange));
+	}
+	if ( ::g_SexyAnimationBlendControl <= 0.0f )
+	{
+		// Make the blending go forwards (towards pose 1)
+		::g_SexyAnimationBlendControlChange = (fabs(::g_SexyAnimationBlendControlChange));
+	}
+
+
 	// ***************************************************
 
 
@@ -943,75 +974,114 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 //		std::cout << pAniState->defaultAnimation.currentTime << std::endl;
 	}
 
+
 	// Set up the animation pose:
-	std::vector< glm::mat4x4 > vecFinalTransformation;	// Replaced by	theMesh.vecFinalTransformation
-//	std::vector< glm::mat4x4 > vecObjectBoneTransformation;
-	std::vector< glm::mat4x4 > vecOffsets;
+	std::vector< glm::mat4x4 > vecFinalTransformation_pose0;	// Replaced by	theMesh.vecFinalTransformation
+	std::vector< glm::mat4x4 > vecFinalTransformation_pose1;	// Replaced by	theMesh.vecFinalTransformation
+	std::vector< glm::mat4x4 > vecObjectBoneTransformation_pose0;
+	std::vector< glm::mat4x4 > vecObjectBoneTransformation_pose1;
+	std::vector< glm::mat4x4 > vecOffsets_pose0;
+	std::vector< glm::mat4x4 > vecOffsets_pose1;
 	// Final transformation is the bone transformation + boneOffsetPerVertex
 	// ObjectBoneTransformation (or "Global") is the final location of the bones
 	// vecOffsets is the relative offsets of the bones from each other
 
 
+	// TODO: For some reason, then 2nd animation bone vector 
+	// ISN'T being created correctly. 
+
 	pTheGO->pSimpleSkinnedMesh->BoneTransform( 
 	                                curFrameTime,
 									animationToPlay,		//**NEW**
-		                            vecFinalTransformation,		// Final bone transforms for mesh
-									theMesh.vecObjectBoneTransformation,  // final location of bones
-									vecOffsets );                 // local offset for each bone
+		                            vecFinalTransformation_pose1,		// Final bone transforms for mesh
+									vecObjectBoneTransformation_pose1, // theMesh.vecObjectBoneTransformation,  // final location of bones
+									vecOffsets_pose1 );                 // local offset for each bone
+	glm::mat4x4* pBoneMatrixArray_pose1 = &( vecFinalTransformation_pose1[0]);
 
-	unsigned int numberOfBonesUsed = static_cast< unsigned int >( vecFinalTransformation.size() );
+	pTheGO->pSimpleSkinnedMesh->BoneTransform( 
+	                                curFrameTime,
+									animationToPlay,		//**NEW**
+		                            vecFinalTransformation_pose0,		// Final bone transforms for mesh
+									vecObjectBoneTransformation_pose0, // theMesh.vecObjectBoneTransformation,  // final location of bones
+									vecOffsets_pose0 );                 // local offset for each bone
+	glm::mat4x4* pBoneMatrixArray_pose0 = &( vecFinalTransformation_pose0[0]);
+
+
+	unsigned int numberOfBonesUsed = static_cast< unsigned int >( vecFinalTransformation_pose0.size() );
 	glUniform1i( UniformLoc_numBonesUsed, numberOfBonesUsed );
 
-	glm::mat4x4* pBoneMatrixArray = &(vecFinalTransformation[0]);
+	{// STARTOF: Copy this into the NUB buffer (on the application side)
+		for ( unsigned int index = 0; index != numberOfBonesUsed; index++ )
+		{
+			::g_NUB_SkinnedMesh_info.NUB_Buffer.bones_pose_0[index] = pBoneMatrixArray_pose0[index];
+			::g_NUB_SkinnedMesh_info.NUB_Buffer.bones_pose_1[index] = pBoneMatrixArray_pose1[index];
+		}
+//		// Every time I update the NUB...
+		glBindBuffer(GL_UNIFORM_BUFFER, ::g_NUB_SkinnedMesh_info.buffer_ID);
+
+		glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
+					 sizeof(sNUB_skinnedMeshBones),			// How many bytes are we copying
+					 ( void* )&(::g_NUB_SkinnedMesh_info.NUB_Buffer),		// From where are we copying
+					 GL_DYNAMIC_DRAW);						// How often are we copying
+
+
+		glBindBufferBase(GL_UNIFORM_BUFFER,
+						 ::g_NUB_SkinnedMesh_info.binding_point,
+						 ::g_NUB_SkinnedMesh_info.buffer_ID);					// buffer ID
+
+		glBindBuffer(0, 0);
+	}// ENDOF: Copy this into the NUB buffer (on the application side)
+
+
 
 	// UniformLoc_bonesArray is the getUniformLoc of "bones[0]" from
 	//	uniform mat4 bones[MAXNUMBEROFBONES] 
 	// in the shader
-	glUniformMatrix4fv( UniformLoc_bonesArray, numberOfBonesUsed, GL_FALSE, 
-	                    (const GLfloat*) glm::value_ptr( *pBoneMatrixArray ) );
+//	glUniformMatrix4fv( UniformLoc_bonesArray, numberOfBonesUsed, GL_FALSE, 
+//	                    (const GLfloat*) glm::value_ptr( *pBoneMatrixArray ) );
 
 
-	// Update the extents of the skinned mesh from the bones...
-	//	sMeshDrawInfo.minXYZ_from_SM_Bones(glm::vec3(0.0f)), 
-	//  sMeshDrawInfo.maxXYZ_from_SM_Bones(glm::vec3(0.0f))
-	for ( unsigned int boneIndex = 0; boneIndex != numberOfBonesUsed; boneIndex++ )
-	{
-		glm::mat4 boneLocal = theMesh.vecObjectBoneTransformation[boneIndex];
-
-		float scale = theMesh.scale;
-		boneLocal = glm::scale( boneLocal, glm::vec3(scale, scale, scale) );
-
-		//cPhysicalProperties phyProps;
-		//pTheGO->GetPhysState( phyProps );
-		//glm::vec4 GameObjectLocalOriginLocation = glm::vec4( phyProps.position, 1.0f );
-
-		//glm::vec4 boneBallLocation = boneLocal * GameObjectLocalOriginLocation;
-		glm::vec4 boneBallLocation = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f );
-		boneBallLocation *= scale;
-
-		// Update the extents of the mesh
-		if ( boneIndex == 0 )
-		{	
-			// For the 0th bone, just assume this is the extent
-			theMesh.minXYZ_from_SM_Bones = glm::vec3(boneBallLocation);
-			theMesh.maxXYZ_from_SM_Bones = glm::vec3(boneBallLocation);
-		}
-		else
-		{	// It's NOT the 0th bone, so compare with current max and min
-			if ( theMesh.minXYZ_from_SM_Bones.x < boneBallLocation.x ) { theMesh.minXYZ_from_SM_Bones.x = boneBallLocation.x; }
-			if ( theMesh.minXYZ_from_SM_Bones.y < boneBallLocation.y ) { theMesh.minXYZ_from_SM_Bones.y = boneBallLocation.y; }
-			if ( theMesh.minXYZ_from_SM_Bones.z < boneBallLocation.z ) { theMesh.minXYZ_from_SM_Bones.z = boneBallLocation.z; }
-
-			if ( theMesh.maxXYZ_from_SM_Bones.x > boneBallLocation.x ) { theMesh.maxXYZ_from_SM_Bones.x = boneBallLocation.x; }
-			if ( theMesh.maxXYZ_from_SM_Bones.y > boneBallLocation.y ) 
-			{ 
-				theMesh.maxXYZ_from_SM_Bones.y = boneBallLocation.y;
-			}
-			if ( theMesh.maxXYZ_from_SM_Bones.z > boneBallLocation.z ) 
-			{ 
-				theMesh.maxXYZ_from_SM_Bones.z = boneBallLocation.z;
-			}
-		}//if ( boneIndex == 0 )
+//// Update the extents of the skinned mesh from the bones...
+////	sMeshDrawInfo.minXYZ_from_SM_Bones(glm::vec3(0.0f)), 
+////  sMeshDrawInfo.maxXYZ_from_SM_Bones(glm::vec3(0.0f))
+//for ( unsigned int boneIndex = 0; boneIndex != numberOfBonesUsed; boneIndex++ )
+//{
+//	glm::mat4 boneLocal = theMesh.vecObjectBoneTransformation[boneIndex];
+//
+//	float scale = theMesh.scale;
+//	boneLocal = glm::scale( boneLocal, glm::vec3(scale, scale, scale) );
+//
+//	//cPhysicalProperties phyProps;
+//	//pTheGO->GetPhysState( phyProps );
+//	//glm::vec4 GameObjectLocalOriginLocation = glm::vec4( phyProps.position, 1.0f );
+//
+//	//glm::vec4 boneBallLocation = boneLocal * GameObjectLocalOriginLocation;
+//	glm::vec4 boneBallLocation = boneLocal * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f );
+//	boneBallLocation *= scale;
+//
+//	// Update the extents of the mesh
+//	if ( boneIndex == 0 )
+//	{	
+//		// For the 0th bone, just assume this is the extent
+//		theMesh.minXYZ_from_SM_Bones = glm::vec3(boneBallLocation);
+//		theMesh.maxXYZ_from_SM_Bones = glm::vec3(boneBallLocation);
+//	}
+//	else
+//	{	// It's NOT the 0th bone, so compare with current max and min
+//		if ( theMesh.minXYZ_from_SM_Bones.x < boneBallLocation.x ) { theMesh.minXYZ_from_SM_Bones.x = boneBallLocation.x; }
+//		if ( theMesh.minXYZ_from_SM_Bones.y < boneBallLocation.y ) { theMesh.minXYZ_from_SM_Bones.y = boneBallLocation.y; }
+//		if ( theMesh.minXYZ_from_SM_Bones.z < boneBallLocation.z ) { theMesh.minXYZ_from_SM_Bones.z = boneBallLocation.z; }
+//
+//		if ( theMesh.maxXYZ_from_SM_Bones.x > boneBallLocation.x ) { theMesh.maxXYZ_from_SM_Bones.x = boneBallLocation.x; }
+//		if ( theMesh.maxXYZ_from_SM_Bones.y > boneBallLocation.y ) 
+//		{ 
+//			theMesh.maxXYZ_from_SM_Bones.y = boneBallLocation.y;
+//		}
+//		if ( theMesh.maxXYZ_from_SM_Bones.z > boneBallLocation.z ) 
+//		{ 
+//			theMesh.maxXYZ_from_SM_Bones.z = boneBallLocation.z;
+//		}
+//	}//if ( boneIndex == 0 )
 
 
 		//boneBallLocation += glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -1022,7 +1092,7 @@ void CalculateSkinnedMeshBonesAndLoad( sMeshDrawInfo &theMesh, cGameObject* pThe
 //		{
 //			DrawDebugBall( glm::vec3(boneBallLocation), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.5f );
 //		}
-	}
+//	}
 
 
 	//****************************************************************************************

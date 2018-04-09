@@ -31,10 +31,18 @@ in vec4 vBoneWeights_x4;	// IS OK. Note these are only used in the vertex shader
 
 // For skinned mesh
 const int MAXNUMBEROFBONES = 100;
-uniform mat4 bones[MAXNUMBEROFBONES];
+//uniform mat4 bones[MAXNUMBEROFBONES];
+
+
 // Not really sure why you are passing this "numBonesUsed"... 
 uniform int numBonesUsed;			
 uniform bool bIsASkinnedMesh;	// True to do the skinned mesh
+
+// True if we are using the NUB instead of the uniform array
+uniform bool bUseUniformBoneArray;
+
+uniform float globalBlendWeight_Pose0;
+uniform float globalBlendWeight_Pose1;
 
 layout (std140) uniform NUB_skinnedMeshBones
 {
@@ -51,6 +59,7 @@ layout (std140) uniform NUB_skinnedMeshBones
 	//float blendWeight_pose_2[MAXNUMBEROFBONES];
 	//float blendWeight_pose_3[MAXNUMBEROFBONES];
 } blendedBones;
+
 
 
 out vec4 fColor;				// was: vec4
@@ -120,9 +129,11 @@ void main()
 		fBitangent = vBitangent;
 
 	}//if ( ! bIsASkinnedMesh )
-
+	
 	if ( bIsASkinnedMesh )
 	{
+		mat4 BoneTransformFinal = mat4(1.0f);
+
 		// If a single bone... 
 //		mat4 BoneTransform = mat4(1.0f);
 //		BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];		
@@ -130,14 +141,71 @@ void main()
 //		BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
 //		BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
 
-		mat4 BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
-		BoneTransform += bones[ int(vBoneIDs_x4[1]) ] * vBoneWeights_x4[1];
-		BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
-		BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
-				
-	//	matrixWorld = BoneTransform * matrixWorld;
-	
-		vertPosition = BoneTransform * vertPosition;
+//		if ( bUseUniformBoneArray )
+//		{
+//			// use the "regular" uniform array for the skinned mesh:
+//			// uniform mat4 bones[MAXNUMBEROFBONES];
+//			
+//			mat4 BoneTransform = bones[ int(vBoneIDs_x4[0]) ] * vBoneWeights_x4[0];
+//			BoneTransform += bones[ int(vBoneIDs_x4[1]) ] * vBoneWeights_x4[1];
+//			BoneTransform += bones[ int(vBoneIDs_x4[2]) ] * vBoneWeights_x4[2];
+//			BoneTransform += bones[ int(vBoneIDs_x4[3]) ] * vBoneWeights_x4[3];
+//					
+//			//	matrixWorld = BoneTransform * matrixWorld;
+//			BoneTransformFinal = BoneTransform;
+//		}
+//		else
+		{
+//			// use the NUB "blending" block for the skinned mesh
+			// float blendWeight_pose_0[MAXNUMBEROFBONES];
+			// float blendWeight_pose_1[MAXNUMBEROFBONES];
+
+
+
+			mat4 Bone_pose_0 = blendedBones.bones_pose_0[ int(vBoneIDs_x4[0]) ]  
+			                                 * vBoneWeights_x4[0] 
+			                                 * blendedBones.blendWeight_pose_0[ int(vBoneIDs_x4[0]) ];
+											 
+			Bone_pose_0 += blendedBones.bones_pose_0[ int(vBoneIDs_x4[1]) ] 
+			                                 * vBoneWeights_x4[1] 
+											 * blendedBones.blendWeight_pose_0[ int(vBoneIDs_x4[1]) ];
+											 
+			Bone_pose_0 += blendedBones.bones_pose_0[ int(vBoneIDs_x4[2]) ] 
+			                                 * vBoneWeights_x4[2] 
+											 * blendedBones.blendWeight_pose_0[ int(vBoneIDs_x4[2]) ];
+											 
+			Bone_pose_0 += blendedBones.bones_pose_0[ int(vBoneIDs_x4[3]) ] 
+			                                 * vBoneWeights_x4[3]
+											 * blendedBones.blendWeight_pose_0[ int(vBoneIDs_x4[3]) ];
+					
+					
+			mat4 Bone_pose_1 = blendedBones.bones_pose_1[ int(vBoneIDs_x4[0]) ]  
+			                                 * vBoneWeights_x4[0] 
+			                                 * blendedBones.blendWeight_pose_1[ int(vBoneIDs_x4[0]) ];
+											 
+			Bone_pose_1 += blendedBones.bones_pose_1[ int(vBoneIDs_x4[1]) ] 
+			                                 * vBoneWeights_x4[1] 
+											 * blendedBones.blendWeight_pose_1[ int(vBoneIDs_x4[1]) ];
+											 
+			Bone_pose_1 += blendedBones.bones_pose_1[ int(vBoneIDs_x4[2]) ] 
+			                                 * vBoneWeights_x4[2] 
+											 * blendedBones.blendWeight_pose_1[ int(vBoneIDs_x4[2]) ];
+											 
+			Bone_pose_1 += blendedBones.bones_pose_1[ int(vBoneIDs_x4[3]) ] 
+			                                 * vBoneWeights_x4[3]
+											 * blendedBones.blendWeight_pose_1[ int(vBoneIDs_x4[3]) ];
+
+											 //			float pose0 = 0.5f;
+//			float pose1 = 0.5f;
+			
+			BoneTransformFinal = ( Bone_pose_0 * globalBlendWeight_Pose0 );// + 
+			                     ( Bone_pose_1 * globalBlendWeight_Pose1 );
+								 
+		}
+		
+		// Apply the bone transform to the vertex
+		
+		vertPosition = BoneTransformFinal * vertPosition;
 		
 		mat4 matMVP = mProjection * mView * mModel;		// m = p * v * m;
 		
@@ -151,7 +219,7 @@ void main()
 		//fVecWorldView = vec3(matMV * vertPosition).xyz;	
 		
 		// Inverse transform to keep ONLY rotation...
-		mat4 matNormal = inverse( transpose(BoneTransform * mModel) );
+		mat4 matNormal = inverse( transpose(BoneTransformFinal * mModel) );
 		//
 		fVertNormal = mat3(matNormal) * normalize(vNorm.xyz);
 		fTangent = 	mat3(matNormal) * normalize(vTangent.xyz);

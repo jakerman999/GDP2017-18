@@ -94,5 +94,18 @@ extern float g_FrustumCullAngle;
 
 #define NUMBER_OF_LIGHTS 10
 
+#include "assets/shaders/sNUB_skinnedMeshBones.h"
+
+struct sNUB_SkinnedMesh_Info
+{
+	// For the blended skinned mesh example
+	sNUB_skinnedMeshBones NUB_Buffer;
+	GLuint NUB_LocID;		// The uniform location in shader
+	GLuint buffer_ID;		// The buffer ID (for the app side buffer)
+	GLuint binding_point;	// For the blending skinned mesh
+
+};
+
+extern sNUB_SkinnedMesh_Info g_NUB_SkinnedMesh_info;
 
 #endif

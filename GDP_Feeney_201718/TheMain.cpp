@@ -47,7 +47,7 @@
 // BE a little careful of including this everywhere...
 #include "assimp/cSimpleAssimpSkinnedMeshLoader_OneMesh.h"
 // The struct that matches the "blend bones" NUB in the simpleVertBlendedSkinnedMesh.glsl shader
-#include "assets/shaders/sNUB_skinnedMeshBones.h" 
+sNUB_SkinnedMesh_Info g_NUB_SkinnedMesh_info;
 //**********
 
 //#include "Dalek_Threaded_01.h"
@@ -112,8 +112,7 @@ cGameObject* g_ExampleTexturedQuad = NULL;
 cGameObject* g_Room = NULL;
 cGameObject* g_RoomMaskForStencil = NULL;
 
-// For the blended skinned mesh example
-sNUB_skinnedMeshBones g_pNUBBufferBlendedSkinnedMeshNUBBuffer;
+
 
 
 
@@ -247,7 +246,8 @@ int main(void)
 	cShaderManager::cShader vertShader;
 	cShaderManager::cShader fragShader;
 
-	vertShader.fileName = "simpleVert.glsl";	
+	//vertShader.fileName = "simpleVert.glsl";	
+	vertShader.fileName = "simpleVertBlendedSkinnedMesh.glsl";	
 	//fragShader.fileName = "simpleFrag.glsl"; 
 	fragShader.fileName = "simpleFragDeferred.glsl"; 
 
@@ -372,6 +372,8 @@ int main(void)
 	GLint numberOfUniformBlocks = -1;
 	glGetProgramiv(currentProgID, GL_ACTIVE_UNIFORM_BLOCKS, &numberOfUniformBlocks);
 
+	//glGetProgram( GL_ACTIVE_UNIFORMS )
+
 	// https://www.opengl.org/wiki/GLAPI/glGetActiveUniformBlock
 
 	// Set aside some buffers for the names of the blocks
@@ -408,11 +410,8 @@ int main(void)
 
 	// NUBs are tied to a "binding point" (like textures)
 	GLuint NUB_binding_point_for_skybox = 1;
-	GLuint NUB_binding_point_for_blended_bones = 2;	// For the blending skinned mesh
+	::g_NUB_SkinnedMesh_info.binding_point = 2;
 
-
-	glGenBuffers(1, &NUB_Buffer_0_ID);
-	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID );
 
 	//layout(std140) uniform NUB_perObjectSkyBox	//Type of NUB
 	//{
@@ -437,6 +436,8 @@ int main(void)
 	theNUM_C_side_for_NUB.skyBoxColourBlend.r = 1.0f;
 	theNUM_C_side_for_NUB.skyBoxColourRGBX.r = 1.0f;
 
+	glGenBuffers(1, &NUB_Buffer_0_ID);
+	glBindBuffer(GL_UNIFORM_BUFFER, NUB_Buffer_0_ID );
 
 	// Connect the NUB to the buffer binding point
 	glUniformBlockBinding(currentProgID,					// Shader ID
@@ -464,28 +465,29 @@ int main(void)
 	//   | .` | |_| | _ \ | _ \ / -_) ' \/ _` / -_) _` | \__ \ |\/| |
 	//   |_|\_|\___/|___/ |___/_\___|_||_\__,_\___\__,_| |___/_|  |_|
 	//                                                               
-	GLuint NUB_blended_bones_ID = 0;		// For the blending skinned mesh
 
-	glGenBuffers(1, &NUB_blended_bones_ID);
-	glBindBuffer(GL_UNIFORM_BUFFER, NUB_blended_bones_ID);
-
-	GLuint NUB_skinnedMeshBones_LocID =
+	::g_NUB_SkinnedMesh_info.NUB_LocID = 
 		glGetUniformBlockIndex(currentProgID, "NUB_skinnedMeshBones");
+
+
+//	GLuint NUB_blended_bones_buffer_ID = 0;		// For the blending skinned mesh
+	glGenBuffers(1, &(::g_NUB_SkinnedMesh_info.buffer_ID) );
+	glBindBuffer(GL_UNIFORM_BUFFER, ::g_NUB_SkinnedMesh_info.buffer_ID);
 
 	// Connect the NUB to the buffer binding point
 	glUniformBlockBinding(currentProgID,					// Shader ID
-						  NUB_skinnedMeshBones_LocID,		// NUB index (from shader)
-						  NUB_binding_point_for_blended_bones);	// Binding point
+						  ::g_NUB_SkinnedMesh_info.NUB_LocID,		// NUB index (from shader)
+						  ::g_NUB_SkinnedMesh_info.binding_point);	// Binding point
 
 	// Every time I update the NUB...
 	glBufferData(GL_UNIFORM_BUFFER,						// It's a buffer (of bytes)
 				 sizeof(sNUB_skinnedMeshBones),			// How many bytes are we copying
-				 (void*) &g_pNUBBufferBlendedSkinnedMeshNUBBuffer,		// From where are we copying
+				 (void*) &(::g_NUB_SkinnedMesh_info.NUB_Buffer),		// From where are we copying
 				 GL_DYNAMIC_DRAW );						// How often are we copying
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 
-					 NUB_binding_point_for_blended_bones,
-					 NUB_blended_bones_ID);					// buffer ID
+					 ::g_NUB_SkinnedMesh_info.binding_point,
+					 ::g_NUB_SkinnedMesh_info.buffer_ID);					// buffer ID
 
 	glBindBuffer(0, 0);
 	//
@@ -497,6 +499,42 @@ int main(void)
 	//                                                 
 	// *******************************************************************
 
+	GLint bUseUniformBoneArray_LocID = glGetUniformLocation(currentProgID, "bUseUniformBoneArray");
+	glUniform1f(bUseUniformBoneArray_LocID, GL_FALSE );
+
+	// This controls the overall blending from one pose to another 
+	GLint globalBlendWeight_Pose0_LocID = glGetUniformLocation(currentProgID, "globalBlendWeight_Pose0" );
+	GLint globalBlendWeight_Pose1_LocID = glGetUniformLocation(currentProgID, "globalBlendWeight_Pose1" );
+
+	glUniform1f(globalBlendWeight_Pose0_LocID, 1.0f );
+	glUniform1f(globalBlendWeight_Pose1_LocID, 1.0f );
+
+
+	// Make the blended animation use pose 0 for ALL bones
+	for ( unsigned int index = 0; index != MAXNUMBEROFBONES; index++ )
+	{
+		::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[index] = 1.0f; 
+		::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[index] = 1.0f; 
+	}
+
+	// Isolate part of the mesh so that it's NOT using this pose
+	// These bone # are taken from the model.
+	// They are the lower part of the mesh (I looked for "Foot", "Thigh", etc.)
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[16] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[17] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[15] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[8] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[11] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[7] = 0.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_0[10] = 0.0f;
+
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[16] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[17] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[15] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[8] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[11] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[7] = 1.0f;
+	////::g_NUB_SkinnedMesh_info.NUB_Buffer.blendWeight_pose_1[10] = 1.0f;
 	// 
 
 
